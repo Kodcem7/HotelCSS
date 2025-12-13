@@ -11,7 +11,7 @@ namespace HotelCSS.Controllers
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
-        // yooooooo
+        // yooooooo2
 
         private readonly ILogger<WeatherForecastController> _logger;
 
