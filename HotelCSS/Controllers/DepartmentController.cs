@@ -10,9 +10,11 @@ namespace HotelCSS.Controllers
     public class DepartmentController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
-        public DepartmentController(IUnitOfWork unitOfWork)
+        private readonly IWebHostEnvironment _hostEnvironment;
+        public DepartmentController(IUnitOfWork unitOfWork , IWebHostEnvironment hostEnvironment)
         {
             _unitOfWork = unitOfWork;
+            _hostEnvironment = hostEnvironment;
         }
 
         [HttpGet("GetDepartments")]
@@ -23,14 +25,33 @@ namespace HotelCSS.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] Department obj)
+        public IActionResult Create([FromForm] Department obj, IFormFile? file)
         {
             if (obj == null)
             {
                 return BadRequest("Departments data is null.");
             }
+            ModelState.Remove("ServiceItems");
             if (ModelState.IsValid)
             {
+                string wwwRootPath = _hostEnvironment.WebRootPath;
+                if (file != null)
+                {
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    string productPath = Path.Combine(wwwRootPath, @"images\departments");
+
+                    if (!Directory.Exists(productPath))
+                    {
+                        Directory.CreateDirectory(productPath);
+                    }
+
+                    using (var fileStream = new FileStream(Path.Combine(productPath,fileName),FileMode.Create))
+                    {
+                        file.CopyTo(fileStream);
+                    }
+
+                    obj.ImageUrl = @"\images\departments\" + fileName;
+                }
                 _unitOfWork.Department.Add(obj);
                 _unitOfWork.Save();
 
@@ -40,7 +61,7 @@ namespace HotelCSS.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] Department obj)
+        public IActionResult Update(int id, [FromForm] Department obj, IFormFile? file)
         {
             if (obj == null || id != obj.Id)
             {
@@ -49,9 +70,39 @@ namespace HotelCSS.Controllers
 
             if (ModelState.IsValid)
             {
-                _unitOfWork.Department.Update(obj);
+                var objFromDb = _unitOfWork.Department.GetFirstOrDefault(u => u.Id == id);
+
+                if (objFromDb == null)
+                {
+                    return NotFound();
+                }
+                string wwwRootPath = _hostEnvironment.WebRootPath;
+                if (file != null)
+                {
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    string productPath = Path.Combine(wwwRootPath, @"images\departments");
+
+                    if (!string.IsNullOrEmpty(objFromDb.ImageUrl))
+                    {
+                        var oldImagePath = Path.Combine(wwwRootPath, objFromDb.ImageUrl.TrimStart('\\'));
+                        if (System.IO.File.Exists(oldImagePath))
+                        {
+                            System.IO.File.Delete(oldImagePath);
+                        }
+                    }
+                    using (var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create))
+                    {
+                        file.CopyTo(fileStream);
+                    }
+
+                    obj.ImageUrl = @"\images\departments\" + fileName;
+
+                }
+
+                objFromDb.DepartmentName = obj.DepartmentName;
+                _unitOfWork.Department.Update(objFromDb);
                 _unitOfWork.Save();
-                return Ok(obj);
+                return Ok(objFromDb);
             }
             return BadRequest(ModelState);
         }

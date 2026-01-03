@@ -23,4 +23,8 @@
     <ProjectReference Include="..\CSSHotel.Utility\CSSHotel.Utility.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\images\departments\" />
+  </ItemGroup>
+
 </Project>

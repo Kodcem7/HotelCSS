@@ -16,7 +16,7 @@ namespace CSSHotel.Models
         [Required]
         [Display(Name = "Department Name")]
         public string DepartmentName { get; set; }
-
+        public string? ImageUrl { get; set; }
         public ICollection<ServiceItem> ServiceItems { get; set; }
     }
 }
