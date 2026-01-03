@@ -67,7 +67,7 @@ namespace HotelCSS.Controllers
             {
                 return BadRequest();
             }
-
+            ModelState.Remove("ServiceItems");
             if (ModelState.IsValid)
             {
                 var objFromDb = _unitOfWork.Department.GetFirstOrDefault(u => u.Id == id);
