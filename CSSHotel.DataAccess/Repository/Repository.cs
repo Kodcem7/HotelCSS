@@ -39,12 +39,18 @@ namespace CSSHotel.DataAccess.Repository
 
         public void Remove(T entity)
         {
-            throw new NotImplementedException();
+            dbSet.Remove(entity);
         }
 
         public void RemoveRange(IEnumerable<T> entity)
         {
             throw new NotImplementedException();
+        }
+        public T GetFirstOrDefault(Expression<Func<T, bool>> filter)
+        {
+            IQueryable<T> query = dbSet;
+            query = query.Where(filter);
+            return query.FirstOrDefault();
         }
     }
 }

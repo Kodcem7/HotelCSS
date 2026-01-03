@@ -12,6 +12,7 @@ namespace CSSHotel.DataAccess.Repository.IRepository
         //T-Department
         IEnumerable<T> GetAll();
         T Get(Expression<Func<T, bool>> filter);
+        T GetFirstOrDefault(Expression<Func<T, bool>> filter);
         void Add(T entity);
         void Remove(T entity);
         void RemoveRange(IEnumerable<T> entity);
