@@ -9,6 +9,7 @@ namespace CSSHotel.DataAccess.Repository.IRepository
     public interface IUnitOfWork
     {
         IDepartmentRepository Department { get; }
+        IServiceItemRepository ServiceItem { get; }
         void Save();
     }
 }

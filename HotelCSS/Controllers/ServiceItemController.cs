@@ -1,86 +1,88 @@
 ﻿using CSSHotel.DataAccess.Repository.IRepository;
 using CSSHotel.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HotelCSS.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DepartmentController : ControllerBase
+    public class ServiceItemController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IWebHostEnvironment _hostEnvironment;
-        public DepartmentController(IUnitOfWork unitOfWork , IWebHostEnvironment hostEnvironment)
+        public ServiceItemController(IUnitOfWork unitOfWork, IWebHostEnvironment hostEnvironment)
         {
             _unitOfWork = unitOfWork;
             _hostEnvironment = hostEnvironment;
         }
 
-        [HttpGet("GetDepartments")]
+        [HttpGet("GetServiceItems")]
         public IActionResult Index()
         {
-            var departments = _unitOfWork.Department.GetAll().ToList();
-            return Ok(departments);
+            var serviceItems = _unitOfWork.ServiceItem.GetAll().ToList();
+            return Ok(serviceItems);
         }
 
         [HttpPost]
-        public IActionResult Create([FromForm] Department obj, IFormFile? file)
+        public IActionResult Create([FromForm] ServiceItem obj, IFormFile file)
         {
             if (obj == null)
             {
-                return BadRequest("Departments data is null.");
+                return BadRequest("ServiceItem object is null.");
             }
 
             if (ModelState.IsValid)
             {
                 string wwwRootPath = _hostEnvironment.WebRootPath;
+
                 if (file != null)
                 {
                     string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                    string productPath = Path.Combine(wwwRootPath, @"images\departments");
+                    string productPath = Path.Combine(wwwRootPath, @"images\serviceitems");
 
                     if (!Directory.Exists(productPath))
                     {
                         Directory.CreateDirectory(productPath);
                     }
 
-                    using (var fileStream = new FileStream(Path.Combine(productPath,fileName),FileMode.Create))
+                    using (var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create))
                     {
                         file.CopyTo(fileStream);
                     }
-
-                    obj.ImageUrl = @"\images\departments\" + fileName;
+                    obj.ImageUrl = @"\images\serviceitems\" + fileName;
                 }
-                _unitOfWork.Department.Add(obj);
+                obj.Department = null;
+                _unitOfWork.ServiceItem.Add(obj);
                 _unitOfWork.Save();
-
                 return CreatedAtAction(nameof(Index), new { id = obj.Id }, obj);
             }
             return BadRequest(ModelState);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromForm] Department obj, IFormFile? file)
+        public IActionResult Update(int id, [FromForm] ServiceItem obj, IFormFile file)
         {
-            if (obj == null || id != obj.Id)
+            if (id == 0 || id != obj.Id)
             {
                 return BadRequest();
             }
-
             if (ModelState.IsValid)
             {
-                var objFromDb = _unitOfWork.Department.GetFirstOrDefault(u => u.Id == id);
+                var objFromDb = _unitOfWork.ServiceItem.GetFirstOrDefault(u => u.Id == id);
 
                 if (objFromDb == null)
                 {
                     return NotFound();
                 }
+
                 string wwwRootPath = _hostEnvironment.WebRootPath;
+
                 if (file != null)
                 {
                     string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                    string productPath = Path.Combine(wwwRootPath, @"images\departments");
+                    string productPath = Path.Combine(wwwRootPath, @"images\serviceitems");
 
                     if (!string.IsNullOrEmpty(objFromDb.ImageUrl))
                     {
@@ -90,17 +92,20 @@ namespace HotelCSS.Controllers
                             System.IO.File.Delete(oldImagePath);
                         }
                     }
+
                     using (var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create))
                     {
                         file.CopyTo(fileStream);
                     }
 
-                    obj.ImageUrl = @"\images\departments\" + fileName;
 
                 }
-               
-                objFromDb.DepartmentName = obj.DepartmentName;
-                _unitOfWork.Department.Update(objFromDb);
+                objFromDb.Name = obj.Name;
+                objFromDb.DepartmentId = obj.DepartmentId;
+                objFromDb.Description = obj.Description;
+                objFromDb.Price = obj.Price;
+                objFromDb.IsAvailable = obj.IsAvailable;
+                _unitOfWork.ServiceItem.Update(objFromDb);
                 _unitOfWork.Save();
                 return Ok(objFromDb);
             }
@@ -110,15 +115,15 @@ namespace HotelCSS.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            if (id <= 0)
+            if (id <= 0 || id == null)
             {
-                return BadRequest("Invalid department ID.");
+                return BadRequest("Invalid ServiceItem ID.");
             }
 
-            var obj = _unitOfWork.Department.GetFirstOrDefault(d => d.Id == id);
+            var obj = _unitOfWork.ServiceItem.GetFirstOrDefault(u => u.Id == id);
             if (obj == null)
             {
-                return NotFound("Department not found.");
+                return NotFound("ServiceItem not found.");
             }
 
             if (!string.IsNullOrEmpty(obj.ImageUrl))
@@ -132,11 +137,10 @@ namespace HotelCSS.Controllers
                 }
             }
 
-            _unitOfWork.Department.Remove(obj);
+            _unitOfWork.ServiceItem.Remove(obj);
             _unitOfWork.Save();
-
-            return Ok("Department deleted successfully!");
-
+            return Ok("ServiceItem deleted successfully!");
         }
+
     }
 }

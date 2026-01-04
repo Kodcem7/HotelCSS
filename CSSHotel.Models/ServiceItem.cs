@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -23,6 +24,13 @@ namespace CSSHotel.Models
         [ForeignKey("DepartmentId")]
         [ValidateNever] // Prevents validation errors when creating forms
         public Department Department { get; set; }
+
+        public string? ImageUrl { get; set; }
+        public string? Description { get; set; }
+        [Required]
+        [Column(TypeName = "decimal(18, 2)")] 
+        public decimal Price { get; set; }
+        public bool IsAvailable { get; set; } = true;
 
     }
 }
