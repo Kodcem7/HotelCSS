@@ -19,10 +19,10 @@ namespace HotelCSS.Controllers
         }
 
         [HttpGet("GetServiceItems")]
-        public IActionResult Index()
+        public IActionResult GetAll()
         {
-            var serviceItems = _unitOfWork.ServiceItem.GetAll().ToList();
-            return Ok(serviceItems);
+            var serviceItems = _unitOfWork.ServiceItem.GetAll(includeProperties: "Department");
+            return Ok(new { data = serviceItems });
         }
 
         [HttpPost]
@@ -129,17 +129,17 @@ namespace HotelCSS.Controllers
             if (!string.IsNullOrEmpty(obj.ImageUrl))
             {
                 string wwwRootPath = _hostEnvironment.WebRootPath;
-                var imagePath = Path.Combine(wwwRootPath, obj.ImageUrl.TrimStart('\\'));
+                var oldImagePath = Path.Combine(wwwRootPath, obj.ImageUrl.TrimStart('\\'));
 
-                if (System.IO.File.Exists(imagePath))
+                if (System.IO.File.Exists(oldImagePath))
                 {
-                    System.IO.File.Delete(imagePath);
+                    System.IO.File.Delete(oldImagePath);
                 }
             }
 
             _unitOfWork.ServiceItem.Remove(obj);
             _unitOfWork.Save();
-            return Ok("ServiceItem deleted successfully!");
+            return Ok(new { success = true, message = "Delete Successful" });
         }
 
     }
