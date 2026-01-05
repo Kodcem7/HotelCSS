@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+﻿using CSSHotel.Utility;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -29,11 +30,14 @@ namespace CSSHotel.Models
         [ForeignKey("ServiceItemId")]
         [ValidateNever]
         public ServiceItem ServiceItem { get; set; }
+        [Range(1, 5,ErrorMessage ="You can order between 1 and 5 items.")]
+        public int Quantity { get; set; } = 1;
+        public string? Note { get; set; }
 
         public DateTime RequestDate { get; set; } = DateTime.Now;
 
         // Status: "Pending", "Completed", "Cancelled"
-        public string Status { get; set; } = "Pending";
+        public string Status { get; set; } = SD.StatusPending;
     }
 
 }

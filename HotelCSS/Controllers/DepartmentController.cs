@@ -29,7 +29,7 @@ namespace HotelCSS.Controllers
         {
             if (obj == null)
             {
-                return BadRequest("Departments data is null.");
+                return BadRequest(new { success = false, message = "Department cannot be null" });
             }
 
             if (ModelState.IsValid)
@@ -65,7 +65,7 @@ namespace HotelCSS.Controllers
         {
             if (obj == null || id != obj.Id)
             {
-                return BadRequest();
+                return BadRequest(new { success = false, message = "Object is not available." });
             }
 
             if (ModelState.IsValid)
@@ -74,7 +74,7 @@ namespace HotelCSS.Controllers
 
                 if (objFromDb == null)
                 {
-                    return NotFound();
+                    return NotFound(new { success = false, message = "Object is null" });
                 }
                 string wwwRootPath = _hostEnvironment.WebRootPath;
                 if (file != null)
@@ -112,13 +112,13 @@ namespace HotelCSS.Controllers
         {
             if (id <= 0)
             {
-                return BadRequest("Invalid department ID.");
+                return BadRequest(new { success = false, message = "Invalid Department ID" });
             }
 
             var obj = _unitOfWork.Department.GetFirstOrDefault(d => d.Id == id);
             if (obj == null)
             {
-                return NotFound("Department not found.");
+                return NotFound(new { success = false, message = "Department is not found" });
             }
 
             if (!string.IsNullOrEmpty(obj.ImageUrl))
@@ -135,7 +135,7 @@ namespace HotelCSS.Controllers
             _unitOfWork.Department.Remove(obj);
             _unitOfWork.Save();
 
-            return Ok("Department deleted successfully!");
+            return Ok(new { success = false, message = "Department deleted successfully!" });
 
         }
     }

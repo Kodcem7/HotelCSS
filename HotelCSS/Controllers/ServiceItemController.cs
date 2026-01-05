@@ -30,7 +30,7 @@ namespace HotelCSS.Controllers
         {
             if (obj == null)
             {
-                return BadRequest("ServiceItem object is null.");
+                return BadRequest(new { success = false, message = "ServiceItem object is null" });
             }
 
             if (ModelState.IsValid)
@@ -66,7 +66,7 @@ namespace HotelCSS.Controllers
         {
             if (id == 0 || id != obj.Id)
             {
-                return BadRequest();
+                return BadRequest(new { success = false, message = "ID cannot be 0" });
             }
             if (ModelState.IsValid)
             {
@@ -74,7 +74,7 @@ namespace HotelCSS.Controllers
 
                 if (objFromDb == null)
                 {
-                    return NotFound();
+                    return NotFound(new { success = false, message = "Object is not found" });
                 }
 
                 string wwwRootPath = _hostEnvironment.WebRootPath;
@@ -117,13 +117,13 @@ namespace HotelCSS.Controllers
         {
             if (id <= 0 || id == null)
             {
-                return BadRequest("Invalid ServiceItem ID.");
+                return BadRequest(new { success = false, message = "Invalid ServiceItem ID" });
             }
 
             var obj = _unitOfWork.ServiceItem.GetFirstOrDefault(u => u.Id == id);
             if (obj == null)
             {
-                return NotFound("ServiceItem not found.");
+                return NotFound(new { success = false, message = "ServiceItem is not found" });
             }
 
             if (!string.IsNullOrEmpty(obj.ImageUrl))
