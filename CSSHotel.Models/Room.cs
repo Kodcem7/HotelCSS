@@ -17,10 +17,9 @@ namespace CSSHotel.Models
         [Display(Name = "Room Number")]
         public int RoomNumber { get; set; } // e.g., 3310
 
-        public string Floor { get; set; } // e.g., "3rd Floor"
-
+        public string Status { get; set; } = "Available";
         // This stores the unique string/URL for the QR code
-        public string QrCodeString { get; set; }
+        public string QrCodeString { get; set; } = Guid.NewGuid().ToString();
 
     }
 }

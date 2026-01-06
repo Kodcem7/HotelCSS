@@ -15,6 +15,7 @@ namespace CSSHotel.DataAccess.Repository
         public IDepartmentRepository Department { get; private set; }
         public IServiceItemRepository ServiceItem { get; private set; }
         public IRequestRepository Request { get; private set; }
+        public IRoomRepository Room { get; private set; }
 
         public UnitOfWork(ApplicationDbContext db)
         {
@@ -22,6 +23,7 @@ namespace CSSHotel.DataAccess.Repository
             Department = new DepartmentRepository(_db);
             ServiceItem = new ServiceItemRepository(_db);
             Request = new RequestRepository(_db);
+            Room = new RoomRepository(_db);
         }
 
         public void Save()

@@ -52,33 +52,6 @@ namespace CSSHotel.DataAccess.Data
                 new ServiceItem { Id = 6, Name = "Fix AC", DepartmentId = 3 },
                 new ServiceItem { Id = 7, Name = "TV Remote", DepartmentId = 3 }
             );
-
-            // C. Seed Rooms (The Loop for 1101, 2201...)
-            List<Room> roomsList = new List<Room>();
-
-            // Loop for 5 Floors
-            for (int floor = 1; floor <= 5; floor++)
-            {
-                // Loop for 16 Rooms per Floor
-                for (int r = 1; r <= 16; r++)
-                {
-                    // FORMULA: 
-                    // Floor 1 -> (1 * 1100) + 1 = 1101
-                    // Floor 2 -> (2 * 1100) + 1 = 2201
-                    int roomNum = (floor * 1100) + r;
-
-                    roomsList.Add(new Room
-                    {
-                        RoomNumber = roomNum,
-                        Floor = floor + ". Floor",
-                        // The unique link for the QR Code
-                        QrCodeString = "https://csshotel.com/login?room=" + roomNum
-                    });
-                }
-            }
-
-            // Add the list to the database
-            modelBuilder.Entity<Room>().HasData(roomsList);
         }
     }
 
