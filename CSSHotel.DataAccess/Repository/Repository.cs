@@ -20,7 +20,10 @@ namespace CSSHotel.DataAccess.Repository
             _db = db;
             this.dbSet = _db.Set<T>();
         }
-
+        public void AddRange(IEnumerable<T> entities)
+        {
+            dbSet.AddRange(entities);
+        }
         public void Add(T entity)
         {
            dbSet.Add(entity);
@@ -51,7 +54,7 @@ namespace CSSHotel.DataAccess.Repository
 
         public void RemoveRange(IEnumerable<T> entity)
         {
-            throw new NotImplementedException();
+            dbSet.RemoveRange(entity);
         }
         public T GetFirstOrDefault(Expression<Func<T, bool>> filter)
         {

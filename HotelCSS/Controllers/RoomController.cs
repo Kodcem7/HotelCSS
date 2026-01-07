@@ -1,5 +1,6 @@
 ﻿using CSSHotel.DataAccess.Repository.IRepository;
 using CSSHotel.Models;
+using CSSHotel.Models.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,7 +22,7 @@ namespace HotelCSS.Controllers
             return Ok(new { data = rooms });
         }
 
-        [HttpPost]
+        [HttpPost("CreateRoom")]
         public IActionResult Create([FromBody] Room obj)
         {
             if (obj == null)
@@ -43,6 +44,76 @@ namespace HotelCSS.Controllers
             return BadRequest(ModelState);
         }
 
+        [HttpPost("CreateAllRooms")]
+        public IActionResult CreateRooms([FromBody] RoomConfigVM config)
+        {
+            if (config.TotalFloors > 20 || config.RoomsPerFloor > 50)
+            {
+                return BadRequest(new { success = false, message = "Floors cannot be higher than 20 or rooms per floor cannot be more than 50." });
+            }
+
+            List<Room> roomsToAdd = new List<Room>();
+            List<string> skippedRooms = new List<string>();
+
+            for (int floor = 1; floor <= config.TotalFloors; floor++)
+            {
+                for (int room = 1; room <= config.RoomsPerFloor; room++)
+                {
+                    var currentRoomNum = (floor * config.StartingRoomNumber) + room;
+
+                    //Duplicate check
+                    var existingRoom = _unitOfWork.Room.GetFirstOrDefault(u => u.RoomNumber == currentRoomNum);
+
+                    if (existingRoom == null)
+                    {
+                        roomsToAdd.Add(new Room
+                        {
+                            RoomNumber = currentRoomNum,
+                            Status = "Available",
+                            //QrCodeString is already generated otomatically.
+                        });
+                    }
+                    else
+                    {
+                        skippedRooms.Add(currentRoomNum.ToString());
+                    }
+                }
+            }
+            if (roomsToAdd.Count > 0)
+            {
+                _unitOfWork.Room.AddRange(roomsToAdd);
+                _unitOfWork.Save();
+                return Ok(new
+                {
+                    success = true,
+                    message = $"Rooms created successfully!",
+                    skipped = skippedRooms
+                });
+            }
+            return BadRequest(new { success = false, message = "No new rooms were created (all already existed)." });
+
+
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult Update(int id, [FromBody] Room obj)
+        {
+
+            if (obj == null || id != obj.RoomNumber)
+            {
+                return BadRequest(new { success = false, message = "That room does not exists!" });
+            }
+            var roomFromDb = _unitOfWork.Room.GetFirstOrDefault(u => u.RoomNumber == id);
+            if (roomFromDb == null)
+            {
+                return NotFound(new { success = false, message = "Room not found" });
+            }
+            roomFromDb.Status = obj.Status;
+            _unitOfWork.Room.Update(roomFromDb);
+            _unitOfWork.Save();
+            return Ok(new { success = true, message = "Room updated successfully" });
+        }
+
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
@@ -60,5 +131,24 @@ namespace HotelCSS.Controllers
             _unitOfWork.Save();
             return Ok(new { success = true, message = "Room deleted successfully!" });
         }
+
+        [HttpDelete("DeleteAll")]
+        public IActionResult DeleteAllRooms()
+        {
+
+            var allRooms = _unitOfWork.Room.GetAll();
+
+            if (allRooms == null || !allRooms.Any())
+            {
+                return BadRequest(new { success = false, message = "There are noo rooms to delete! " });
+            }
+
+            _unitOfWork.Room.RemoveRange(allRooms);
+            _unitOfWork.Save();
+            return Ok(new { success = true, message = "All rooms deleted successfully!" });
+        }
+
     }
+
+
 }
