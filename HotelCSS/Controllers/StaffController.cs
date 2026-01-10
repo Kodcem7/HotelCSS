@@ -46,7 +46,7 @@ namespace HotelCSS.Controllers
         {
             if (obj == null || id != obj.Id)
             {
-                return BadRequest(new {success = false, message = "Invalid data mismatch"});
+                return BadRequest(new { success = false, message = "Invalid data mismatch" });
             }
             if (ModelState.IsValid)
             {
@@ -72,9 +72,35 @@ namespace HotelCSS.Controllers
         }
 
         [HttpPost("Login")]
-        public IActionResult Login([FromBody]LoginVM loginData)
+        public IActionResult Login([FromBody] LoginVM loginData)
         {
-            return Ok();
+            if (loginData == null)
+            {
+                return BadRequest(new { success = false, message = "Invalid login data!" });
+            }
+
+            var user = _unitOfWork.Staff.GetFirstOrDefault
+                (u => u.Username == loginData.Username &&
+                 u.Password == loginData.Password,
+                 includeProperties: "Department");
+
+            if (user == null)
+            {
+                return Unauthorized(new { success = false, message = "Invalid username or password!" });
+            }
+
+            return Ok(new
+            {
+                success = true,
+                message = "Login successful!",
+                user = new
+                {
+                    user.Id,
+                    user.Username,
+                    Role = user.Department.DepartmentName
+                }
+            });
+
         }
     }
 
