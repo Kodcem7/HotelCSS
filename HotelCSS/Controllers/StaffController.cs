@@ -27,13 +27,16 @@ namespace HotelCSS.Controllers
         [HttpPost("CreatingNewUser")]
         public IActionResult Create([FromBody] Staff obj)
         {
-            var existingUser = _unitOfWork.Staff.GetFirstOrDefault(u => u.Id == obj.Id);
+            var existingUser = _unitOfWork.Staff.GetFirstOrDefault(u => u.Username == obj.Username);
             if (existingUser != null)
             {
                 return BadRequest(new { success = false, message = "Username already exists!" });
             }
             if (ModelState.IsValid)
             {
+                //Hashing the password
+                obj.Password = BCrypt.Net.BCrypt.HashPassword(obj.Password);
+
                 _unitOfWork.Staff.Add(obj);
                 _unitOfWork.Save();
                 return Ok(new { success = true, message = "Staff member created successfully" });
@@ -47,6 +50,11 @@ namespace HotelCSS.Controllers
             if (obj == null || id != obj.Id)
             {
                 return BadRequest(new { success = false, message = "Invalid data mismatch" });
+            }
+            var objFromDb = _unitOfWork.Staff.GetFirstOrDefault(u => u.Id == id);
+            if (objFromDb == null)
+            {
+                return NotFound(new { success = false, message = "Error: Staff ID not found." });
             }
             if (ModelState.IsValid)
             {
@@ -80,11 +88,10 @@ namespace HotelCSS.Controllers
             }
 
             var user = _unitOfWork.Staff.GetFirstOrDefault
-                (u => u.Username == loginData.Username &&
-                 u.Password == loginData.Password,
+                (u => u.Username == loginData.Username,
                  includeProperties: "Department");
-
-            if (user == null)
+            //if user is null or password hash doesn't match
+            if (user == null || !BCrypt.Net.BCrypt.Verify(loginData.Password, user.Password))
             {
                 return Unauthorized(new { success = false, message = "Invalid username or password!" });
             }

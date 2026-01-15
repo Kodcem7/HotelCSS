@@ -98,7 +98,7 @@ namespace HotelCSS.Controllers
                     obj.ImageUrl = @"\images\departments\" + fileName;
 
                 }
-               
+
                 objFromDb.DepartmentName = obj.DepartmentName;
                 _unitOfWork.Department.Update(objFromDb);
                 _unitOfWork.Save();

@@ -27,9 +27,9 @@ namespace CSSHotel.DataAccess.Repository
                 objFromDb.DepartmentId = obj.DepartmentId;
                 if (obj.Password != null)
                 {
-                    objFromDb.Password = obj.Password;
+                    //hashing the password while updating.
+                    objFromDb.Password = BCrypt.Net.BCrypt.HashPassword(obj.Password);
                 }
-
             }
         }
     }

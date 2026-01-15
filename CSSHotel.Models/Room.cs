@@ -15,7 +15,7 @@ namespace CSSHotel.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         [Display(Name = "Room Number")]
-        public int RoomNumber { get; set; } // e.g., 3310
+        public int RoomNumber { get; set; } // e.g., 310
 
         public string Status { get; set; } = "Available";
         // This stores the unique string/URL for the QR code
