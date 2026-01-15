@@ -4,6 +4,11 @@ using CSSHotel.Models.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace HotelCSS.Controllers
 {
@@ -12,9 +17,11 @@ namespace HotelCSS.Controllers
     public class StaffController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
-        public StaffController(IUnitOfWork unitOfWork)
+        private readonly IConfiguration _configuration; 
+        public StaffController(IUnitOfWork unitOfWork, IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
+            _configuration = configuration;
         }
 
         [HttpGet("GetStaffList")]
@@ -96,17 +103,27 @@ namespace HotelCSS.Controllers
                 return Unauthorized(new { success = false, message = "Invalid username or password!" });
             }
 
-            return Ok(new
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_configuration.GetValue<string>("JwtSettings:SecretKey"));
+
+            var tokenDescriptor = new SecurityTokenDescriptor
             {
-                success = true,
-                message = "Login successful!",
-                user = new
+                Subject = new ClaimsIdentity(new Claim[]
                 {
-                    user.Id,
-                    user.Username,
-                    Role = user.Department.DepartmentName
-                }
-            });
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Name, user.Username),
+            // This is the VIP Check (Admin, Kitchen, Reception, etc.)
+            new Claim(ClaimTypes.Role, user.Department.DepartmentName), 
+            // This is for filtering (So Kitchen only sees Kitchen stuff)
+            new Claim("DepartmentId", user.DepartmentId.ToString())
+                }),
+                Expires = DateTime.UtcNow.AddDays(7), // Token valid for 7 days
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var tokenString = tokenHandler.WriteToken(token);
+            return Ok(new { success = true, token = tokenString });
 
         }
     }
