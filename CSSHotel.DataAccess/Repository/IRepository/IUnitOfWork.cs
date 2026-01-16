@@ -12,7 +12,7 @@ namespace CSSHotel.DataAccess.Repository.IRepository
         IServiceItemRepository ServiceItem { get; }
         IRequestRepository Request { get; }
         IRoomRepository Room { get; }
-        IApplicationUserRepository Staff { get; }
+        IApplicationUserRepository ApplicationUser { get; }
         void Save();
     }
 }

@@ -23,12 +23,12 @@ namespace HotelCSS.Controllers
             var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
             string userId = claim.Value;
 
-            IEnumerable<ServiceRequest> requests;
+            IEnumerable<Request> requests;
 
             if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Manager) || User.IsInRole(SD.Role_Reception))
             {
                 // Reception/Manager see ALL requests
-                requests = _unitOfWork.ServiceRequest.GetAll(includeProperties: "ServiceItem,RoomUser");
+                requests = _unitOfWork.Request.GetAll(includeProperties: "ServiceItem,RoomUser");
             }
             else if (User.IsInRole(SD.Role_Staff))
             {
@@ -36,7 +36,7 @@ namespace HotelCSS.Controllers
                 // First, get the current staff user to find their DepartmentId
                 var staffUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == userId);
 
-                requests = _unitOfWork.ServiceRequest.GetAll(
+                requests = _unitOfWork.Request.GetAll(
                     u => u.ServiceItem.DepartmentId == staffUser.DepartmentId,
                     includeProperties: "ServiceItem,RoomUser"
                 );
@@ -44,10 +44,10 @@ namespace HotelCSS.Controllers
             else // It is a Room/Guest
             {
                 // Rooms only see their own requests
-                requests = _unitOfWork.ServiceRequest.GetAll(u => u.RoomUserId == userId);
+                requests = _unitOfWork.Request.GetFirstOrDefault(u => u.RoomNumber == userId);
             }
 
-            return View(requests);
+            return Ok(requests);
         }
 
         [HttpPost]
