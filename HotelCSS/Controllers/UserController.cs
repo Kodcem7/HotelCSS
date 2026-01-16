@@ -1,6 +1,7 @@
 ﻿using CSSHotel.DataAccess.Repository.IRepository;
 using CSSHotel.Models;
 using CSSHotel.Models.ViewModels;
+using CSSHotel.Utility;
 using Microsoft.AspNetCore.Identity; // Needed for UserManager
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -164,14 +165,5 @@ namespace HotelCSS.Controllers
             var tokenString = tokenHandler.WriteToken(token);
             return Ok(new { success = true, token = tokenString });
         }
-    }
-
-    // Helper DTO class to catch the data sent from Frontend
-    public class UserRegisterDTO
-    {
-        public string UserName { get; set; }
-        public string Name { get; set; }
-        public string Password { get; set; } // Catches the plain password
-        public int? DepartmentId { get; set; }
     }
 }
