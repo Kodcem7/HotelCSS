@@ -43,8 +43,18 @@ namespace HotelCSS.Controllers
             }
             else // It is a Room/Guest
             {
-                // Rooms only see their own requests
-                requests = _unitOfWork.Request.GetFirstOrDefault(u => u.RoomNumber == userId);
+                // 1. Convert the String ID ("101") to an Int (101)
+                if (int.TryParse(userId, out int roomNumber))
+                {
+                    // 2. Use GetAll (not GetFirstOrDefault) to get the whole list
+                    // Now we compare int (u.RoomNumber) with int (roomNumber)
+                    requests = _unitOfWork.Request.GetAll(u => u.RoomNumber == roomNumber);
+                }
+                else
+                {
+                    // Safety: If the ID in the token is weird/empty, return an empty list
+                    requests = new List<Request>();
+                }
             }
 
             return Ok(requests);
