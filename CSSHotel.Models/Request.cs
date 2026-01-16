@@ -37,7 +37,7 @@ namespace CSSHotel.Models
         public DateTime RequestDate { get; set; } = DateTime.Now;
 
         // Status: "Pending", "Completed", "Cancelled"
-        public string Status { get; set; } = SD.StatusPending;
+        public string Status { get; set; }
     }
 
 }

@@ -1,8 +1,9 @@
-﻿using CSSHotel.Models;
-using CSSHotel.DataAccess.Repository.IRepository;
+﻿using CSSHotel.DataAccess.Repository.IRepository;
+using CSSHotel.Models;
+using CSSHotel.Utility;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using CSSHotel.Utility;
+using System.Security.Claims;
 
 namespace HotelCSS.Controllers
 {
@@ -16,11 +17,37 @@ namespace HotelCSS.Controllers
             _unitOfWork = unitOfWork;
         }
 
-        [HttpGet]
-        public IActionResult GetAll()
+        public IActionResult Index()
         {
-            var requests = _unitOfWork.Request.GetAll(includeProperties: "ServiceItem");
-            return Ok(new { data = requests });
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            string userId = claim.Value;
+
+            IEnumerable<ServiceRequest> requests;
+
+            if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Manager) || User.IsInRole(SD.Role_Reception))
+            {
+                // Reception/Manager see ALL requests
+                requests = _unitOfWork.ServiceRequest.GetAll(includeProperties: "ServiceItem,RoomUser");
+            }
+            else if (User.IsInRole(SD.Role_Staff))
+            {
+                // Staff only see requests for their Department
+                // First, get the current staff user to find their DepartmentId
+                var staffUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == userId);
+
+                requests = _unitOfWork.ServiceRequest.GetAll(
+                    u => u.ServiceItem.DepartmentId == staffUser.DepartmentId,
+                    includeProperties: "ServiceItem,RoomUser"
+                );
+            }
+            else // It is a Room/Guest
+            {
+                // Rooms only see their own requests
+                requests = _unitOfWork.ServiceRequest.GetAll(u => u.RoomUserId == userId);
+            }
+
+            return View(requests);
         }
 
         [HttpPost]

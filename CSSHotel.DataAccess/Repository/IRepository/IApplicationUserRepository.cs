@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace CSSHotel.DataAccess.Repository.IRepository
 {
-    public interface IStaffRepository : IRepository<Staff>
+    public interface IApplicationUserRepository : IRepository<ApplicationUser>
     {
-        void Update(Staff obj);
+        void Update(ApplicationUser obj);
     }
 }
