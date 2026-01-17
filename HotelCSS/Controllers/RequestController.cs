@@ -1,6 +1,7 @@
 ﻿using CSSHotel.DataAccess.Repository.IRepository;
 using CSSHotel.Models;
 using CSSHotel.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -9,6 +10,7 @@ namespace HotelCSS.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class RequestController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -16,11 +18,17 @@ namespace HotelCSS.Controllers
         {
             _unitOfWork = unitOfWork;
         }
-
+        [HttpGet("FetchingRequest")]
         public IActionResult Index()
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+            if (claim == null)
+            {
+                return Unauthorized(new { success = false, message = "User identity not found." });
+            }
+
             string userId = claim.Value;
 
             IEnumerable<Request> requests;
@@ -35,6 +43,8 @@ namespace HotelCSS.Controllers
                 // Staff only see requests for their Department
                 // First, get the current staff user to find their DepartmentId
                 var staffUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == userId);
+
+                if (staffUser == null) return BadRequest("Staff user not found");
 
                 requests = _unitOfWork.Request.GetAll(
                     u => u.ServiceItem.DepartmentId == staffUser.DepartmentId,
