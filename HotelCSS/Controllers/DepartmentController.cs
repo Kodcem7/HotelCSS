@@ -135,7 +135,7 @@ namespace HotelCSS.Controllers
             _unitOfWork.Department.Remove(obj);
             _unitOfWork.Save();
 
-            return Ok(new { success = false, message = "Department deleted successfully!" });
+            return Ok(new { success = true, message = "Department deleted successfully!" });
 
         }
     }
