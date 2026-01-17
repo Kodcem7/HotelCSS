@@ -18,7 +18,6 @@ namespace HotelCSS.Controllers
         {
             _unitOfWork = unitOfWork;
         }
-        [HttpGet("FetchingRequest")]
         public IActionResult Index()
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
@@ -36,7 +35,7 @@ namespace HotelCSS.Controllers
             if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Manager) || User.IsInRole(SD.Role_Reception))
             {
                 // Reception/Manager see ALL requests
-                requests = _unitOfWork.Request.GetAll(includeProperties: "ServiceItem,RoomUser");
+                requests = _unitOfWork.Request.GetAll(includeProperties: "ServiceItem,Room");
             }
             else if (User.IsInRole(SD.Role_Staff))
             {
@@ -48,7 +47,7 @@ namespace HotelCSS.Controllers
 
                 requests = _unitOfWork.Request.GetAll(
                     u => u.ServiceItem.DepartmentId == staffUser.DepartmentId,
-                    includeProperties: "ServiceItem,RoomUser"
+                    includeProperties: "ServiceItem,Room"
                 );
             }
             else // It is a Room/Guest

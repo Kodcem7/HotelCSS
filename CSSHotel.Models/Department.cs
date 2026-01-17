@@ -1,9 +1,10 @@
-﻿using System;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 
@@ -18,6 +19,7 @@ namespace CSSHotel.Models
         [Display(Name = "Department Name")]
         public string DepartmentName { get; set; }
         public string? ImageUrl { get; set; }
-        public ICollection<ServiceItem> ServiceItems { get; set; }
+        [JsonIgnore]
+        public ICollection<ServiceItem>? ServiceItems { get; set; }
     }
 }

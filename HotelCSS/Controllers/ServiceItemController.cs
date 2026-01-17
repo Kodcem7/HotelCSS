@@ -26,7 +26,7 @@ namespace HotelCSS.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromForm] ServiceItem obj, IFormFile file)
+        public IActionResult Create([FromForm] ServiceItem obj, IFormFile? file)
         {
             if (obj == null)
             {
@@ -56,13 +56,13 @@ namespace HotelCSS.Controllers
                 obj.Department = null;
                 _unitOfWork.ServiceItem.Add(obj);
                 _unitOfWork.Save();
-                return CreatedAtAction(nameof(Index), new { id = obj.Id }, obj);
+                return Ok(new { success = true, message = "Service Item Created Successfully", data = obj });
             }
             return BadRequest(ModelState);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromForm] ServiceItem obj, IFormFile file)
+        public IActionResult Update(int id, [FromForm] ServiceItem obj, IFormFile? file)
         {
             if (id == 0 || id != obj.Id)
             {
