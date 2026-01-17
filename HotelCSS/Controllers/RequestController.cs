@@ -18,6 +18,7 @@ namespace HotelCSS.Controllers
         {
             _unitOfWork = unitOfWork;
         }
+        [HttpGet]
         public IActionResult Index()
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
