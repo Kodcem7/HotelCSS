@@ -37,6 +37,7 @@ namespace HotelCSS.Controllers
             {
                 // Reception/Manager see ALL requests
                 requests = _unitOfWork.Request.GetAll(includeProperties: "ServiceItem,Room");
+                return Ok(requests);
             }
             else if (User.IsInRole(SD.Role_Staff))
             {
@@ -44,30 +45,19 @@ namespace HotelCSS.Controllers
                 // First, get the current staff user to find their DepartmentId
                 var staffUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == userId);
 
-                if (staffUser == null) return BadRequest("Staff user not found");
+                if (staffUser == null)
+                {
+                    return BadRequest("Staff user not found");
+                }
 
                 requests = _unitOfWork.Request.GetAll(
                     u => u.ServiceItem.DepartmentId == staffUser.DepartmentId,
                     includeProperties: "ServiceItem,Room"
                 );
+                return Ok(requests);
             }
-            else // It is a Room/Guest
-            {
-                // 1. Convert the String ID ("101") to an Int (101)
-                if (int.TryParse(userId, out int roomNumber))
-                {
-                    // 2. Use GetAll (not GetFirstOrDefault) to get the whole list
-                    // Now we compare int (u.RoomNumber) with int (roomNumber)
-                    requests = _unitOfWork.Request.GetAll(u => u.RoomNumber == roomNumber);
-                }
-                else
-                {
-                    // Safety: If the ID in the token is weird/empty, return an empty list
-                    requests = new List<Request>();
-                }
-            }
-
-            return Ok(requests);
+           
+            return BadRequest(new { success = false, message = "Unauthorized access." });
         }
 
         [HttpPost]
@@ -94,7 +84,7 @@ namespace HotelCSS.Controllers
         //we dont want Request obj from user because order is not changed by user
         public IActionResult Update(int id, string newStatus)
         {
-            if (id == 0)
+            if (id <= 0)
             {
                 return BadRequest(new { success = false, message = "Invalid Request ID" });
             }

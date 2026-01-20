@@ -28,15 +28,15 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-// 2. VERY IMPORTANT: Configure Identity Options (Optional but recommended for testing)
+
 builder.Services.Configure<IdentityOptions>(options =>
 {
-    // This makes passwords easier for testing (e.g., "Pass123$")
-    options.Password.RequireDigit = false;
-    options.Password.RequireLowercase = false;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequireUppercase = false;
-    options.Password.RequiredLength = 1;
+    
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequiredLength = 6;
 });
 builder.Services.AddSwaggerGen(options =>
 {

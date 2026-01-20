@@ -2,7 +2,7 @@
 using CSSHotel.Models;
 using CSSHotel.Models.ViewModels;
 using CSSHotel.Utility;
-using Microsoft.AspNetCore.Identity; // Needed for UserManager
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -18,12 +18,14 @@ namespace HotelCSS.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
         private readonly UserManager<ApplicationUser> _userManager; // 1. Inject UserManager
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public UserController(IUnitOfWork unitOfWork, IConfiguration configuration, UserManager<ApplicationUser> userManager)
+        public UserController(IUnitOfWork unitOfWork, IConfiguration configuration, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
             _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         [HttpGet("GetStaffList")]
@@ -59,10 +61,22 @@ namespace HotelCSS.Controllers
 
                 if (result.Succeeded)
                 {
-                    // Optional: Assign a Role here if you used Roles
-                    // await _userManager.AddToRoleAsync(user, "Staff");
+                    string roleName = "Admin"; // Default role
+                    if (obj.DepartmentId != 0)
+                    {
+                        var dept = _unitOfWork.Department.GetFirstOrDefault(u => u.Id == obj.DepartmentId);
+                        if (dept != null)
+                        {
+                            roleName = dept.DepartmentName;
+                        }
+                    }
 
-                    return Ok(new { success = true, message = "Staff member created successfully" });
+                    if (!await _roleManager.RoleExistsAsync(roleName))
+                    {
+                        await _roleManager.CreateAsync(new IdentityRole(roleName));
+                    }
+                    await _userManager.AddToRoleAsync(user, roleName);
+                    return Ok(new { success = true, message = "Staff created and Role assigned!" });
                 }
                 else
                 {
@@ -83,21 +97,44 @@ namespace HotelCSS.Controllers
                 return BadRequest(new { success = false, message = "Invalid data mismatch" });
             }
 
-            var userFromDb = await _userManager.FindByIdAsync(id);
-            if (userFromDb == null)
+            var objFromDb = await _userManager.FindByIdAsync(id);
+            if (objFromDb == null)
             {
                 return NotFound(new { success = false, message = "Error: Staff ID not found." });
             }
 
-            // Only update fields that are allowed to change
-            // DO NOT update Password here. Password changes require a specific "ChangePassword" endpoint.
-            userFromDb.Name = obj.Name;
-            userFromDb.DepartmentId = obj.DepartmentId;
+            var oldRoles = await _userManager.GetRolesAsync(objFromDb);
+            string oldRoleName = oldRoles.FirstOrDefault();
+            objFromDb.Name = obj.Name;
+            objFromDb.DepartmentId = obj.DepartmentId;
 
-            var result = await _userManager.UpdateAsync(userFromDb);
+            var result = await _userManager.UpdateAsync(objFromDb);
 
             if (result.Succeeded)
             {
+                if (obj.DepartmentId != 0)
+                {
+                    var newDept = _unitOfWork.Department.GetFirstOrDefault(u => u.Id == obj.DepartmentId);
+                    string newRoleName = "Admin"; // Default role
+                    if (newDept != null)
+                    {
+                        newRoleName = newDept.DepartmentName;
+                    }
+
+                    if (oldRoleName != newRoleName)
+                    {
+                        if (!string.IsNullOrEmpty(oldRoleName))
+                        {
+                            await _userManager.RemoveFromRoleAsync(objFromDb, oldRoleName);
+                        }
+
+                        if (!await _roleManager.RoleExistsAsync(newRoleName))
+                        {
+                            await _roleManager.CreateAsync(new IdentityRole(newRoleName));
+                        }
+                        await _userManager.AddToRoleAsync(objFromDb, newRoleName);
+                    }
+                }
                 return Ok(new { success = true, message = "Staff updated successfully" });
             }
             return BadRequest(result.Errors);
@@ -140,13 +177,14 @@ namespace HotelCSS.Controllers
                 return Unauthorized(new { success = false, message = "Invalid username or password!" });
             }
 
+            var roles = await _userManager.GetRolesAsync(user);
+            string roleName = roles.FirstOrDefault() ?? "Admin";
+
             // --- Token Generation ---
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_configuration.GetValue<string>("JwtSettings:SecretKey"));
 
-            // Safety check: If Department is null (e.g. Admin), provide a fallback role
-            string roleName = user.Department != null ? user.Department.DepartmentName : "Admin";
-            string deptId = user.DepartmentId != null ? user.DepartmentId.ToString() : "0";
+            string deptId = user.DepartmentId != 0 ? user.DepartmentId.ToString() : "0";
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
