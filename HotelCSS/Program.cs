@@ -1,3 +1,4 @@
+using CSSHotel.DataAccess.DbInitializer;
 using CSSHotel.DataAccess.Data;
 using CSSHotel.DataAccess.Repository;
 using CSSHotel.DataAccess.Repository.IRepository;
@@ -9,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using System.Text.Json.Serialization;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -86,7 +88,7 @@ builder.Services.AddAuthentication(x =>
         ValidateAudience = false
     };
 });
-
+builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 
 var app = builder.Build();
 
@@ -101,7 +103,17 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
-
+SeedDatabase();
 app.MapControllers();
 
 app.Run();
+
+
+void SeedDatabase()
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+        dbInitializer.Initialize();
+    }
+}

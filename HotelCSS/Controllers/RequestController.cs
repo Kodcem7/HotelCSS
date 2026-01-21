@@ -1,5 +1,6 @@
 ﻿using CSSHotel.DataAccess.Repository.IRepository;
 using CSSHotel.Models;
+using CSSHotel.Models.ViewModels;
 using CSSHotel.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -35,14 +36,13 @@ namespace HotelCSS.Controllers
 
             if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Manager) || User.IsInRole(SD.Role_Reception))
             {
-                // Reception/Manager see ALL requests
+                
                 requests = _unitOfWork.Request.GetAll(includeProperties: "ServiceItem,Room");
                 return Ok(requests);
             }
-            else if (User.IsInRole(SD.Role_Staff))
+            else if (User.IsInRole(SD.Role_HouseKeeping) || User.IsInRole(SD.Role_Restaurant))
             {
-                // Staff only see requests for their Department
-                // First, get the current staff user to find their DepartmentId
+                
                 var staffUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == userId);
 
                 if (staffUser == null)
@@ -61,7 +61,7 @@ namespace HotelCSS.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] Request obj)
+        public IActionResult Create([FromBody] RequestCreateDTO obj)
         {
             if (obj == null)
             {
@@ -70,10 +70,19 @@ namespace HotelCSS.Controllers
 
             if (ModelState.IsValid)
             {
-                obj.RequestDate = DateTime.Now;
-                obj.Status = SD.StatusPending;
+                Request newRequest = new Request
+                {
+                    RoomNumber = obj.RoomNumber,      
+                    ServiceItemId = obj.ServiceItemId,
+                    Quantity = obj.Quantity,
+                    Note = obj.Note,
 
-                _unitOfWork.Request.Add(obj);
+                    
+                    RequestDate = DateTime.Now,
+                    Status = SD.StatusPending
+                };
+
+                _unitOfWork.Request.Add(newRequest);
                 _unitOfWork.Save();
                 return Ok(new { success = true, message = "Order placed successfully!" });
             }

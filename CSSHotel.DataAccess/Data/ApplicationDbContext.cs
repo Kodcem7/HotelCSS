@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace CSSHotel.DataAccess.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<IdentityUser>
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
@@ -36,7 +36,8 @@ namespace CSSHotel.DataAccess.Data
                 new Department { Id = 2, DepartmentName = "Kitchen" },
                 new Department { Id = 3, DepartmentName = "Technic" },
                 new Department { Id = 4, DepartmentName = "Reception" },
-                new Department { Id = 5, DepartmentName = "Restaurant" }
+                new Department { Id = 5, DepartmentName = "Restaurant" },
+                new Department { Id = 99, DepartmentName = "Administration" }
             );
 
             // B. Seed Service Items (Examples)

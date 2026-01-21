@@ -34,6 +34,7 @@ namespace HotelCSS.Controllers
 
             if (ModelState.IsValid)
             {
+
                 string wwwRootPath = _hostEnvironment.WebRootPath;
                 if (file != null)
                 {
@@ -52,6 +53,7 @@ namespace HotelCSS.Controllers
 
                     obj.ImageUrl = @"\images\departments\" + fileName;
                 }
+                
                 _unitOfWork.Department.Add(obj);
                 _unitOfWork.Save();
 
