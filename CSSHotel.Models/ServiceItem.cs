@@ -27,9 +27,8 @@ namespace CSSHotel.Models
 
         public string? ImageUrl { get; set; }
         public string? Description { get; set; }
-        [Required]
         [Column(TypeName = "decimal(18, 2)")] 
-        public decimal Price { get; set; }
+        public decimal? Price { get; set; }
         public bool IsAvailable { get; set; } = true;
 
     }

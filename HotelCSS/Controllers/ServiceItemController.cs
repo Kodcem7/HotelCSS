@@ -1,5 +1,6 @@
 ﻿using CSSHotel.DataAccess.Repository.IRepository;
 using CSSHotel.Models;
+using CSSHotel.Models.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -26,7 +27,7 @@ namespace HotelCSS.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromForm] ServiceItem obj, IFormFile? file)
+        public IActionResult Create([FromForm] ServiceItemDTO obj, IFormFile? file)
         {
             if (obj == null)
             {
@@ -35,6 +36,17 @@ namespace HotelCSS.Controllers
 
             if (ModelState.IsValid)
             {
+                ServiceItem newServiceItem = new ServiceItem
+                {
+                    Name = obj.Name,
+                    DepartmentId = obj.DepartmentId,
+                    Description = obj.Description,
+                    Price = obj.Price,
+                    IsAvailable = true,
+                    ImageUrl = obj.ImageUrl
+                };
+
+
                 string wwwRootPath = _hostEnvironment.WebRootPath;
 
                 if (file != null)
@@ -51,12 +63,11 @@ namespace HotelCSS.Controllers
                     {
                         file.CopyTo(fileStream);
                     }
-                    obj.ImageUrl = @"\images\serviceitems\" + fileName;
+                    newServiceItem.ImageUrl = @"\images\serviceitems\" + fileName;
                 }
-                obj.Department = null;
-                _unitOfWork.ServiceItem.Add(obj);
+                _unitOfWork.ServiceItem.Add(newServiceItem);
                 _unitOfWork.Save();
-                return Ok(new { success = true, message = "Service Item Created Successfully", data = obj });
+                return Ok(new { success = true, message = "Service Item Created Successfully", data = newServiceItem });
             }
             return BadRequest(ModelState);
         }
