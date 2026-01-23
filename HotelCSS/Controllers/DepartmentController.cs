@@ -1,5 +1,7 @@
 ﻿using CSSHotel.DataAccess.Repository.IRepository;
 using CSSHotel.Models;
+using CSSHotel.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,6 +9,7 @@ namespace HotelCSS.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
     public class DepartmentController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;

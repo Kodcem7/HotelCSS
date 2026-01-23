@@ -17,7 +17,7 @@ namespace HotelCSS.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
-        private readonly UserManager<ApplicationUser> _userManager; // 1. Inject UserManager
+        private readonly UserManager<ApplicationUser> _userManager; 
         private readonly RoleManager<IdentityRole> _roleManager;
 
         public UserController(IUnitOfWork unitOfWork, IConfiguration configuration, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
@@ -89,7 +89,7 @@ namespace HotelCSS.Controllers
 
         // 4. Changed 'int id' to 'string id'
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(string id, [FromBody] ApplicationUser obj)
+        public async Task<IActionResult> Update(string id, [FromBody] UserRegisterDTO obj)
         {
             // Note: 'obj.Id' in ApplicationUser is a string now.
             if (obj == null || id != obj.Id)
@@ -107,6 +107,7 @@ namespace HotelCSS.Controllers
             string oldRoleName = oldRoles.FirstOrDefault();
             objFromDb.Name = obj.Name;
             objFromDb.DepartmentId = obj.DepartmentId;
+            objFromDb.UserName = obj.UserName;
 
             var result = await _userManager.UpdateAsync(objFromDb);
 

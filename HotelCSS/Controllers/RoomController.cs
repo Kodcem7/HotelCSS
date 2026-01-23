@@ -1,6 +1,8 @@
 ﻿using CSSHotel.DataAccess.Repository.IRepository;
 using CSSHotel.Models;
 using CSSHotel.Models.ViewModels;
+using CSSHotel.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +10,7 @@ namespace HotelCSS.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception)]
     public class RoomController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -21,7 +24,7 @@ namespace HotelCSS.Controllers
             var rooms = _unitOfWork.Room.GetAll();
             return Ok(new { data = rooms });
         }
-
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
         [HttpPost("CreateRoom")]
         public IActionResult Create([FromBody] Room obj)
         {
@@ -45,6 +48,7 @@ namespace HotelCSS.Controllers
         }
 
         [HttpPost("CreateAllRooms")]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
         public IActionResult CreateRooms([FromBody] RoomConfigVM config)
         {
             if (config.TotalFloors > 20 || config.RoomsPerFloor > 50)
@@ -94,7 +98,7 @@ namespace HotelCSS.Controllers
 
 
         }
-
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception)]
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromBody] Room obj)
         {
@@ -115,6 +119,7 @@ namespace HotelCSS.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
         public IActionResult Delete(int id)
         {
             if (id <= 0)
@@ -133,6 +138,7 @@ namespace HotelCSS.Controllers
         }
 
         [HttpDelete("DeleteAll")]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
         public IActionResult DeleteAllRooms()
         {
 
