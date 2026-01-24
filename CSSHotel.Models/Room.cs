@@ -10,8 +10,7 @@ namespace CSSHotel.Models
 {
     public class Room
     {
-        // Using DatabaseGeneratedOption.None allows you to manually set the ID to "3310"
-        // instead of having the database auto-generate "1, 2, 3..."
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         [Display(Name = "Room Number")]

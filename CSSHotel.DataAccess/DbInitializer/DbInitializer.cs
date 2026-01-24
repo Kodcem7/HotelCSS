@@ -1,5 +1,6 @@
 ﻿using CSSHotel.DataAccess.Data;
 using CSSHotel.Models;
+using CSSHotel.Utility;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -28,6 +29,9 @@ namespace CSSHotel.DataAccess.DbInitializer
 
         public void Initialize()
         {
+
+
+
             // 1. Apply Migrations (Safety Check)
             try
             {
@@ -81,7 +85,44 @@ namespace CSSHotel.DataAccess.DbInitializer
                 ApplicationUser user = _db.ApplicationUsers.FirstOrDefault(u => u.Email == "admin@hotelcss.com");
                 _userManager.AddToRoleAsync(user, "Admin").GetAwaiter().GetResult();
             }
+            //CREATING ROOM DEPARTMENT IF NOT EXISTS
+            var guestDept = _db.Departments.FirstOrDefault(u => u.DepartmentName == "Room");
+            if (guestDept == null)
+            {
+                guestDept = new Department
+                {
+                    DepartmentName = "Room",
+                };
 
+                _db.Departments.Add(guestDept);
+                _db.SaveChanges();
+            }
+            if (!_roleManager.RoleExistsAsync(SD.Role_Room).GetAwaiter().GetResult())
+            {
+                _roleManager.CreateAsync(new IdentityRole(SD.Role_Room)).GetAwaiter().GetResult();
+            }
+            //ADDING ROOM USERS AND ASSIGNING ROLES
+            int validRoomDeptId = guestDept.Id;
+            var allRooms = _db.Rooms.ToList();
+
+            foreach (var room in allRooms)
+            {
+                string userName = "Room" + room.RoomNumber;
+
+                var existingRoomUser = _userManager.FindByNameAsync(userName).GetAwaiter().GetResult();
+
+                if (existingRoomUser == null)
+                {
+                    var newRoomUser = new ApplicationUser
+                    {
+                        UserName = userName,
+                        Name = "Guest Room" + room.RoomNumber,
+                        DepartmentId = validRoomDeptId
+                    };
+                    _userManager.CreateAsync(newRoomUser, "HotelGuest123!").GetAwaiter().GetResult();
+                    _userManager.AddToRoleAsync(newRoomUser, SD.Role_Room).GetAwaiter().GetResult();
+                }
+            }
             return;
         }
     }

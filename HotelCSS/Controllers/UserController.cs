@@ -2,30 +2,35 @@
 using CSSHotel.Models;
 using CSSHotel.Models.ViewModels;
 using CSSHotel.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace HotelCSS.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
     public class UserController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
-        private readonly UserManager<ApplicationUser> _userManager; 
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
-        public UserController(IUnitOfWork unitOfWork, IConfiguration configuration, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public UserController(IUnitOfWork unitOfWork, IConfiguration configuration, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, SignInManager<ApplicationUser> signInManager)
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
             _userManager = userManager;
             _roleManager = roleManager;
+            _signInManager = signInManager;
         }
 
         [HttpGet("GetStaffList")]
@@ -203,6 +208,37 @@ namespace HotelCSS.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
             return Ok(new { success = true, token = tokenString });
+        }
+        [HttpGet]
+        public async Task<IActionResult> RoomLogin(int roomId, string token)
+        {
+            if (roomId == 0 || string.IsNullOrEmpty(token))
+            {
+                return BadRequest(new { success = false, message = "Invalid QR Code" });
+            }
+
+            var room = _unitOfWork.Room.GetFirstOrDefault(u => u.RoomNumber == roomId);
+
+            if (room == null)
+            {
+                return NotFound(new { success = false, message = "Room not found!" });
+            }
+
+            if (room.QrCodeString != token)
+            {
+                return Unauthorized(new { success = false, message = "Invalid Security Token!" });
+            }
+            string username = "Room" + roomId;
+            var user = await _userManager.FindByNameAsync(username);
+
+            if (user == null)
+            {
+                return NotFound(new { success = false, message = "User for   this room doesn't exists" });
+            }
+
+            await _signInManager.SignInAsync(user, isPersistent: true);
+            return Ok(new { success = true, message = "Login Successful! You are now authenticated as " + user.UserName });
+
         }
     }
 }
