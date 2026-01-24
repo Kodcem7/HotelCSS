@@ -15,7 +15,7 @@ namespace HotelCSS.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
+
     public class UserController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -34,6 +34,7 @@ namespace HotelCSS.Controllers
         }
 
         [HttpGet("GetStaffList")]
+
         public IActionResult GetAll()
         {
             var staffList = _unitOfWork.ApplicationUser.GetAll(includeProperties: "Department");
@@ -42,6 +43,7 @@ namespace HotelCSS.Controllers
 
         // 2. Use a DTO (Data Transfer Object) to receive the password
         [HttpPost("CreatingNewUser")]
+
         public async Task<IActionResult> Create([FromBody] UserRegisterDTO obj)
         {
             // Check if user exists using UserManager
@@ -94,6 +96,7 @@ namespace HotelCSS.Controllers
 
         // 4. Changed 'int id' to 'string id'
         [HttpPut("{id}")]
+
         public async Task<IActionResult> Update(string id, [FromBody] UserRegisterDTO obj)
         {
             // Note: 'obj.Id' in ApplicationUser is a string now.
@@ -147,6 +150,7 @@ namespace HotelCSS.Controllers
         }
 
         [HttpDelete("{id}")]
+
         public async Task<IActionResult> Delete(string id)
         {
             var userFromDb = await _userManager.FindByIdAsync(id);
@@ -209,7 +213,8 @@ namespace HotelCSS.Controllers
             var tokenString = tokenHandler.WriteToken(token);
             return Ok(new { success = true, token = tokenString });
         }
-        [HttpGet]
+
+        [HttpGet("Room Login")]
         public async Task<IActionResult> RoomLogin(int roomId, string token)
         {
             if (roomId == 0 || string.IsNullOrEmpty(token))
@@ -233,7 +238,7 @@ namespace HotelCSS.Controllers
 
             if (user == null)
             {
-                return NotFound(new { success = false, message = "User for   this room doesn't exists" });
+                return NotFound(new { success = false, message = "User for this room doesn't exists" });
             }
 
             await _signInManager.SignInAsync(user, isPersistent: true);
