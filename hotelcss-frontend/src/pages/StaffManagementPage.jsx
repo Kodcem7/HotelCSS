@@ -99,9 +99,32 @@ const StaffManagementPage = () => {
       handleCloseModal();
       await fetchData();
     } catch (err) {
-      const errorMsg = err.response?.data?.message || 
-                     (Array.isArray(err.response?.data) ? err.response.data.map(e => e.description || e).join(', ') : 'Operation failed');
-      setError(errorMsg);
+      let errorMsg = err.response?.data?.message;
+      if (!errorMsg && err.response?.data) {
+        const data = err.response.data;
+        if (Array.isArray(data)) {
+          // Identity validation errors: [{ code, description }] or [{ Code, Description }]
+          errorMsg = data.map((e) => e.description || e.Description || e.code || e.Code || String(e)).join('. ');
+        } else if (typeof data === 'object' && data !== null && data.errors) {
+          // ASP.NET Core validation: { title, status, errors: { "Field": ["msg1", "msg2"] } }
+          const parts = Object.entries(data.errors).flatMap(([field, messages]) =>
+            (Array.isArray(messages) ? messages : [messages]).map((m) =>
+              field ? `${field}: ${m}` : m
+            )
+          );
+          errorMsg = parts.length ? parts.join(' ') : data.title || null;
+        } else if (typeof data === 'object' && data !== null && !data.message) {
+          // Other object: use title or flatten (skip type/status to avoid [object Object])
+          const skipKeys = ['type', 'status', 'traceId', 'errors'];
+          const parts = Object.entries(data)
+            .filter(([k]) => !skipKeys.includes(k))
+            .flatMap(([, v]) => (Array.isArray(v) ? v : [v]))
+            .filter((x) => typeof x === 'string' || (typeof x === 'object' && x !== null && (x.description || x.Description)))
+            .map((x) => (typeof x === 'string' ? x : x.description || x.Description));
+          errorMsg = parts.length ? parts.join('. ') : data.title || null;
+        }
+      }
+      setError(errorMsg || err.message || 'Operation failed');
     }
   };
 

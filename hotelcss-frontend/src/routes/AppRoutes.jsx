@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { getDashboardPathForRole } from '../utils/dashboardPath';
 import ProtectedRoute from './ProtectedRoute';
 import Login from '../pages/Login';
 import AdminDashboard from '../pages/AdminDashboard';
@@ -23,15 +24,15 @@ const AppRoutes = () => {
     <BrowserRouter>
       <Routes>
         {/* Public Routes */}
-        <Route 
-          path="/login" 
+        <Route
+          path="/login"
           element={
             isAuthenticated ? (
-              <Navigate to={`/${user?.role?.toLowerCase()}`} replace />
+              <Navigate to={getDashboardPathForRole(user?.role)} replace />
             ) : (
               <Login />
             )
-          } 
+          }
         />
 
         {/* Protected Routes - Role-based access */}
@@ -137,7 +138,7 @@ const AppRoutes = () => {
         <Route
           path="/staff"
           element={
-            <ProtectedRoute allowedRoles={['Staff', 'Housekeeping', 'Restaurant']}>
+            <ProtectedRoute allowedRoles={['Staff', 'Housekeeping', 'Restaurant', 'Kitchen', 'Technic']}>
               <StaffDashboard />
             </ProtectedRoute>
           }
@@ -146,7 +147,7 @@ const AppRoutes = () => {
         <Route
           path="/staff/requests"
           element={
-            <ProtectedRoute allowedRoles={['Staff', 'Housekeeping', 'Restaurant']}>
+            <ProtectedRoute allowedRoles={['Staff', 'Housekeeping', 'Restaurant', 'Kitchen', 'Technic']}>
               <RequestsPage />
             </ProtectedRoute>
           }
@@ -184,15 +185,15 @@ const AppRoutes = () => {
           path="/"
           element={
             isAuthenticated ? (
-              <Navigate to={`/${user?.role?.toLowerCase()}`} replace />
+              <Navigate to={getDashboardPathForRole(user?.role)} replace />
             ) : (
               <Navigate to="/login" replace />
             )
           }
         />
 
-        {/* Catch all - redirect to login */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        {/* Catch all - redirect to login or correct dashboard */}
+        <Route path="*" element={<Navigate to={isAuthenticated ? getDashboardPathForRole(user?.role) : '/login'} replace />} />
       </Routes>
     </BrowserRouter>
   );

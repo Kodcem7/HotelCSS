@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { getDashboardPathForRole } from '../utils/dashboardPath';
 
 const Login = () => {
   const [userName, setUserName] = useState('');
@@ -25,8 +26,7 @@ const Login = () => {
     const result = await login(userName, password);
 
     if (result.success) {
-      const role = result.user.role.toLowerCase();
-      navigate(`/${role}`);
+      navigate(getDashboardPathForRole(result.user?.role));
     } else {
       setError(result.message || 'Login failed. Please try again.');
       setLoading(false);
