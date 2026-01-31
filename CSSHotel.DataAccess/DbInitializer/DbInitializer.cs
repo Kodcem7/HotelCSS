@@ -63,12 +63,6 @@ namespace CSSHotel.DataAccess.DbInitializer
             if (!_roleManager.RoleExistsAsync("Admin").GetAwaiter().GetResult())
             {
                 _roleManager.CreateAsync(new IdentityRole("Admin")).GetAwaiter().GetResult();
-                _roleManager.CreateAsync(new IdentityRole("Manager")).GetAwaiter().GetResult();
-                _roleManager.CreateAsync(new IdentityRole("HouseKeeping")).GetAwaiter().GetResult();
-                _roleManager.CreateAsync(new IdentityRole("Kitchen")).GetAwaiter().GetResult();
-                _roleManager.CreateAsync(new IdentityRole("Technic")).GetAwaiter().GetResult();
-                _roleManager.CreateAsync(new IdentityRole("Reception")).GetAwaiter().GetResult();
-                _roleManager.CreateAsync(new IdentityRole("Restaurant")).GetAwaiter().GetResult();
 
                 // 4. Create Admin User
                 _userManager.CreateAsync(new ApplicationUser

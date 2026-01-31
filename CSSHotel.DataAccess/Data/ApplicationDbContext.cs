@@ -37,7 +37,7 @@ namespace CSSHotel.DataAccess.Data
                 new Department { Id = 3, DepartmentName = "Technic" },
                 new Department { Id = 4, DepartmentName = "Reception" },
                 new Department { Id = 5, DepartmentName = "Restaurant" },
-                new Department { Id = 99, DepartmentName = "Administration" }
+                new Department { Id = 6, DepartmentName = "Manager" }
             );
 
             // B. Seed Service Items (Examples)
