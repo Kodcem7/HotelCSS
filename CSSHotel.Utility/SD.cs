@@ -14,6 +14,8 @@ namespace CSSHotel.Utility
         public const string Role_HouseKeeping = "Housekeeping";
         public const string Role_Restaurant = "Restaurant";
         public const string Role_Room = "Room";
+        public const string Role_Kitchen = "Kitchen";
+        public const string Role_Technic = "Technic";
 
         public const string StatusPending = "Pending";
         public const string StatusInProgress = "InProcess";
