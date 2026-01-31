@@ -29,18 +29,21 @@ const ProtectedRoute = ({ children, allowedRoles, redirectTo = '/login' }) => {
   const roles = Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles];
   const hasAccess = roles.includes(user?.role);
 
-  // Redirect if user doesn't have required role
+    // Redirect if user doesn't have required role
   if (!hasAccess) {
-    // Redirect to a default dashboard based on role, or login
     const roleRedirects = {
       Admin: '/admin',
       Manager: '/manager',
       Reception: '/reception',
       Staff: '/staff',
       Room: '/room',
+      Housekeeping: '/staff',
+      HouseKeeping: '/staff', // from DbInitializer
+      Restaurant: '/staff',
+      Kitchen: '/staff',
+      Technic: '/staff',
     };
-    
-    const defaultRoute = roleRedirects[user?.role] || '/login';
+    const defaultRoute = roleRedirects[user?.role] || '/staff';
     return <Navigate to={defaultRoute} replace />;
   }
 

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -87,11 +88,13 @@ namespace HotelCSS.Controllers
                 }
                 else
                 {
-                    // Returns errors like "Password too short" etc.
-                    return BadRequest(result.Errors);
+                    // Return a single message so frontend can display it
+                    var errors = string.Join(" ", result.Errors.Select(e => e.Description));
+                    return BadRequest(new { success = false, message = errors });
                 }
             }
-            return BadRequest(ModelState);
+            var modelErrors = string.Join(" ", ModelState.Values.SelectMany(v => v.Errors.Select(e => e.ErrorMessage)));
+            return BadRequest(new { success = false, message = string.IsNullOrEmpty(modelErrors) ? "Invalid data." : modelErrors });
         }
 
         // 4. Changed 'int id' to 'string id'
@@ -146,7 +149,8 @@ namespace HotelCSS.Controllers
                 }
                 return Ok(new { success = true, message = "Staff updated successfully" });
             }
-            return BadRequest(result.Errors);
+            var updateErrors = string.Join(" ", result.Errors.Select(e => e.Description));
+            return BadRequest(new { success = false, message = updateErrors });
         }
 
         [HttpDelete("{id}")]
