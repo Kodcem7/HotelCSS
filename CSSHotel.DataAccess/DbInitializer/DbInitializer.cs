@@ -64,7 +64,6 @@ namespace CSSHotel.DataAccess.DbInitializer
             {
                 _roleManager.CreateAsync(new IdentityRole("Admin")).GetAwaiter().GetResult();
                 _roleManager.CreateAsync(new IdentityRole("Manager")).GetAwaiter().GetResult();
-                _roleManager.CreateAsync(new IdentityRole("Staff")).GetAwaiter().GetResult();
                 _roleManager.CreateAsync(new IdentityRole("HouseKeeping")).GetAwaiter().GetResult();
                 _roleManager.CreateAsync(new IdentityRole("Kitchen")).GetAwaiter().GetResult();
                 _roleManager.CreateAsync(new IdentityRole("Technic")).GetAwaiter().GetResult();

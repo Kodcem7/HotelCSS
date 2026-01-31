@@ -40,7 +40,7 @@ namespace HotelCSS.Controllers
                 requests = _unitOfWork.Request.GetAll(includeProperties: "ServiceItem,Room");
                 return Ok(requests);
             }
-            else if (User.IsInRole(SD.Role_HouseKeeping) || User.IsInRole(SD.Role_Restaurant))
+            else if (User.IsInRole(SD.Role_HouseKeeping) || User.IsInRole(SD.Role_Restaurant) || User.IsInRole(SD.Role_Kitchen) || User.IsInRole(SD.Role_Room) || User.IsInRole(SD.Role_Technic))
             {
                 
                 var staffUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == userId);
