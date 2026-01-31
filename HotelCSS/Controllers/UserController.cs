@@ -1,4 +1,4 @@
-﻿using CSSHotel.DataAccess.Repository.IRepository;
+using CSSHotel.DataAccess.Repository.IRepository;
 using CSSHotel.Models;
 using CSSHotel.Models.ViewModels;
 using CSSHotel.Utility;
@@ -168,7 +168,7 @@ namespace HotelCSS.Controllers
         }
 
         [HttpPost("Login")]
-        public async Task<IActionResult> Login([FromBody] UserRegisterDTO loginData)
+        public async Task<IActionResult> Login([FromBody] LoginDTO loginData)
         {
             if (loginData == null)
             {
