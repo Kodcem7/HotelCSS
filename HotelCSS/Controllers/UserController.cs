@@ -26,7 +26,7 @@ namespace HotelCSS.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ITokenService _tokenService;
 
-        public UserController(IUnitOfWork unitOfWork, IConfiguration configuration, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, SignInManager<ApplicationUser> signInManager)
+        public UserController(IUnitOfWork unitOfWork, IConfiguration configuration, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, SignInManager<ApplicationUser> signInManager, ITokenService tokenService)
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
@@ -180,30 +180,13 @@ namespace HotelCSS.Controllers
                 return Unauthorized(new { success = false, message = "Invalid username or password!" });
             }
 
+            // 1. Get the roles (Only once!)
             var roles = await _userManager.GetRolesAsync(user);
-            string roleName = roles.FirstOrDefault() ?? "Admin";
 
-            // --- Token Generation ---
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_configuration.GetValue<string>("JwtSettings:SecretKey"));
+            // 2. Generate the token using your new Service
+            var tokenString = _tokenService.CreateToken(user, roles);
 
-            string deptId = user.DepartmentId != 0 ? user.DepartmentId.ToString() : "0";
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id), // ID is string
-                    new Claim(ClaimTypes.Name, user.UserName),
-                    new Claim(ClaimTypes.Role, roleName),
-                    new Claim("DepartmentId", deptId)
-                }),
-                Expires = DateTime.UtcNow.AddDays(7),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var tokenString = tokenHandler.WriteToken(token);
+            // 3. Return it
             return Ok(new { success = true, token = tokenString });
         }
 
@@ -235,8 +218,18 @@ namespace HotelCSS.Controllers
                 return NotFound(new { success = false, message = "User for this room doesn't exists" });
             }
 
+            // --- Generate Token for Room User too ---
+            var roles = await _userManager.GetRolesAsync(user);
+            var jwtToken = _tokenService.CreateToken(user, roles);
+
             await _signInManager.SignInAsync(user, isPersistent: true);
 
+            return Ok(new
+            {
+                success = true,
+                token = jwtToken, // Return the token here!
+                message = "Login Successful! You are now authenticated as " + user.UserName
+            });
         }
     }
 }
