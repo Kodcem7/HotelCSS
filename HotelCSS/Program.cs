@@ -1,8 +1,10 @@
-using CSSHotel.DataAccess.DbInitializer;
 using CSSHotel.DataAccess.Data;
+using CSSHotel.DataAccess.DbInitializer;
 using CSSHotel.DataAccess.Repository;
 using CSSHotel.DataAccess.Repository.IRepository;
 using CSSHotel.Models;
+using CSSHotel.Utility;
+using CSSHotel.Utility.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -101,7 +103,7 @@ builder.Services.AddCors(options =>
               .AllowCredentials();
     });
 });
-
+builder.Services.AddScoped<ITokenService, TokenService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

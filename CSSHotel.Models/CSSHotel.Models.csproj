@@ -19,8 +19,4 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\CSSHotel.Utility\CSSHotel.Utility.csproj" />
-  </ItemGroup>
-
 </Project>
