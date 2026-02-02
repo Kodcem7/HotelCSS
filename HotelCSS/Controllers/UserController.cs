@@ -5,18 +5,17 @@ using CSSHotel.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens; // You can remove this now if you want
+using System.IdentityModel.Tokens.Jwt; // You can remove this now if you want
 using System.Linq;
-using System.Security.Claims;
-using System.Text;
+using System.Security.Claims; // You can remove this now if you want
+using System.Text; // You can remove this now if you want
 using System.Threading.Tasks;
 
 namespace HotelCSS.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-
     public class UserController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -24,30 +23,35 @@ namespace HotelCSS.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly ITokenService _tokenService;
 
-        public UserController(IUnitOfWork unitOfWork, IConfiguration configuration, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, SignInManager<ApplicationUser> signInManager)
+
+        public UserController(
+            IUnitOfWork unitOfWork,
+            IConfiguration configuration,
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager,
+            SignInManager<ApplicationUser> signInManager,
+            ITokenService tokenService) 
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
             _userManager = userManager;
             _roleManager = roleManager;
             _signInManager = signInManager;
+            _tokenService = tokenService;
         }
 
         [HttpGet("GetStaffList")]
-
         public IActionResult GetAll()
         {
             var staffList = _unitOfWork.ApplicationUser.GetAll(u => u.Department.Id != 100, includeProperties: "Department");
             return Ok(new { data = staffList });
         }
 
-        // 2. Use a DTO (Data Transfer Object) to receive the password
         [HttpPost("CreatingNewUser")]
-
         public async Task<IActionResult> Create([FromBody] UserRegisterDTO obj)
         {
-            // Check if user exists using UserManager
             var existingUser = await _userManager.FindByNameAsync(obj.UserName);
             if (existingUser != null)
             {
@@ -56,7 +60,6 @@ namespace HotelCSS.Controllers
 
             if (ModelState.IsValid)
             {
-                // Map the DTO to the ApplicationUser
                 ApplicationUser user = new ApplicationUser
                 {
                     UserName = obj.UserName,
@@ -64,12 +67,11 @@ namespace HotelCSS.Controllers
                     DepartmentId = obj.DepartmentId
                 };
 
-                // 3. Create user + Hash Password automatically
                 var result = await _userManager.CreateAsync(user, obj.Password);
 
                 if (result.Succeeded)
                 {
-                    string roleName = "Admin"; // Default role
+                    string roleName = "Admin";
                     if (obj.DepartmentId != 0)
                     {
                         var dept = _unitOfWork.Department.GetFirstOrDefault(u => u.Id == obj.DepartmentId);
@@ -88,7 +90,6 @@ namespace HotelCSS.Controllers
                 }
                 else
                 {
-                    // Return a single message so frontend can display it
                     var errors = string.Join(" ", result.Errors.Select(e => e.Description));
                     return BadRequest(new { success = false, message = errors });
                 }
@@ -97,12 +98,9 @@ namespace HotelCSS.Controllers
             return BadRequest(new { success = false, message = string.IsNullOrEmpty(modelErrors) ? "Invalid data." : modelErrors });
         }
 
-        // 4. Changed 'int id' to 'string id'
         [HttpPut("{id}")]
-
         public async Task<IActionResult> Update(string id, [FromBody] UserRegisterDTO obj)
         {
-            // Note: 'obj.Id' in ApplicationUser is a string now.
             if (obj == null || id != obj.Id)
             {
                 return BadRequest(new { success = false, message = "Invalid data mismatch" });
@@ -127,7 +125,7 @@ namespace HotelCSS.Controllers
                 if (obj.DepartmentId != 0)
                 {
                     var newDept = _unitOfWork.Department.GetFirstOrDefault(u => u.Id == obj.DepartmentId);
-                    string newRoleName = "Admin"; // Default role
+                    string newRoleName = "Admin";
                     if (newDept != null)
                     {
                         newRoleName = newDept.DepartmentName;
@@ -154,7 +152,6 @@ namespace HotelCSS.Controllers
         }
 
         [HttpDelete("{id}")]
-
         public async Task<IActionResult> Delete(string id)
         {
             var userFromDb = await _userManager.FindByIdAsync(id);
@@ -179,42 +176,21 @@ namespace HotelCSS.Controllers
                 return BadRequest(new { success = false, message = "Invalid login data!" });
             }
 
-            // We use _unitOfWork here because we need the Department included
             var user = _unitOfWork.ApplicationUser.GetFirstOrDefault(
                 u => u.UserName == loginData.UserName,
                 includeProperties: "Department"
             );
 
-            // 5. Use CheckPasswordAsync (User object, Plain Password)
             if (user == null || !await _userManager.CheckPasswordAsync(user, loginData.Password))
             {
                 return Unauthorized(new { success = false, message = "Invalid username or password!" });
             }
 
+            // 3. REFACTORED LOGIN: Used _tokenService instead of manual code
             var roles = await _userManager.GetRolesAsync(user);
-            string roleName = roles.FirstOrDefault() ?? "Admin";
 
-            // --- Token Generation ---
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_configuration.GetValue<string>("JwtSettings:SecretKey"));
+            var tokenString = _tokenService.CreateToken(user, roles); // <--- Clean Service Call
 
-            string deptId = user.DepartmentId != 0 ? user.DepartmentId.ToString() : "0";
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id), // ID is string
-                    new Claim(ClaimTypes.Name, user.UserName),
-                    new Claim(ClaimTypes.Role, roleName),
-                    new Claim("DepartmentId", deptId)
-                }),
-                Expires = DateTime.UtcNow.AddDays(7),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var tokenString = tokenHandler.WriteToken(token);
             return Ok(new { success = true, token = tokenString });
         }
 
@@ -237,6 +213,7 @@ namespace HotelCSS.Controllers
             {
                 return Unauthorized(new { success = false, message = "Invalid Security Token!" });
             }
+
             string username = "Room" + roomId;
             var user = await _userManager.FindByNameAsync(username);
 
@@ -245,9 +222,19 @@ namespace HotelCSS.Controllers
                 return NotFound(new { success = false, message = "User for this room doesn't exists" });
             }
 
-            await _signInManager.SignInAsync(user, isPersistent: true);
-            return Ok(new { success = true, message = "Login Successful! You are now authenticated as " + user.UserName });
+            // 4. REFACTORED ROOM LOGIN: Used _tokenService
+            var roles = await _userManager.GetRolesAsync(user);
 
+            var jwtToken = _tokenService.CreateToken(user, roles); // <--- Clean Service Call
+
+            await _signInManager.SignInAsync(user, isPersistent: true);
+
+            return Ok(new
+            {
+                success = true,
+                token = jwtToken, // Added token to response
+                message = "Login Successful! You are now authenticated as " + user.UserName
+            });
         }
     }
 }
