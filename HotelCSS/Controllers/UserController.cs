@@ -2,6 +2,7 @@ using CSSHotel.DataAccess.Repository.IRepository;
 using CSSHotel.Models;
 using CSSHotel.Models.ViewModels;
 using CSSHotel.Utility;
+using CSSHotel.Utility.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -25,14 +26,7 @@ namespace HotelCSS.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ITokenService _tokenService;
 
-
-        public UserController(
-            IUnitOfWork unitOfWork,
-            IConfiguration configuration,
-            UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager,
-            SignInManager<ApplicationUser> signInManager,
-            ITokenService tokenService) 
+        public UserController(IUnitOfWork unitOfWork, IConfiguration configuration, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, SignInManager<ApplicationUser> signInManager)
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
@@ -186,11 +180,30 @@ namespace HotelCSS.Controllers
                 return Unauthorized(new { success = false, message = "Invalid username or password!" });
             }
 
-            // 3. REFACTORED LOGIN: Used _tokenService instead of manual code
             var roles = await _userManager.GetRolesAsync(user);
+            string roleName = roles.FirstOrDefault() ?? "Admin";
 
-            var tokenString = _tokenService.CreateToken(user, roles); // <--- Clean Service Call
+            // --- Token Generation ---
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_configuration.GetValue<string>("JwtSettings:SecretKey"));
 
+            string deptId = user.DepartmentId != 0 ? user.DepartmentId.ToString() : "0";
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.Id), // ID is string
+                    new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(ClaimTypes.Role, roleName),
+                    new Claim("DepartmentId", deptId)
+                }),
+                Expires = DateTime.UtcNow.AddDays(7),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var tokenString = tokenHandler.WriteToken(token);
             return Ok(new { success = true, token = tokenString });
         }
 
@@ -222,19 +235,8 @@ namespace HotelCSS.Controllers
                 return NotFound(new { success = false, message = "User for this room doesn't exists" });
             }
 
-            // 4. REFACTORED ROOM LOGIN: Used _tokenService
-            var roles = await _userManager.GetRolesAsync(user);
-
-            var jwtToken = _tokenService.CreateToken(user, roles); // <--- Clean Service Call
-
             await _signInManager.SignInAsync(user, isPersistent: true);
 
-            return Ok(new
-            {
-                success = true,
-                token = jwtToken, // Added token to response
-                message = "Login Successful! You are now authenticated as " + user.UserName
-            });
         }
     }
 }
