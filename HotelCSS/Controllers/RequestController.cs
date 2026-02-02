@@ -31,18 +31,38 @@ namespace HotelCSS.Controllers
             }
 
             string userId = claim.Value;
-
             IEnumerable<Request> requests;
 
+            // 1. ADMIN / MANAGER / RECEPTION (See Everything)
             if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Manager) || User.IsInRole(SD.Role_Reception))
             {
-                
                 requests = _unitOfWork.Request.GetAll(includeProperties: "ServiceItem,Room");
                 return Ok(requests);
             }
-            else if (User.IsInRole(SD.Role_HouseKeeping) || User.IsInRole(SD.Role_Restaurant) || User.IsInRole(SD.Role_Kitchen) || User.IsInRole(SD.Role_Room) || User.IsInRole(SD.Role_Technic))
+            // 2. NEW: ROOM USER (See only THEIR own requests)
+            else if (User.IsInRole(SD.Role_Room))
             {
-                
+                var roomUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == userId);
+                if (roomUser == null) return BadRequest("User not found");
+
+                // Extract Room Number from Username (e.g., "Room101" -> 101)
+                // This assumes your username format is always "Room" + Number
+                string roomNumString = roomUser.UserName.Replace("Room", "");
+
+                if (int.TryParse(roomNumString, out int roomNumber))
+                {
+                    requests = _unitOfWork.Request.GetAll(
+                       u => u.RoomNumber == roomNumber,
+                       includeProperties: "ServiceItem,Room"
+                   );
+                    return Ok(requests);
+                }
+                return BadRequest("Invalid Room User Format");
+            }
+            // 3. STAFF (See requests for their Department)
+            // REMOVED 'SD.Role_Room' from this list!
+            else if (User.IsInRole(SD.Role_HouseKeeping) || User.IsInRole(SD.Role_Restaurant) || User.IsInRole(SD.Role_Kitchen) || User.IsInRole(SD.Role_Technic))
+            {
                 var staffUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == userId);
 
                 if (staffUser == null)
@@ -56,7 +76,7 @@ namespace HotelCSS.Controllers
                 );
                 return Ok(requests);
             }
-           
+
             return BadRequest(new { success = false, message = "Unauthorized access." });
         }
 
