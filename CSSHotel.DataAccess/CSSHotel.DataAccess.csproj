@@ -16,10 +16,12 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="MimeKit" Version="4.14.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CSSHotel.Models\CSSHotel.Models.csproj" />
+    <ProjectReference Include="..\CSSHotel.Utility\CSSHotel.Utility.csproj" />
   </ItemGroup>
 
   <ItemGroup>

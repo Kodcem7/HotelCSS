@@ -13,6 +13,7 @@ namespace CSSHotel.Utility
         public string Password { get; set; }
         public string Name { get; set; }
         public int? DepartmentId { get; set; }
+        public string? Email { get; set; }
 
     }
 }

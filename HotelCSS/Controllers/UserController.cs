@@ -2,16 +2,12 @@ using CSSHotel.DataAccess.Repository.IRepository;
 using CSSHotel.Models;
 using CSSHotel.Models.ViewModels;
 using CSSHotel.Utility;
-using CSSHotel.Utility.Service;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens; // You can remove this now if you want
-using System.IdentityModel.Tokens.Jwt; // You can remove this now if you want
-using System.Linq;
-using System.Security.Claims; // You can remove this now if you want
-using System.Text; // You can remove this now if you want
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Build.Tasks;
+using System.Net;
+using IEmailService = CSSHotel.Utility.Service.IEmailService;
 
 namespace HotelCSS.Controllers
 {
@@ -25,8 +21,9 @@ namespace HotelCSS.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ITokenService _tokenService;
+        private readonly IEmailService _emailSender;
 
-        public UserController(IUnitOfWork unitOfWork, IConfiguration configuration, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, SignInManager<ApplicationUser> signInManager, ITokenService tokenService)
+        public UserController(IUnitOfWork unitOfWork, IConfiguration configuration, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, SignInManager<ApplicationUser> signInManager, ITokenService tokenService, IEmailService emailSender)
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
@@ -34,6 +31,7 @@ namespace HotelCSS.Controllers
             _roleManager = roleManager;
             _signInManager = signInManager;
             _tokenService = tokenService;
+            _emailSender = emailSender;
         }
 
         [HttpGet("GetStaffList")]
@@ -58,7 +56,8 @@ namespace HotelCSS.Controllers
                 {
                     UserName = obj.UserName,
                     Name = obj.Name,
-                    DepartmentId = obj.DepartmentId
+                    DepartmentId = obj.DepartmentId,
+                    Email = obj.Email
                 };
 
                 var result = await _userManager.CreateAsync(user, obj.Password);
@@ -230,6 +229,51 @@ namespace HotelCSS.Controllers
                 token = jwtToken, // Return the token here!
                 message = "Login Successful! You are now authenticated as " + user.UserName
             });
+        }
+
+        [HttpPost("ForgotPassword")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO forgotPassword)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            var user = await _userManager.FindByEmailAsync(forgotPassword.Email);
+            if (user == null)
+            {
+                return NotFound(new { success = false, message = "User not found with this email." });
+            }
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var param = new Dictionary<string, string>
+            {
+                {"token", token },
+                {"email", forgotPassword.Email }
+            };
+            var callback = QueryHelpers.AddQueryString(forgotPassword.ClientUri, param);
+            await _emailSender.SendEmailAsync(user.Email, "Reset password token", callback);
+            return Ok(new { success = true, message = "Password reset token has been sent to your email." });
+        }
+
+        [HttpPost("ResetPassword")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO resetPassword)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            var user = await _userManager.FindByEmailAsync(resetPassword.Email!);
+            if (user == null)
+            {
+                return BadRequest("Invalid Request");
+            }
+            string decodedToken = WebUtility.UrlDecode(resetPassword.Token!);
+            var result = await _userManager.ResetPasswordAsync(user, decodedToken, resetPassword.Password!);
+            if (!result.Succeeded)
+            {
+                var errors = result.Errors.Select(e => e.Description);
+                return BadRequest(new { Errors = errors });
+            }
+            return Ok(new { success = true, message = "Password has been reset successfully." });
         }
     }
 }

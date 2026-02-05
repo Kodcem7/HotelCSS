@@ -68,7 +68,7 @@ namespace CSSHotel.DataAccess.DbInitializer
                 _userManager.CreateAsync(new ApplicationUser
                 {
                     UserName = "admin",
-                    Email = "admin@hotelcss.com",
+                    Email = "200254030@ogr.alanya.edu.tr",
                     Name = "Super Admin",
                     DepartmentId = 99, // We just ensured this ID exists above!
                     EmailConfirmed = true

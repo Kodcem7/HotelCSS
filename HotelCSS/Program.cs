@@ -7,6 +7,7 @@ using CSSHotel.Utility;
 using CSSHotel.Utility.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -31,11 +32,13 @@ var key = Encoding.ASCII.GetBytes(builder.Configuration.GetValue<string>("JwtSet
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
-
+// 2. Configure Token Lifespan for Password Reset and Email Confirmation
+builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+   options.TokenLifespan = TimeSpan.FromHours(2));
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
-    
+
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = true;
     options.Password.RequireNonAlphanumeric = true;
@@ -91,7 +94,8 @@ builder.Services.AddAuthentication(x =>
     };
 });
 builder.Services.AddScoped<IDbInitializer, DbInitializer>();
-
+//Adding Email Service
+builder.Services.AddScoped<IEmailService,EmailService>();
 // Add CORS
 builder.Services.AddCors(options =>
 {
