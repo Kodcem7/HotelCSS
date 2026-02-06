@@ -9,7 +9,7 @@ namespace HotelCSS.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
+    [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager+","+SD.Role_HouseKeeping)]
     public class DepartmentController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;

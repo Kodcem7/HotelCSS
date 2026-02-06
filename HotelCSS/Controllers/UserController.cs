@@ -2,6 +2,7 @@ using CSSHotel.DataAccess.Repository.IRepository;
 using CSSHotel.Models;
 using CSSHotel.Models.ViewModels;
 using CSSHotel.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
@@ -13,6 +14,7 @@ namespace HotelCSS.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+
     public class UserController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -190,6 +192,7 @@ namespace HotelCSS.Controllers
         }
 
         [HttpGet("Room Login")]
+
         public async Task<IActionResult> RoomLogin(int roomId, string token)
         {
             if (roomId == 0 || string.IsNullOrEmpty(token))

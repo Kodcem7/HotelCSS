@@ -10,6 +10,7 @@ namespace HotelCSS.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Area("Admin")]
     [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception)]
     public class RoomController : ControllerBase
     {
@@ -63,7 +64,7 @@ namespace HotelCSS.Controllers
             {
                 for (int room = 1; room <= config.RoomsPerFloor; room++)
                 {
-                    var currentRoomNum = (floor * config.StartingRoomNumber) + room;
+                    var currentRoomNum = floor * config.StartingRoomNumber + room;
 
                     //Duplicate check
                     var existingRoom = _unitOfWork.Room.GetFirstOrDefault(u => u.RoomNumber == currentRoomNum);
