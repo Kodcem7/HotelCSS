@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Build.Tasks;
 using System.Net;
+using System.Security.Claims;
 using IEmailService = CSSHotel.Utility.Service.IEmailService;
 
 namespace HotelCSS.Controllers
@@ -144,6 +145,57 @@ namespace HotelCSS.Controllers
             }
             var updateErrors = string.Join(" ", result.Errors.Select(e => e.Description));
             return BadRequest(new { success = false, message = updateErrors });
+        }
+        [HttpPut("UpdateMyProfile")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDTO obj)
+        {
+            if (obj == null)
+            {
+                return BadRequest(new { success = false, message = "Invalid data mismatch" });
+            }
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var objFromDb = await _userManager.FindByIdAsync(userId);
+            if (objFromDb == null)
+            {
+                return NotFound(new { success = false, message = "User not found." });
+            }
+            objFromDb.Name = obj.Name;
+            objFromDb.UserName = obj.UserName;
+            var result = await _userManager.UpdateAsync(objFromDb);
+            if (!result.Succeeded)
+            {
+                var updateErrors = string.Join(" ", result.Errors.Select(e => e.Description));
+                return BadRequest(new { success = false, message = updateErrors });
+            }
+            else
+            {
+                return Ok(new { success = true, message = "Profile updated successfully" });
+            }
+        }
+        [Authorize]
+        [HttpPost("Change Password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO obj)
+        {
+            if (obj == null)
+            {
+                return BadRequest(new { success = false, message = "Invalid data mismatch" });
+            }
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userFromDb = await _userManager.FindByIdAsync(userId);
+            if (userFromDb == null)
+            {
+                return NotFound(new { success = false, message = "User not found." });
+            }
+            var result = await _userManager.ChangePasswordAsync(userFromDb, obj.OldPassword, obj.NewPassword);
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(" ", result.Errors.Select(e => e.Description));
+                return BadRequest(new { success = false, message = errors });
+            }
+            else
+            {
+                return Ok(new { success = true, message = "Password is successfully changed!" });
+            }
         }
 
         [HttpDelete("{id}")]
