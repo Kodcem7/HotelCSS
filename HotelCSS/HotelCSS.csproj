@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\images\departments\" />
+    <Folder Include="wwwroot\images\requests\" />
     <Folder Include="wwwroot\images\serviceitems\" />
   </ItemGroup>
 

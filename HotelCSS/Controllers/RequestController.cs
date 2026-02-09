@@ -5,6 +5,7 @@ using CSSHotel.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Security.Claims;
 
 namespace HotelCSS.Controllers
@@ -15,9 +16,11 @@ namespace HotelCSS.Controllers
     public class RequestController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
-        public RequestController(IUnitOfWork unitOfWork)
+        private readonly IWebHostEnvironment _hostEnvironment;
+        public RequestController(IUnitOfWork unitOfWork, IWebHostEnvironment hostEnvironment)
         {
             _unitOfWork = unitOfWork;
+            _hostEnvironment = hostEnvironment;
         }
         [HttpGet]
         public IActionResult Index()
@@ -81,13 +84,17 @@ namespace HotelCSS.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] RequestCreateDTO obj)
+        public IActionResult Create([FromForm] RequestCreateDTO obj)
         {
             if (obj == null)
             {
                 return BadRequest(new { success = false, message = "Requested object is null" });
             }
-
+            var serviceItem = _unitOfWork.ServiceItem.GetFirstOrDefault(u => u.Id == obj.ServiceItemId);
+            if (serviceItem == null)
+            {
+                return BadRequest(new { success = false, message = "Service item is not available" });
+            }
             if (ModelState.IsValid)
             {
                 Request newRequest = new Request
@@ -101,7 +108,23 @@ namespace HotelCSS.Controllers
                     RequestDate = DateTime.Now,
                     Status = SD.StatusPending
                 };
+                bool isTechnicService = serviceItem.DepartmentId == _unitOfWork.Department.GetFirstOrDefault(u => u.DepartmentName == "Technic").Id;
 
+                if (isTechnicService && obj.Photo != null && obj.Photo.Length > 0)
+                {
+                    string wwwRootPath = _hostEnvironment.WebRootPath;
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(obj.Photo.FileName);
+                    string photoPath = Path.Combine(wwwRootPath, @"images\requests");
+                    if (!Directory.Exists(photoPath))
+                    {
+                        Directory.CreateDirectory(photoPath);
+                    }
+                    using (var fileStream = new FileStream(Path.Combine(photoPath, fileName), FileMode.Create))
+                    {
+                        obj.Photo.CopyTo(fileStream);
+                    }
+                    newRequest.PhotoPath = @"\images\requests\" + fileName;
+                }
                 _unitOfWork.Request.Add(newRequest);
                 _unitOfWork.Save();
                 return Ok(new { success = true, message = "Order placed successfully!" });

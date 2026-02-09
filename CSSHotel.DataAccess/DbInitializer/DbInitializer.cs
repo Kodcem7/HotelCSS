@@ -46,17 +46,15 @@ namespace CSSHotel.DataAccess.DbInitializer
             }
 
             // 2. Fix the "Department" FK Issue
-            // We ensure Department 99 exists before we try to put a user in it.
-            var adminDept = _db.Departments.FirstOrDefault(u => u.Id == 99);
+            var adminDept = _db.Departments.FirstOrDefault(u => u.DepartmentName == "Administration");
             if (adminDept == null)
             {
-                _db.Departments.Add(new Department
+                adminDept = new Department
                 {
-                    Id = 99,
                     DepartmentName = "Administration",
-                    // ImageUrl = "" // Set empty string if required by your model
-                });
-                _db.SaveChanges();
+                };
+                _db.Departments.Add(adminDept);
+                _db.SaveChanges(); // Save now so we get an ID generated
             }
 
             // 3. Create Roles
@@ -68,9 +66,9 @@ namespace CSSHotel.DataAccess.DbInitializer
                 _userManager.CreateAsync(new ApplicationUser
                 {
                     UserName = "admin",
-                    Email = "200254030@ogr.alanya.edu.tr",
+                    Email = "admin@hotelcss.com",
                     Name = "Super Admin",
-                    DepartmentId = 99, // We just ensured this ID exists above!
+                    DepartmentId = adminDept.Id, // We just ensured this ID exists above!
                     EmailConfirmed = true
                 }, "Admin123!").GetAwaiter().GetResult();
 

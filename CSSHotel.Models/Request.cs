@@ -33,7 +33,7 @@ namespace CSSHotel.Models
         [Range(1, 5,ErrorMessage ="You can order between 1 and 5 items.")]
         public int Quantity { get; set; } = 1;
         public string? Note { get; set; }
-
+        public string? PhotoPath { get; set; }
         public DateTime RequestDate { get; set; } = DateTime.Now;
 
         // Status: "Pending", "Completed", "Cancelled"
