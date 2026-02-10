@@ -133,7 +133,6 @@ namespace HotelCSS.Controllers
         }
 
         [HttpPut("{id}")]
-        //we dont want Request obj from user because order is not changed by user
         public IActionResult Update(int id, string newStatus)
         {
             if (id <= 0)
@@ -143,6 +142,17 @@ namespace HotelCSS.Controllers
             if (string.IsNullOrEmpty(newStatus))
             {
                 return BadRequest(new { success = false, message = "Status cannot be empty" });
+            }
+            var allowedStatus = new List<string>
+            {
+                SD.StatusPending,
+                SD.StatusInProgress,
+                SD.StatusCompleted,
+                SD.StatusCancelled
+            };
+            if (!allowedStatus.Contains(newStatus))
+            {
+                return BadRequest(new { success = false, message = $"Invalid Status. Allowed values are: {string.Join(", ", allowedStatus)}" });
             }
             var order = _unitOfWork.Request.GetFirstOrDefault(u => u.Id == id);
 
