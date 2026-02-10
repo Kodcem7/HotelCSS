@@ -21,5 +21,8 @@ namespace CSSHotel.Utility
         public const string StatusInProgress = "InProcess";
         public const string StatusCompleted = "Completed";
         public const string StatusCancelled = "Cancelled";
+
+        public const string Status_Room_Available = "Available";
+        public const string Status_Room_Occupied = "Occupied";
     }
 }

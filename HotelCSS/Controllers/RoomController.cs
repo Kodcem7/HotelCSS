@@ -101,19 +101,24 @@ namespace HotelCSS.Controllers
         }
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception)]
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] Room obj)
+        public IActionResult Update(int id, string newStatus)
         {
-
-            if (obj == null || id != obj.RoomNumber)
-            {
-                return BadRequest(new { success = false, message = "That room does not exists!" });
-            }
             var roomFromDb = _unitOfWork.Room.GetFirstOrDefault(u => u.RoomNumber == id);
             if (roomFromDb == null)
             {
-                return NotFound(new { success = false, message = "Room not found" });
+                return BadRequest(new { success = false, message = "That room does not exists!" });
             }
-            roomFromDb.Status = obj.Status;
+            var allowedStatus = new List<string>
+            {
+                SD.Status_Room_Available,
+                SD.Status_Room_Occupied
+            };
+            if (!allowedStatus.Contains(newStatus))
+            {
+                return BadRequest(new { success = false, message = "Invalid room status. Allowed values are 'Available' or 'Occupied'." });
+            }
+            
+            roomFromDb.Status = newStatus;
             _unitOfWork.Room.Update(roomFromDb);
             _unitOfWork.Save();
             return Ok(new { success = true, message = "Room updated successfully" });
