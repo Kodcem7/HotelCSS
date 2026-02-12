@@ -10,8 +10,7 @@ namespace CSSHotel.Models.ViewModels
 {
     public class RequestCreateDTO
     {
-        [Required]
-        public int RoomNumber { get; set; }
+        
         [Required]
         public int ServiceItemId { get; set; }
         public int Quantity { get; set; }

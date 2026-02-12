@@ -19,6 +19,7 @@ namespace HotelCSS.Controllers
         {
             _unitOfWork = unitOfWork;
         }
+
         [HttpGet]
         public IActionResult GetAll()
         {
@@ -117,7 +118,7 @@ namespace HotelCSS.Controllers
             {
                 return BadRequest(new { success = false, message = "Invalid room status. Allowed values are 'Available' or 'Occupied'." });
             }
-            
+
             roomFromDb.Status = newStatus;
             _unitOfWork.Room.Update(roomFromDb);
             _unitOfWork.Save();

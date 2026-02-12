@@ -22,6 +22,7 @@ namespace HotelCSS.Controllers
             _unitOfWork = unitOfWork;
             _hostEnvironment = hostEnvironment;
         }
+
         [HttpGet]
         public IActionResult Index()
         {
@@ -86,20 +87,40 @@ namespace HotelCSS.Controllers
         [HttpPost]
         public IActionResult Create([FromForm] RequestCreateDTO obj)
         {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+            if (claim == null)
+            {
+                return BadRequest(new { success = false, message = "User identity not found." });
+            }
+
+            string userId = claim.Value;
             if (obj == null)
             {
                 return BadRequest(new { success = false, message = "Requested object is null" });
             }
+
+            var roomUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == userId);
+            if (roomUser == null)
+            {
+                return BadRequest(new { success = false, message = "User not found" });
+            }
+
+            string roomNumString = roomUser.UserName.Replace("Room", "");
+            int.TryParse(roomNumString, out int roomNumber);
+
             var serviceItem = _unitOfWork.ServiceItem.GetFirstOrDefault(u => u.Id == obj.ServiceItemId);
             if (serviceItem == null)
             {
                 return BadRequest(new { success = false, message = "Service item is not available" });
             }
+
             if (ModelState.IsValid)
             {
                 Request newRequest = new Request
-                {
-                    RoomNumber = obj.RoomNumber,      
+                {   
+                    RoomNumber = roomNumber,
                     ServiceItemId = obj.ServiceItemId,
                     Quantity = obj.Quantity,
                     Note = obj.Note,
