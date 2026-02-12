@@ -30,7 +30,7 @@ namespace HotelCSS.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromForm] ServiceItemDTO obj, IFormFile? file)
+        public IActionResult Create([FromForm] ServiceItemDTO obj)
         {
             if (obj == null)
             {
@@ -46,15 +46,15 @@ namespace HotelCSS.Controllers
                     Description = obj.Description,
                     Price = obj.Price,
                     IsAvailable = true,
-                    ImageUrl = obj.ImageUrl
+
                 };
 
 
                 string wwwRootPath = _hostEnvironment.WebRootPath;
 
-                if (file != null)
+                if (obj.Image != null)
                 {
-                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(obj.Image.FileName);
                     string productPath = Path.Combine(wwwRootPath, @"images\serviceitems");
 
                     if (!Directory.Exists(productPath))
@@ -64,7 +64,7 @@ namespace HotelCSS.Controllers
 
                     using (var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create))
                     {
-                        file.CopyTo(fileStream);
+                        obj.Image.CopyTo(fileStream);
                     }
                     newServiceItem.ImageUrl = @"\images\serviceitems\" + fileName;
                 }
@@ -76,9 +76,9 @@ namespace HotelCSS.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromForm] ServiceItem obj, IFormFile? file)
+        public IActionResult Update(int id, [FromForm] ServiceItemDTO obj)
         {
-            if (id == 0 || id != obj.Id)
+            if (id == 0)
             {
                 return BadRequest(new { success = false, message = "ID cannot be 0" });
             }
@@ -93,9 +93,9 @@ namespace HotelCSS.Controllers
 
                 string wwwRootPath = _hostEnvironment.WebRootPath;
 
-                if (file != null)
+                if (obj.Image != null)
                 {
-                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(obj.Image.FileName);
                     string productPath = Path.Combine(wwwRootPath, @"images\serviceitems");
 
                     if (!string.IsNullOrEmpty(objFromDb.ImageUrl))
@@ -109,9 +109,9 @@ namespace HotelCSS.Controllers
 
                     using (var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create))
                     {
-                        file.CopyTo(fileStream);
+                        obj.Image.CopyTo(fileStream);
                     }
-
+                    objFromDb.ImageUrl = @"\images\serviceitems\" + fileName;
 
                 }
                 objFromDb.Name = obj.Name;
@@ -121,7 +121,7 @@ namespace HotelCSS.Controllers
                 objFromDb.IsAvailable = obj.IsAvailable;
                 _unitOfWork.ServiceItem.Update(objFromDb);
                 _unitOfWork.Save();
-                return Ok(objFromDb);
+                return Ok(new { success = true, message = "Service Item Updated Successfully", data = objFromDb });
             }
             return BadRequest(ModelState);
         }

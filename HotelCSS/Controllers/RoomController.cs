@@ -28,7 +28,7 @@ namespace HotelCSS.Controllers
         }
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
         [HttpPost("CreateRoom")]
-        public IActionResult Create([FromBody] Room obj)
+        public IActionResult Create([FromBody] CreateRoomDTO obj)
         {
             if (obj == null)
             {
@@ -42,7 +42,12 @@ namespace HotelCSS.Controllers
 
             if (ModelState.IsValid)
             {
-                _unitOfWork.Room.Add(obj);
+                Room room = new Room
+                    {
+                        RoomNumber = obj.RoomNumber,
+                        Status = "Available",
+                    };
+                _unitOfWork.Room.Add(room);
                 _unitOfWork.Save();
                 return Ok(new { success = true, message = "Room created successfully" });
             }

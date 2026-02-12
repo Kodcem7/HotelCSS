@@ -19,17 +19,16 @@ namespace HotelCSS.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IConfiguration _configuration;
+
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ITokenService _tokenService;
         private readonly IEmailService _emailSender;
 
-        public UserController(IUnitOfWork unitOfWork, IConfiguration configuration, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, SignInManager<ApplicationUser> signInManager, ITokenService tokenService, IEmailService emailSender)
+        public UserController(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, SignInManager<ApplicationUser> signInManager, ITokenService tokenService, IEmailService emailSender)
         {
             _unitOfWork = unitOfWork;
-            _configuration = configuration;
             _userManager = userManager;
             _roleManager = roleManager;
             _signInManager = signInManager;

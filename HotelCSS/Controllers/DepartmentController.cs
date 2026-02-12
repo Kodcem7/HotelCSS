@@ -1,5 +1,6 @@
 ﻿using CSSHotel.DataAccess.Repository.IRepository;
 using CSSHotel.Models;
+using CSSHotel.Models.ViewModels;
 using CSSHotel.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -9,7 +10,7 @@ namespace HotelCSS.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager+","+SD.Role_HouseKeeping)]
+    [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
     public class DepartmentController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -28,7 +29,7 @@ namespace HotelCSS.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromForm] Department obj, IFormFile? file)
+        public IActionResult Create([FromForm] DepartmentCreateDTO obj)
         {
             if (obj == null)
             {
@@ -37,11 +38,15 @@ namespace HotelCSS.Controllers
 
             if (ModelState.IsValid)
             {
+                Department department = new Department
+                {
+                    DepartmentName = obj.DepartmentName
+                };
 
                 string wwwRootPath = _hostEnvironment.WebRootPath;
-                if (file != null)
+                if (obj.Image != null)
                 {
-                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(obj.Image.FileName);
                     string productPath = Path.Combine(wwwRootPath, @"images\departments");
 
                     if (!Directory.Exists(productPath))
@@ -51,24 +56,24 @@ namespace HotelCSS.Controllers
 
                     using (var fileStream = new FileStream(Path.Combine(productPath,fileName),FileMode.Create))
                     {
-                        file.CopyTo(fileStream);
+                        obj.Image.CopyTo(fileStream);
                     }
 
-                    obj.ImageUrl = @"\images\departments\" + fileName;
+                    department.ImageUrl = @"\images\departments\" + fileName;
                 }
                 
-                _unitOfWork.Department.Add(obj);
+                _unitOfWork.Department.Add(department);
                 _unitOfWork.Save();
 
-                return CreatedAtAction(nameof(Index), new { id = obj.Id }, obj);
+                return CreatedAtAction(nameof(Index), new { id = department.Id }, department);
             }
             return BadRequest(ModelState);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromForm] Department obj, IFormFile? file)
+        public IActionResult Update(int id, [FromForm] DepartmentCreateDTO obj)
         {
-            if (obj == null || id != obj.Id)
+            if (obj == null)
             {
                 return BadRequest(new { success = false, message = "Object is not available." });
             }
@@ -82,9 +87,9 @@ namespace HotelCSS.Controllers
                     return NotFound(new { success = false, message = "Object is null" });
                 }
                 string wwwRootPath = _hostEnvironment.WebRootPath;
-                if (file != null)
+                if (obj.Image != null)
                 {
-                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(obj.Image.FileName);
                     string productPath = Path.Combine(wwwRootPath, @"images\departments");
 
                     if (!string.IsNullOrEmpty(objFromDb.ImageUrl))
@@ -97,10 +102,10 @@ namespace HotelCSS.Controllers
                     }
                     using (var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create))
                     {
-                        file.CopyTo(fileStream);
+                        obj.Image.CopyTo(fileStream);
                     }
 
-                    obj.ImageUrl = @"\images\departments\" + fileName;
+                    objFromDb.ImageUrl = @"\images\departments\" + fileName;
 
                 }
 
