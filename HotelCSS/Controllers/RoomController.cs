@@ -1,4 +1,4 @@
-﻿using CSSHotel.DataAccess.Repository.IRepository;
+using CSSHotel.DataAccess.Repository.IRepository;
 using CSSHotel.Models;
 using CSSHotel.Models.ViewModels;
 using CSSHotel.Utility;
@@ -107,17 +107,26 @@ namespace HotelCSS.Controllers
         }
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception)]
         [HttpPut("{id}")]
-        public IActionResult Update(int id, string newStatus)
+        public IActionResult Update(int id, [FromBody] RoomUpdateDTO obj)
         {
             var roomFromDb = _unitOfWork.Room.GetFirstOrDefault(u => u.RoomNumber == id);
             if (roomFromDb == null)
             {
                 return BadRequest(new { success = false, message = "That room does not exists!" });
             }
+
+            if (obj == null || string.IsNullOrEmpty(obj.Status))
+            {
+                return BadRequest(new { success = false, message = "Room status is required." });
+            }
+
+            var newStatus = obj.Status;
             var allowedStatus = new List<string>
             {
                 SD.Status_Room_Available,
-                SD.Status_Room_Occupied
+                SD.Status_Room_Occupied,
+                SD.Status_Room_Maintenance,
+                SD.Status_Room_Cleaning
             };
             if (!allowedStatus.Contains(newStatus))
             {

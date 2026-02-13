@@ -37,11 +37,13 @@ export const createAllRooms = async (config) => {
 /**
  * Update room status
  * @param {number} id - Room number
- * @param {Object} roomData - Updated room data
+ * @param {string} status - New room status
  * @returns {Promise} Updated room
  */
-export const updateRoom = async (id, roomData) => {
-  const response = await api.put(`/Room/${id}`, roomData);
+export const updateRoom = async (id, status) => {
+  const response = await api.put(`/Room/${id}`, {
+    Status: status,
+  });
   return response.data;
 };
 

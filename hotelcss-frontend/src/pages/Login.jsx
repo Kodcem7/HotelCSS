@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { getDashboardPathForRole } from '../utils/dashboardPath';
 
 const Login = () => {
@@ -151,10 +151,29 @@ const Login = () => {
                 )}
               </button>
             </form>
-
-            <p className="mt-6 text-center text-xs text-slate-500">
-              Demo credentials available in backend documentation
-            </p>
+            <div className="mt-4 flex items-center justify-between text-xs text-slate-500">
+              <p>Demo credentials available in backend documentation</p>
+              <div className="flex items-center gap-4">
+                <Link
+                  to="/register"
+                  className="font-semibold text-slate-700 hover:text-slate-900"
+                >
+                  Register
+                </Link>
+                <Link
+                  to="/room-login"
+                  className="font-semibold text-slate-700 hover:text-slate-900"
+                >
+                  Room login
+                </Link>
+                <Link
+                  to="/forgot-password"
+                  className="font-semibold text-slate-700 hover:text-slate-900"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </div>

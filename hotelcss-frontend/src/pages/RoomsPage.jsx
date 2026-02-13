@@ -35,7 +35,7 @@ const RoomsPage = () => {
     try {
       setError('');
       setSuccess('');
-      await updateRoom(roomNumber, { RoomNumber: roomNumber, Status: newStatus });
+      await updateRoom(roomNumber, newStatus);
       setSuccess('Room status updated successfully');
       await fetchRooms();
     } catch (err) {

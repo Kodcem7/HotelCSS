@@ -43,3 +43,28 @@ export const deleteUser = async (id) => {
   const response = await api.delete(`/User/${id}`);
   return response.data;
 };
+
+/**
+ * Change password for the currently logged-in user
+ * @param {string} oldPassword
+ * @param {string} newPassword
+ */
+export const changePassword = async (oldPassword, newPassword) => {
+  const response = await api.post('/User/Change Password', {
+    OldPassword: oldPassword,
+    NewPassword: newPassword,
+  });
+  return response.data;
+};
+
+/**
+ * Update profile for the currently logged-in user
+ * @param {{ Name: string, UserName: string }} payload
+ */
+export const updateProfile = async ({ Name, UserName }) => {
+  const response = await api.put('/User/UpdateMyProfile', {
+    Name,
+    UserName,
+  });
+  return response.data;
+};

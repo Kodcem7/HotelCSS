@@ -19,7 +19,22 @@ export const getRequests = async () => {
  * @returns {Promise} Created request
  */
 export const createRequest = async (requestData) => {
-  const response = await api.post('/Request', requestData);
+  // Backend expects form-data (RequestCreateDTO with [FromForm])
+  const formData = new FormData();
+  formData.append('ServiceItemId', requestData.ServiceItemId);
+  formData.append('Quantity', requestData.Quantity);
+  if (requestData.Note) {
+    formData.append('Note', requestData.Note);
+  }
+  if (requestData.Photo) {
+    formData.append('Photo', requestData.Photo);
+  }
+
+  const response = await api.post('/Request', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
   return response.data;
 };
 

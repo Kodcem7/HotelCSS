@@ -8,9 +8,11 @@ import { createRequest } from '../api/requests';
 import { getServiceItems } from '../api/serviceItems';
 import { getRooms } from '../api/rooms';
 import { getBackendOrigin } from '../api/axios';
+import { useAuth } from '../context/AuthContext';
 
 const CreateRequestPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [serviceItems, setServiceItems] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -32,12 +34,14 @@ const CreateRequestPage = () => {
     try {
       setLoading(true);
       setError('');
-      const [itemsRes, roomsRes] = await Promise.all([
-        getServiceItems(),
-        getRooms(),
-      ]);
+      // Room users only need service items; other roles also load rooms
+      const itemsRes = await getServiceItems();
       setServiceItems(itemsRes?.data || []);
-      setRooms(roomsRes?.data || []);
+
+      if (user?.role !== 'Room') {
+        const roomsRes = await getRooms();
+        setRooms(roomsRes?.data || []);
+      }
     } catch (err) {
       setError('Failed to load data');
       console.error(err);
@@ -54,7 +58,6 @@ const CreateRequestPage = () => {
       setSuccess('');
 
       const requestData = {
-        RoomNumber: parseInt(formData.RoomNumber),
         ServiceItemId: parseInt(formData.ServiceItemId),
         Quantity: parseInt(formData.Quantity),
         Note: formData.Note || '',
@@ -109,26 +112,40 @@ const CreateRequestPage = () => {
         {success && <SuccessMessage message={success} onDismiss={() => setSuccess('')} />}
 
         <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Room Number *
-            </label>
-            <select
-              value={formData.RoomNumber}
-              onChange={(e) => setFormData({ ...formData, RoomNumber: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            >
-              <option value="">Select Room</option>
-              {rooms
-                .filter((room) => room.status === 'Occupied')
-                .map((room) => (
-                  <option key={room.roomNumber} value={room.roomNumber}>
-                    Room {room.roomNumber}
-                  </option>
-                ))}
-            </select>
-          </div>
+          {user?.role === 'Room' ? (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Room Number
+              </label>
+              <p className="px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-800">
+                {user?.username}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                Requests will be created for this room.
+              </p>
+            </div>
+          ) : (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Room Number *
+              </label>
+              <select
+                value={formData.RoomNumber}
+                onChange={(e) => setFormData({ ...formData, RoomNumber: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              >
+                <option value="">Select Room</option>
+                {rooms
+                  .filter((room) => room.status === 'Occupied')
+                  .map((room) => (
+                    <option key={room.roomNumber} value={room.roomNumber}>
+                      Room {room.roomNumber}
+                    </option>
+                  ))}
+              </select>
+            </div>
+          )}
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">

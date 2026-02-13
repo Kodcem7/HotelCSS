@@ -39,7 +39,8 @@ namespace HotelCSS.Controllers
         [HttpGet("GetStaffList")]
         public IActionResult GetAll()
         {
-            var staffList = _unitOfWork.ApplicationUser.GetAll(u => u.Department.Id != 100, includeProperties: "Department");
+            var staffList = _unitOfWork.ApplicationUser
+                .GetAll(u => u.Department.Id != 100 && !u.UserName.StartsWith("Room"), includeProperties: "Department");
             return Ok(new { data = staffList });
         }
 

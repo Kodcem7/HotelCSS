@@ -18,6 +18,7 @@ const StaffManagementPage = () => {
     UserName: '',
     Password: '',
     Name: '',
+    Email: '',
     DepartmentId: 0,
   });
 
@@ -51,6 +52,7 @@ const StaffManagementPage = () => {
         UserName: staffMember.userName || '',
         Password: '', // Don't pre-fill password
         Name: staffMember.name || '',
+        Email: staffMember.email || '',
         DepartmentId: staffMember.departmentId || 0,
       });
     } else {
@@ -59,6 +61,7 @@ const StaffManagementPage = () => {
         UserName: '',
         Password: '',
         Name: '',
+        Email: '',
         DepartmentId: 0,
       });
     }
@@ -72,6 +75,7 @@ const StaffManagementPage = () => {
       UserName: '',
       Password: '',
       Name: '',
+      Email: '',
       DepartmentId: 0,
     });
   };
@@ -190,6 +194,9 @@ const StaffManagementPage = () => {
                     Username
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Email
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Department
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -205,6 +212,9 @@ const StaffManagementPage = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {member.userName}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {member.email || '—'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {getDepartmentName(member.departmentId)}
@@ -261,6 +271,19 @@ const StaffManagementPage = () => {
                   type="text"
                   value={formData.UserName}
                   onChange={(e) => setFormData({ ...formData, UserName: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  value={formData.Email}
+                  onChange={(e) => setFormData({ ...formData, Email: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 />

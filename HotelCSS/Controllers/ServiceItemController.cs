@@ -1,4 +1,4 @@
-﻿using CSSHotel.DataAccess.Repository.IRepository;
+using CSSHotel.DataAccess.Repository.IRepository;
 using CSSHotel.Models;
 using CSSHotel.Models.ViewModels;
 using CSSHotel.Utility;
@@ -22,6 +22,7 @@ namespace HotelCSS.Controllers
             _hostEnvironment = hostEnvironment;
         }
 
+        [AllowAnonymous]
         [HttpGet("GetServiceItems")]
         public IActionResult GetAll()
         {

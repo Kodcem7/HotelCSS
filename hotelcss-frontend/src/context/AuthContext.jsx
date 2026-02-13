@@ -23,6 +23,32 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(localStorage.getItem('token'));
 
+  const setAuthFromToken = (jwtToken) => {
+    if (!jwtToken) return null;
+
+    const role = getRoleFromToken(jwtToken);
+    const userId = getUserIdFromToken(jwtToken);
+    const username = getUsernameFromToken(jwtToken);
+
+    if (!role) {
+      return null;
+    }
+
+    const userData = {
+      id: userId,
+      username: username,
+      role: role,
+      token: jwtToken,
+    };
+
+    localStorage.setItem('token', jwtToken);
+    localStorage.setItem('user', JSON.stringify(userData));
+    setToken(jwtToken);
+    setUser(userData);
+
+    return userData;
+  };
+
   // Initialize user from token on mount
   useEffect(() => {
     const initializeAuth = () => {
@@ -43,24 +69,9 @@ export const AuthProvider = ({ children }) => {
         return;
       }
 
-      // Decode token and extract user info
-      const decoded = decodeToken(storedToken);
-      const role = getRoleFromToken(storedToken);
-      const userId = getUserIdFromToken(storedToken);
-      const username = getUsernameFromToken(storedToken);
+      const userData = setAuthFromToken(storedToken);
 
-      if (decoded && role) {
-        const userData = {
-          id: userId,
-          username: username,
-          role: role,
-          token: storedToken,
-        };
-        
-        setUser(userData);
-        setToken(storedToken);
-        localStorage.setItem('user', JSON.stringify(userData));
-      } else {
+      if (!userData) {
         // Invalid token, clear it
         localStorage.removeItem('token');
         localStorage.removeItem('user');
@@ -79,27 +90,10 @@ export const AuthProvider = ({ children }) => {
       const response = await apiLogin(userName, password);
       
       if (response.success && response.token) {
-        const token = response.token;
-        
-        // Decode token to extract user info
-        const role = getRoleFromToken(token);
-        const userId = getUserIdFromToken(token);
-        const username = getUsernameFromToken(token);
-
-        const userData = {
-          id: userId,
-          username: username,
-          role: role,
-          token: token,
-        };
-
-        // Store token and user data
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(userData));
-        
-        setToken(token);
-        setUser(userData);
-        
+        const userData = setAuthFromToken(response.token);
+        if (!userData) {
+          return { success: false, message: 'Invalid token received from server.' };
+        }
         return { success: true, user: userData };
       } else {
         return { success: false, message: response.message || 'Login failed' };
@@ -156,6 +150,7 @@ export const AuthProvider = ({ children }) => {
     token,
     login,
     logout,
+    loginWithToken: (jwtToken) => !!setAuthFromToken(jwtToken),
     loading,
     isAuthenticated: !!user && !!token,
   };

@@ -16,6 +16,12 @@ import ServiceItemsPage from '../pages/ServiceItemsPage';
 import CreateRequestPage from '../pages/CreateRequestPage';
 import RoomCreationPage from '../pages/RoomCreationPage';
 import RequestHistoryPage from '../pages/RequestHistoryPage';
+import ForgotPassword from '../pages/ForgotPassword';
+import ResetPassword from '../pages/ResetPassword';
+import ChangePassword from '../pages/ChangePassword';
+import Profile from '../pages/Profile';
+import Register from '../pages/Register';
+import RoomLogin from '../pages/RoomLogin';
 
 const AppRoutes = () => {
   const { isAuthenticated, user } = useAuth();
@@ -34,6 +40,28 @@ const AppRoutes = () => {
             )
           }
         />
+        <Route
+          path="/register"
+          element={
+            isAuthenticated ? (
+              <Navigate to={getDashboardPathForRole(user?.role)} replace />
+            ) : (
+              <Register />
+            )
+          }
+        />
+        <Route
+          path="/room-login"
+          element={
+            isAuthenticated ? (
+              <Navigate to={getDashboardPathForRole(user?.role)} replace />
+            ) : (
+              <RoomLogin />
+            )
+          }
+        />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* Protected Routes - Role-based access */}
         <Route
@@ -140,6 +168,24 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute allowedRoles={['Staff', 'Housekeeping', 'Restaurant', 'Kitchen', 'Technic']}>
               <StaffDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Account settings (any authenticated user) */}
+        <Route
+          path="/account/profile"
+          element={
+            <ProtectedRoute allowedRoles={['Admin', 'Manager', 'Reception', 'Staff', 'Housekeeping', 'Restaurant', 'Kitchen', 'Technic', 'Room']}>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/account/password"
+          element={
+            <ProtectedRoute allowedRoles={['Admin', 'Manager', 'Reception', 'Staff', 'Housekeeping', 'Restaurant', 'Kitchen', 'Technic', 'Room']}>
+              <ChangePassword />
             </ProtectedRoute>
           }
         />

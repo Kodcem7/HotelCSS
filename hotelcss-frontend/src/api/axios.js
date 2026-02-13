@@ -34,8 +34,9 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    // If 401 Unauthorized, clear token and redirect to login
-    if (error.response?.status === 401) {
+    // If 401 Unauthorized AND we already have a token, clear it and redirect.
+    // This avoids redirect loops on public endpoints like register/forgot password.
+    if (error.response?.status === 401 && localStorage.getItem('token')) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';

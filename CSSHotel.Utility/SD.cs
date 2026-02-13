@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,5 +24,7 @@ namespace CSSHotel.Utility
 
         public const string Status_Room_Available = "Available";
         public const string Status_Room_Occupied = "Occupied";
+        public const string Status_Room_Maintenance = "Maintenance";
+        public const string Status_Room_Cleaning = "Cleaning";
     }
 }
