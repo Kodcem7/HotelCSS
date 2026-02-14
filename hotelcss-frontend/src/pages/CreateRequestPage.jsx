@@ -4,7 +4,7 @@ import Layout from '../components/Layout';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import SuccessMessage from '../components/SuccessMessage';
-import { createRequest } from '../api/requests';
+import { createRequest, getRequestDepartments, getServicesByDepartment } from '../api/requests';
 import { getServiceItems } from '../api/serviceItems';
 import { getRooms } from '../api/rooms';
 import { getBackendOrigin } from '../api/axios';
@@ -13,12 +13,17 @@ import { useAuth } from '../context/AuthContext';
 const CreateRequestPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [departments, setDepartments] = useState([]);
   const [serviceItems, setServiceItems] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingServices, setLoadingServices] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  /** For Room user: selected department (null = show department picker, number = show service form) */
+  const [selectedDepartmentId, setSelectedDepartmentId] = useState(null);
+  const [selectedDepartmentName, setSelectedDepartmentName] = useState('');
   const [formData, setFormData] = useState({
     RoomNumber: '',
     ServiceItemId: '',
@@ -26,19 +31,23 @@ const CreateRequestPage = () => {
     Note: '',
   });
 
+  const isRoomUser = user?.role === 'Room';
+
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [user?.role]);
 
   const fetchData = async () => {
     try {
       setLoading(true);
       setError('');
-      // Room users only need service items; other roles also load rooms
-      const itemsRes = await getServiceItems();
-      setServiceItems(itemsRes?.data || []);
-
-      if (user?.role !== 'Room') {
+      if (isRoomUser) {
+        const deptsRes = await getRequestDepartments();
+        setDepartments(Array.isArray(deptsRes) ? deptsRes : deptsRes?.data ?? []);
+        setServiceItems([]);
+      } else {
+        const itemsRes = await getServiceItems();
+        setServiceItems(itemsRes?.data || []);
         const roomsRes = await getRooms();
         setRooms(roomsRes?.data || []);
       }
@@ -48,6 +57,30 @@ const CreateRequestPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSelectDepartment = async (dept) => {
+    setSelectedDepartmentId(dept.id);
+    setSelectedDepartmentName(dept.departmentName || dept.DepartmentName || '');
+    setError('');
+    try {
+      setLoadingServices(true);
+      const items = await getServicesByDepartment(dept.id);
+      setServiceItems(Array.isArray(items) ? items : items?.data ?? []);
+      setFormData((prev) => ({ ...prev, ServiceItemId: '' }));
+    } catch (err) {
+      setError('Failed to load services for this department');
+      setServiceItems([]);
+    } finally {
+      setLoadingServices(false);
+    }
+  };
+
+  const handleChangeDepartment = () => {
+    setSelectedDepartmentId(null);
+    setSelectedDepartmentName('');
+    setServiceItems([]);
+    setFormData((prev) => ({ ...prev, ServiceItemId: '' }));
   };
 
   const handleSubmit = async (e) => {
@@ -95,6 +128,9 @@ const CreateRequestPage = () => {
     (item) => item.id === parseInt(formData.ServiceItemId)
   );
 
+  /** Room user: show department picker first (no department selected yet) */
+  const showDepartmentPicker = isRoomUser && selectedDepartmentId == null;
+
   if (loading) {
     return (
       <Layout>
@@ -111,8 +147,78 @@ const CreateRequestPage = () => {
         {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
         {success && <SuccessMessage message={success} onDismiss={() => setSuccess('')} />}
 
+        {/* Room user: step 1 – choose department (with photos) */}
+        {showDepartmentPicker && (
+          <div className="mb-8">
+            <p className="text-gray-600 mb-4">Choose a department to see available services.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {departments.map((dept) => {
+                const name = dept.departmentName ?? dept.DepartmentName ?? 'Department';
+                const imgUrl = dept.imageUrl ?? dept.ImageUrl;
+                return (
+                  <button
+                    key={dept.id}
+                    type="button"
+                    onClick={() => handleSelectDepartment(dept)}
+                    className="bg-white rounded-xl shadow-md hover:shadow-lg transition overflow-hidden text-left border border-gray-100 hover:border-blue-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  >
+                    <div className="aspect-video bg-gray-100 relative">
+                      {imgUrl ? (
+                        <img
+                          src={getImageUrl(imgUrl)}
+                          alt={name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400 text-4xl">📋</div>
+                      )}
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-semibold text-gray-900">{name}</h3>
+                      <p className="text-sm text-gray-500 mt-0.5">Tap to select services</p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            {departments.length === 0 && !loading && (
+              <p className="text-gray-500">No departments available for requests.</p>
+            )}
+          </div>
+        )}
+
+        {/* Room user: step 2 – request form (after department selected) */}
+        {isRoomUser && selectedDepartmentId != null && (
+          <div className="mb-6 flex items-center justify-between flex-wrap gap-2">
+            <p className="text-gray-600">
+              Department: <span className="font-semibold text-gray-900">{selectedDepartmentName}</span>
+            </p>
+            <button
+              type="button"
+              onClick={handleChangeDepartment}
+              className="text-sm text-blue-600 hover:text-blue-800 underline"
+            >
+              Change department
+            </button>
+          </div>
+        )}
+
+        {loadingServices && (
+          <div className="mb-6">
+            <LoadingSpinner text="Loading services..." />
+          </div>
+        )}
+
+        {!showDepartmentPicker && !loadingServices && isRoomUser && serviceItems.length === 0 && selectedDepartmentId != null && (
+          <p className="text-gray-500 bg-gray-50 rounded-lg p-4">No services available for this department. Use &quot;Change department&quot; above to pick another.</p>
+        )}
+
+        {!showDepartmentPicker && (!isRoomUser || serviceItems.length > 0) && (
         <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
-          {user?.role === 'Room' ? (
+          {isRoomUser ? (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Room Number
@@ -242,6 +348,7 @@ const CreateRequestPage = () => {
             </button>
           </div>
         </form>
+        )}
       </div>
     </Layout>
   );

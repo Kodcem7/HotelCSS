@@ -58,3 +58,23 @@ export const deleteRequest = async (id) => {
   const response = await api.delete(`/Request/${id}`);
   return response.data;
 };
+
+/**
+ * Get departments available for creating requests (excludes Administration, Room, Manager)
+ * Used by room users to pick a department before selecting a service item.
+ * @returns {Promise} List of departments with imageUrl
+ */
+export const getRequestDepartments = async () => {
+  const response = await api.get('/Request/GetDepartments');
+  return response.data;
+};
+
+/**
+ * Get service items for a given department
+ * @param {number} departmentId - Department ID
+ * @returns {Promise} List of service items for that department
+ */
+export const getServicesByDepartment = async (departmentId) => {
+  const response = await api.get(`/Request/GetServicesByDepartment/${departmentId}`);
+  return response.data;
+};

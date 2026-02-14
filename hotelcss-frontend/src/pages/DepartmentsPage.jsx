@@ -80,7 +80,7 @@ const DepartmentsPage = () => {
       const formDataToSend = new FormData();
       formDataToSend.append('DepartmentName', formData.DepartmentName);
       if (imageFile) {
-        formDataToSend.append('file', imageFile);
+        formDataToSend.append('Image', imageFile);
       }
 
       if (editingDept) {
