@@ -83,6 +83,32 @@ namespace HotelCSS.Controllers
 
             return BadRequest(new { success = false, message = "Unauthorized access." });
         }
+        [HttpGet("GetDepartments")]
+        public IActionResult GetDepartments()
+        {
+            IEnumerable<Department> departments = _unitOfWork.Department.GetAll(
+                u => u.DepartmentName != "Admin" && u.DepartmentName != "Room"
+            );
+            return Ok(departments);
+        }
+
+        [HttpGet("GetServicesByDepartment/{departmentId}")]
+        public IActionResult GetServicesByDepartment(int departmentId)
+        {
+            if (departmentId == 0)
+            {
+                return BadRequest("Invalid Department ID");
+            }
+
+            var serviceItems = _unitOfWork.ServiceItem.GetAll(u => u.DepartmentId == departmentId);
+
+            if (serviceItems == null || !serviceItems.Any())
+            {
+                return NotFound(new { success = false, message = "No services found for this department." });
+            }
+
+            return Ok(serviceItems);
+        }
 
         [HttpPost]
         public IActionResult Create([FromForm] RequestCreateDTO obj)
