@@ -87,7 +87,7 @@ namespace HotelCSS.Controllers
         public IActionResult GetDepartments()
         {
             IEnumerable<Department> departments = _unitOfWork.Department.GetAll(
-                u => u.DepartmentName != "Admin" && u.DepartmentName != "Room"
+                u => u.DepartmentName != "Admin" && u.DepartmentName != "Room" && u.DepartmentName != "Room"
             );
             return Ok(departments);
         }
