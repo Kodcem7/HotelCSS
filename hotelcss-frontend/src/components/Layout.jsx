@@ -1,5 +1,6 @@
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
+import ChatWidget from './ChatWidget';
 
 const Layout = ({ children }) => {
   const { user, logout } = useAuth();
@@ -105,6 +106,9 @@ const Layout = ({ children }) => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}
       </main>
+
+      {/* Chat widget for Room users */}
+      {user?.role === 'Room' && <ChatWidget />}
     </div>
   );
 };
