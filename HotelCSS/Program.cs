@@ -35,6 +35,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 // 2. Configure Token Lifespan for Password Reset and Email Confirmation
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
    options.TokenLifespan = TimeSpan.FromHours(2));
+//3. Adding AI service
+builder.Services.AddScoped<CSSHotel.Utility.Service.AIService>();
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
