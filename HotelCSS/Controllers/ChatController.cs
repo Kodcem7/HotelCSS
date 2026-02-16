@@ -47,7 +47,12 @@ namespace HotelCSS.Controllers
             var allItems = _unitOfWork.ServiceItem.GetAll();
 
             // 2. Convert them to a simple string list (ID and Name) for the AI
-            var menuList = allItems.Select(x => new { x.Id, x.Name }).ToList();
+            var menuList = allItems.Select(x => new
+            {
+                x.Id,
+                x.Name,
+                Options = x.RequiredOptions ?? "None"
+            }).ToList();
             string menuJson = System.Text.Json.JsonSerializer.Serialize(menuList);
 
             // 3. Ask AI to match the user's text to a menu item

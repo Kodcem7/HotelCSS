@@ -30,6 +30,7 @@ namespace CSSHotel.Models
         [Column(TypeName = "decimal(18, 2)")] 
         public decimal? Price { get; set; }
         public bool IsAvailable { get; set; } = true;
+        public string? RequiredOptions { get; set; }
 
     }
 }
