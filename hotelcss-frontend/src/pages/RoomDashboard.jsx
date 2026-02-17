@@ -6,7 +6,7 @@ const RoomDashboard = () => {
     <Layout>
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900">Room Dashboard</h2>
-        <p className="text-gray-600 mt-1">Manage your room service requests</p>
+        <p className="text-gray-600 mt-1">Manage your room service requests and report issues</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -23,6 +23,23 @@ const RoomDashboard = () => {
             <div>
               <h3 className="text-lg font-semibold text-gray-900">Create Service Request</h3>
               <p className="text-sm text-gray-600">Request room service or amenities</p>
+            </div>
+          </div>
+        </Link>
+
+        <Link
+          to="/room/report-issue"
+          className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+        >
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-red-100 rounded-full">
+              <svg className="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a1 1 0 00.86 1.5h18.64a1 1 0 00.86-1.5L13.71 3.86a1 1 0 00-1.72 0z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Report an Issue</h3>
+              <p className="text-sm text-gray-600">Report problems in your room with photo</p>
             </div>
           </div>
         </Link>

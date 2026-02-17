@@ -1,4 +1,4 @@
-﻿using CSSHotel.DataAccess.Repository.IRepository;
+using CSSHotel.DataAccess.Repository.IRepository;
 using CSSHotel.Models;
 using CSSHotel.Models.ViewModels;
 using CSSHotel.Utility;
@@ -21,6 +21,76 @@ namespace HotelCSS.Controllers
         {
             _unitOfWork = unitOfWork;
             _hostEnvironment = hostEnvironment;
+        }
+
+        [HttpPost("ReportIssue")]
+        [Authorize(Roles = SD.Role_Room)]
+        public IActionResult ReportIssue([FromForm] IssueCreateDTO obj)
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+            if (claim == null)
+            {
+                return BadRequest(new { success = false, message = "User identity not found." });
+            }
+
+            string userId = claim.Value;
+            if (obj == null)
+            {
+                return BadRequest(new { success = false, message = "Issue object is null" });
+            }
+
+            var roomUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == userId);
+            if (roomUser == null)
+            {
+                return BadRequest(new { success = false, message = "User not found" });
+            }
+
+            string roomNumString = roomUser.UserName.Replace("Room", "");
+            if (!int.TryParse(roomNumString, out int roomNumber))
+            {
+                return BadRequest(new { success = false, message = "Invalid Room User Format" });
+            }
+
+            if (ModelState.IsValid)
+            {
+                // Store issue details in Note field, ServiceItemId intentionally left null
+                string combinedNote = $"{obj.Title}: {obj.Description}";
+
+                Request newRequest = new Request
+                {
+                    RoomNumber = roomNumber,
+                    ServiceItemId = 6,
+                    Quantity = 1,
+                    Note = combinedNote,
+                    RequestDate = DateTime.Now,
+                    Status = SD.StatusPending
+                };
+
+                // Save photo if provided
+                if (obj.Photo != null && obj.Photo.Length > 0)
+                {
+                    string wwwRootPath = _hostEnvironment.WebRootPath;
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(obj.Photo.FileName);
+                    string photoPath = Path.Combine(wwwRootPath, @"images\requests");
+                    if (!Directory.Exists(photoPath))
+                    {
+                        Directory.CreateDirectory(photoPath);
+                    }
+                    using (var fileStream = new FileStream(Path.Combine(photoPath, fileName), FileMode.Create))
+                    {
+                        obj.Photo.CopyTo(fileStream);
+                    }
+                    newRequest.PhotoPath = @"\images\requests\" + fileName;
+                }
+
+                _unitOfWork.Request.Add(newRequest);
+                _unitOfWork.Save();
+                return Ok(new { success = true, message = "Issue reported successfully!" });
+            }
+
+            return BadRequest(ModelState);
         }
 
         [HttpGet]
@@ -150,8 +220,6 @@ namespace HotelCSS.Controllers
                     ServiceItemId = obj.ServiceItemId,
                     Quantity = obj.Quantity,
                     Note = obj.Note,
-
-                    
                     RequestDate = DateTime.Now,
                     Status = SD.StatusPending
                 };

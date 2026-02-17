@@ -1,4 +1,4 @@
-﻿using CSSHotel.Utility;
+using CSSHotel.Utility;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System;
 using System.Collections.Generic;
@@ -24,12 +24,13 @@ namespace CSSHotel.Models
         public Room Room { get; set; }
 
         // What did they ask for?
-        [Required]
-        public int ServiceItemId { get; set; }
+        // For normal service orders, this is required.
+        // For generic issue reports, this can be null.
+        public int? ServiceItemId { get; set; }
 
         [ForeignKey("ServiceItemId")]
         [ValidateNever]
-        public ServiceItem ServiceItem { get; set; }
+        public ServiceItem? ServiceItem { get; set; }
         [Range(1, 5,ErrorMessage ="You can order between 1 and 5 items.")]
         public int Quantity { get; set; } = 1;
         public string? Note { get; set; }
