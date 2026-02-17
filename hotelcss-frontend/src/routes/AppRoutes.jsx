@@ -17,6 +17,8 @@ import CreateRequestPage from '../pages/CreateRequestPage';
 import RoomCreationPage from '../pages/RoomCreationPage';
 import RequestHistoryPage from '../pages/RequestHistoryPage';
 import ReportIssuePage from '../pages/ReportIssuePage';
+import RoomReceptionRequestPage from '../pages/RoomReceptionRequestPage';
+import ReceptionServicesPage from '../pages/ReceptionServicesPage';
 import ForgotPassword from '../pages/ForgotPassword';
 import ResetPassword from '../pages/ResetPassword';
 import ChangePassword from '../pages/ChangePassword';
@@ -97,6 +99,15 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute allowedRoles="Reception">
               <RequestsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/reception/services"
+          element={
+            <ProtectedRoute allowedRoles={['Reception', 'Admin']}>
+              <ReceptionServicesPage />
             </ProtectedRoute>
           }
         />
@@ -223,6 +234,15 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute allowedRoles="Room">
               <ReportIssuePage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/room/reception-request"
+          element={
+            <ProtectedRoute allowedRoles="Room">
+              <RoomReceptionRequestPage />
             </ProtectedRoute>
           }
         />

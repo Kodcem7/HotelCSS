@@ -1,4 +1,4 @@
-﻿using CSSHotel.DataAccess.Repository.IRepository;
+using CSSHotel.DataAccess.Repository.IRepository;
 using CSSHotel.Models;
 using CSSHotel.Models.ViewModels;
 using CSSHotel.Utility;
@@ -170,7 +170,7 @@ namespace HotelCSS.Controllers
         }
 
         [HttpPost("SetPickUpTime")]
-        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception)]
         public IActionResult SetPickUpTime(int roomNumber, [FromForm] ReceptionServiceDTO obj)
         {
             if (roomNumber == null)
@@ -204,7 +204,7 @@ namespace HotelCSS.Controllers
             return BadRequest(new { success = false, message = "Failed to add pick-up time information" });
         }
         [HttpPut("pickup/{id}")]
-        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception)]
         public IActionResult UpdatePickUpTime(int id, DateTime obj)
         {
             if (obj == null)

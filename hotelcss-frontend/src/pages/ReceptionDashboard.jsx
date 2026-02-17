@@ -5,6 +5,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import { getRooms } from '../api/rooms';
 import { getRequests } from '../api/requests';
+import { getReceptionServices } from '../api/receptionService';
 
 const ReceptionDashboard = () => {
   const [stats, setStats] = useState({
@@ -12,6 +13,9 @@ const ReceptionDashboard = () => {
     availableRooms: 0,
     totalRequests: 0,
     pendingRequests: 0,
+    wakeUpCount: 0,
+    upcomingWakeUps: 0,
+    pickupCount: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -22,19 +26,33 @@ const ReceptionDashboard = () => {
         setLoading(true);
         setError('');
 
-        const [roomsRes, requestsRes] = await Promise.all([
+        const [roomsRes, requestsRes, receptionRes] = await Promise.all([
           getRooms(),
           getRequests(),
+          getReceptionServices(),
         ]);
 
         const rooms = roomsRes?.data || [];
         const requests = Array.isArray(requestsRes) ? requestsRes : [];
+        const reception = Array.isArray(receptionRes) ? receptionRes : receptionRes?.data ?? [];
+
+        const wakeUps = reception.filter((r) => r.requestType === 'Wake-Up Service');
+        const pickups = reception.filter((r) => r.requestType === 'Pick-Up');
+        const now = new Date();
+        const upcomingWakeUps = wakeUps.filter((r) => {
+          if (!r.scheduledTime) return false;
+          const d = new Date(r.scheduledTime);
+          return d >= now;
+        });
 
         setStats({
           totalRooms: rooms.length,
           availableRooms: rooms.filter((r) => r.status === 'Available').length,
           totalRequests: requests.length,
           pendingRequests: requests.filter((r) => r.status === 'Pending').length,
+          wakeUpCount: wakeUps.length,
+          upcomingWakeUps: upcomingWakeUps.length,
+          pickupCount: pickups.length,
         });
       } catch (err) {
         setError('Failed to load dashboard statistics');
@@ -116,6 +134,61 @@ const ReceptionDashboard = () => {
             </div>
           </div>
         </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Wake-up Services</p>
+              <p className="text-3xl font-bold text-indigo-600 mt-2">
+                {stats.wakeUpCount}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                {stats.upcomingWakeUps} upcoming
+              </p>
+            </div>
+            <div className="p-3 bg-indigo-100 rounded-full">
+              <svg
+                className="h-8 w-8 text-indigo-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Pick-up Infos</p>
+              <p className="text-3xl font-bold text-teal-600 mt-2">
+                {stats.pickupCount}
+              </p>
+            </div>
+            <div className="p-3 bg-teal-100 rounded-full">
+              <svg
+                className="h-8 w-8 text-teal-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 7h18M3 12h18M3 17h18"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Quick Actions */}
@@ -138,11 +211,16 @@ const ReceptionDashboard = () => {
           <span className="text-blue-600 font-medium text-sm">View Requests →</span>
         </Link>
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Check-in/Check-out</h3>
-          <p className="text-sm text-gray-600 mb-4">Manage guest check-ins and check-outs</p>
-          <span className="text-gray-400 font-medium text-sm">Coming Soon</span>
-        </div>
+        <Link
+          to="/reception/services"
+          className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+        >
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Reception Services</h3>
+          <p className="text-sm text-gray-600 mb-4">
+            Manage wake-up services and pick-up times for guests.
+          </p>
+          <span className="text-blue-600 font-medium text-sm">Manage Reception →</span>
+        </Link>
       </div>
     </Layout>
   );

@@ -6,10 +6,12 @@ const RoomDashboard = () => {
     <Layout>
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900">Room Dashboard</h2>
-        <p className="text-gray-600 mt-1">Manage your room service requests and report issues</p>
+        <p className="text-gray-600 mt-1">
+          Manage your room service requests, reception requests and report issues
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Link
           to="/room/create-request"
           className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
@@ -40,6 +42,35 @@ const RoomDashboard = () => {
             <div>
               <h3 className="text-lg font-semibold text-gray-900">Report an Issue</h3>
               <p className="text-sm text-gray-600">Report problems in your room with photo</p>
+            </div>
+          </div>
+        </Link>
+
+        <Link
+          to="/room/reception-request"
+          className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+        >
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-yellow-100 rounded-full">
+              <svg
+                className="h-8 w-8 text-yellow-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 1010 10A10 10 0 0012 2z"
+                />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Reception Request</h3>
+              <p className="text-sm text-gray-600">
+                Request wake-up calls or other reception services
+              </p>
             </div>
           </div>
         </Link>

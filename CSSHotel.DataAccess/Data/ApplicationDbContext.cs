@@ -51,8 +51,7 @@ namespace CSSHotel.DataAccess.Data
                 new ServiceItem { Id = 4, Name = "Hamburger", DepartmentId = 2 },
                 new ServiceItem { Id = 5, Name = "Cola", DepartmentId = 2 },
                 // Technic Items
-                new ServiceItem { Id = 6, Name = "Fix AC", DepartmentId = 3 },
-                new ServiceItem { Id = 7, Name = "TV Remote", DepartmentId = 3 }
+                new ServiceItem { Id = 6, Name = "Tech Issue", DepartmentId = 3 }
             );
         }
     }
