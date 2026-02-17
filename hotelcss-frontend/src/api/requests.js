@@ -39,6 +39,30 @@ export const createRequest = async (requestData) => {
 };
 
 /**
+ * Report a generic room issue (no specific service item)
+ * @param {Object} issueData
+ * @param {string} issueData.Title - Short title of the issue
+ * @param {string} issueData.Description - Detailed description
+ * @param {File} [issueData.Photo] - Optional photo file
+ * @returns {Promise} API response
+ */
+export const reportIssue = async (issueData) => {
+  const formData = new FormData();
+  formData.append('Title', issueData.Title);
+  formData.append('Description', issueData.Description);
+  if (issueData.Photo) {
+    formData.append('Photo', issueData.Photo);
+  }
+
+  const response = await api.post('/Request/ReportIssue', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+/**
  * Update request status
  * @param {number} id - Request ID
  * @param {string} newStatus - New status (Pending, InProcess, Completed, Cancelled)

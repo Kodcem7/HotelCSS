@@ -16,6 +16,7 @@ import ServiceItemsPage from '../pages/ServiceItemsPage';
 import CreateRequestPage from '../pages/CreateRequestPage';
 import RoomCreationPage from '../pages/RoomCreationPage';
 import RequestHistoryPage from '../pages/RequestHistoryPage';
+import ReportIssuePage from '../pages/ReportIssuePage';
 import ForgotPassword from '../pages/ForgotPassword';
 import ResetPassword from '../pages/ResetPassword';
 import ChangePassword from '../pages/ChangePassword';
@@ -213,6 +214,15 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute allowedRoles="Room">
               <CreateRequestPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/room/report-issue"
+          element={
+            <ProtectedRoute allowedRoles="Room">
+              <ReportIssuePage />
             </ProtectedRoute>
           }
         />

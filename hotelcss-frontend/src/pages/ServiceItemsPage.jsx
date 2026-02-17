@@ -21,6 +21,7 @@ const ServiceItemsPage = () => {
     Price: '',
     DepartmentId: '',
     IsAvailable: true,
+    RequiredOptions: '',
   });
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -57,6 +58,7 @@ const ServiceItemsPage = () => {
         Price: item.price || '',
         DepartmentId: item.departmentId || '',
         IsAvailable: item.isAvailable !== undefined ? item.isAvailable : true,
+        RequiredOptions: item.requiredOptions || '',
       });
       setImagePreview(item.imageUrl ? `${getBackendOrigin()}${item.imageUrl}` : null);
     } else {
@@ -83,6 +85,7 @@ const ServiceItemsPage = () => {
       Price: '',
       DepartmentId: '',
       IsAvailable: true,
+      RequiredOptions: '',
     });
     setImageFile(null);
     setImagePreview(null);
@@ -112,6 +115,7 @@ const ServiceItemsPage = () => {
       formDataToSend.append('Price', formData.Price || '0');
       formDataToSend.append('DepartmentId', formData.DepartmentId);
       formDataToSend.append('IsAvailable', formData.IsAvailable);
+      formDataToSend.append('RequiredOptions', formData.RequiredOptions || '');
       if (imageFile) {
         formDataToSend.append('file', imageFile);
       }
@@ -234,6 +238,11 @@ const ServiceItemsPage = () => {
                   </span>
                 </div>
                 <p className="text-sm text-gray-600 mb-2">{getDepartmentName(item.departmentId)}</p>
+                {item.requiredOptions && (
+                  <p className="text-xs text-gray-500 mb-2">
+                    Required options: {item.requiredOptions}
+                  </p>
+                )}
                 {item.description && (
                   <p className="text-sm text-gray-600 mb-2">{item.description}</p>
                 )}
@@ -313,6 +322,24 @@ const ServiceItemsPage = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   rows="3"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Required Options (comma separated)
+                </label>
+                <input
+                  type="text"
+                  value={formData.RequiredOptions}
+                  onChange={(e) =>
+                    setFormData({ ...formData, RequiredOptions: e.target.value })
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="e.g. Ice, Lemon"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  These options will be used by the chatbot to ask for missing details.
+                </p>
               </div>
 
               <div>

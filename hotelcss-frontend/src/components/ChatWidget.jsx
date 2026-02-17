@@ -40,17 +40,46 @@ const ChatWidget = () => {
         const itemName = d.ItemName ?? d.itemName;
         const quantity = d.Quantity ?? d.quantity ?? 1;
         const note = d.Note ?? d.note ?? '';
-        const intent = d.Intent ?? d.intent;
+        const intentRaw = d.Intent ?? d.intent ?? '';
+        const intent = intentRaw.toLowerCase();
         const hasItem = serviceItemId != null && itemName;
         const botId = `bot-${Date.now()}`;
-        setPendingOrder(hasItem ? { ServiceItemId: serviceItemId, ItemName: itemName, Quantity: quantity, Note: note } : null);
-        setPendingOrderMessageId(hasItem ? botId : null);
-        const reply = hasItem
-          ? `I found: **${itemName}** × ${quantity}${note ? ` — "${note}"` : ''}. Confirm to place the order.`
-          : (intent || 'I couldn\'t match that to a menu item. Try describing the service or item you need.');
+
+        let reply = '';
+        let allowConfirm = false;
+        let pending = null;
+
+        if (intent === 'info') {
+          // Pure info / chit-chat helper message from AI
+          reply = note || 'I am your Hotel Assistant. Please tell me what you need for your room.';
+        } else if (intent === 'clarify' && hasItem) {
+          // Ask follow‑up question about required options, do NOT allow confirm yet
+          reply =
+            note ||
+            `Before I place your order for **${itemName}**, please tell me the required options (for example: ice, lemon, ketchup...).`;
+        } else if (intent === 'order' && hasItem) {
+          // Normal order flow with confirm button
+          allowConfirm = true;
+          pending = { ServiceItemId: serviceItemId, ItemName: itemName, Quantity: quantity, Note: note };
+          reply = `I found: **${itemName}** × ${quantity}${note ? ` — "${note}"` : ''}. Confirm to place the order.`;
+        } else if (hasItem) {
+          // Fallback: item matched but intent is unknown, treat as clarify to be safe
+          reply =
+            note ||
+            `You requested **${itemName}**. Please confirm quantity and any special options before I place the order.`;
+        } else {
+          // No item matched
+          reply =
+            note ||
+            'I could not match that to a specific service item. Please describe the service or item you need (for example: 2 towels, extra pillows, room service breakfast).';
+        }
+
+        setPendingOrder(pending);
+        setPendingOrderMessageId(allowConfirm ? botId : null);
+
         setMessages((prev) => [
           ...prev,
-          { role: 'bot', text: reply, id: botId, hasConfirm: hasItem },
+          { role: 'bot', text: reply, id: botId, hasConfirm: allowConfirm },
         ]);
       } else {
         setPendingOrder(null);

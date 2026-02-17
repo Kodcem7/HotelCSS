@@ -4,6 +4,7 @@ using CSSHotel.DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CSSHotel.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260217133759_serviceItemIdNullable")]
+    partial class serviceItemIdNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -146,43 +149,6 @@ namespace CSSHotel.DataAccess.Migrations
                             Id = 6,
                             DepartmentName = "Manager"
                         });
-                });
-
-            modelBuilder.Entity("CSSHotel.Models.ReceptionService", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("PickUpTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("RequestType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("RoomNumber")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("ScheduledTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoomNumber");
-
-                    b.ToTable("ReceptionServices");
                 });
 
             modelBuilder.Entity("CSSHotel.Models.Request", b =>
@@ -319,7 +285,14 @@ namespace CSSHotel.DataAccess.Migrations
                             Id = 6,
                             DepartmentId = 3,
                             IsAvailable = true,
-                            Name = "Technic Issue"
+                            Name = "Fix AC"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            DepartmentId = 3,
+                            IsAvailable = true,
+                            Name = "TV Remote"
                         });
                 });
 
@@ -463,17 +436,6 @@ namespace CSSHotel.DataAccess.Migrations
                         .HasForeignKey("DepartmentId");
 
                     b.Navigation("Department");
-                });
-
-            modelBuilder.Entity("CSSHotel.Models.ReceptionService", b =>
-                {
-                    b.HasOne("CSSHotel.Models.Room", "Room")
-                        .WithMany()
-                        .HasForeignKey("RoomNumber")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("CSSHotel.Models.Request", b =>
