@@ -292,6 +292,11 @@ const CreateRequestPage = () => {
                   {selectedServiceItem.description && (
                     <p className="text-sm text-gray-600 mt-1">{selectedServiceItem.description}</p>
                   )}
+                  {selectedServiceItem.requiredOptions && (
+                    <p className="text-xs text-gray-500 mt-2">
+                      Required options: {selectedServiceItem.requiredOptions}
+                    </p>
+                  )}
                   {selectedServiceItem.price && (
                     <p className="text-lg font-bold text-gray-900 mt-2">
                       ${parseFloat(selectedServiceItem.price).toFixed(2)}
