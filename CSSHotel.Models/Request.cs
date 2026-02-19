@@ -36,7 +36,7 @@ namespace CSSHotel.Models
         public string? Note { get; set; }
         public string? PhotoPath { get; set; }
         public DateTime RequestDate { get; set; } = DateTime.Now;
-
+        public string Type { get; set; }
         // Status: "Pending", "Completed", "Cancelled"
         public string Status { get; set; }
     }

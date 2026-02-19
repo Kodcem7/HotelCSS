@@ -15,7 +15,7 @@ namespace HotelCSS.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IWebHostEnvironment _hostEnvironment;
-        public DepartmentController(IUnitOfWork unitOfWork , IWebHostEnvironment hostEnvironment)
+        public DepartmentController(IUnitOfWork unitOfWork, IWebHostEnvironment hostEnvironment)
         {
             _unitOfWork = unitOfWork;
             _hostEnvironment = hostEnvironment;
@@ -26,6 +26,16 @@ namespace HotelCSS.Controllers
         public IActionResult Index()
         {
             var departments = _unitOfWork.Department.GetAll().ToList();
+            return Ok(departments);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("GetDepartmentsForRoom")]
+        public IActionResult IndexRoom()
+        {
+            var departments = _unitOfWork.Department.GetAll(u => u.DepartmentName != "Reception" && u.DepartmentName != "Technic"
+                                                            && u.DepartmentName != "Manager" && u.DepartmentName != "Administration"
+                                                            && u.DepartmentName != "Room");
             return Ok(departments);
         }
 
@@ -55,14 +65,14 @@ namespace HotelCSS.Controllers
                         Directory.CreateDirectory(productPath);
                     }
 
-                    using (var fileStream = new FileStream(Path.Combine(productPath,fileName),FileMode.Create))
+                    using (var fileStream = new FileStream(Path.Combine(productPath, fileName), FileMode.Create))
                     {
                         obj.Image.CopyTo(fileStream);
                     }
 
                     department.ImageUrl = @"\images\departments\" + fileName;
                 }
-                
+
                 _unitOfWork.Department.Add(department);
                 _unitOfWork.Save();
 

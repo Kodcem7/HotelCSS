@@ -125,8 +125,6 @@ namespace HotelCSS.Controllers
             {
                 SD.Status_Room_Available,
                 SD.Status_Room_Occupied,
-                SD.Status_Room_Maintenance,
-                SD.Status_Room_Cleaning
             };
             if (!allowedStatus.Contains(newStatus))
             {

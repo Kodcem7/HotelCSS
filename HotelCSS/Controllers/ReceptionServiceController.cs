@@ -105,6 +105,16 @@ namespace HotelCSS.Controllers
             string roomNumString = roomUser.UserName.Replace("Room", "");
             int.TryParse(roomNumString, out int roomNumber);
 
+            var room = _unitOfWork.Room.GetFirstOrDefault(u => u.RoomNumber == roomNumber);
+            if (room == null)
+            {
+                return BadRequest(new { success = false, message = "Room not found!" });
+            }
+            if (room.Status == SD.Status_Room_Available)
+            {
+                return BadRequest(new { success = false, message = "This room is currently empty.Request cannot be proceed." });
+            }
+
             if (obj == null)
             {
                 return BadRequest(new { success = false, message = "Requested object is null" });
@@ -123,25 +133,10 @@ namespace HotelCSS.Controllers
                     CreatedAt = DateTime.Now
                 };
 
-                //Adding TR timezone conversion to display the scheduled time in Turkey local time in the response message
-                string timeZoneId = "Turkey Standard Time";
-                TimeZoneInfo trTimeZone;
-                try
-                {
-                    trTimeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
-                }
-                catch (TimeZoneNotFoundException)
-                {
-                    // Fallback for Linux servers
-                    trTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Istanbul");
-                }
-                DateTime turkeyTime = TimeZoneInfo.ConvertTime(obj.ScheduledTime, trTimeZone);
-                string timeString = turkeyTime.ToString("HH:mm");
-
                 // Save the new request to the database
                 _unitOfWork.ReceptionService.Add(newRequest);
                 _unitOfWork.Save();
-                return Ok(new { success = true, message = $"Wake-up service added successfully. We will call your room at {"" + timeString}" });
+                return Ok(new { success = true, message = $"Wake-up service added successfully. We will call your room at {"" + obj.ScheduledTime}" });
 
             }
             return BadRequest(ModelState);

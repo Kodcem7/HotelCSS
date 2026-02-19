@@ -24,7 +24,11 @@ namespace CSSHotel.Utility
 
         public const string Status_Room_Available = "Available";
         public const string Status_Room_Occupied = "Occupied";
-        public const string Status_Room_Maintenance = "Maintenance";
-        public const string Status_Room_Cleaning = "Cleaning";
+
+        public const string Type_Request_Technic = "Technic";
+        public const string Type_Request_Room = "Room";
+        public const string Type_Request_Reception = "Reception";
+
+
     }
 }

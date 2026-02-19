@@ -206,6 +206,17 @@ namespace HotelCSS.Controllers
             string roomNumString = roomUser.UserName.Replace("Room", "");
             int.TryParse(roomNumString, out int roomNumber);
 
+            //Adding logic that helps us if room is Available we cannot place any request.
+            var room = _unitOfWork.Room.GetFirstOrDefault(u => u.RoomNumber == roomNumber);
+            if (room == null)
+            {
+                return BadRequest(new { success = false, message = "Room not found" });
+            }
+            if (room.Status == SD.Status_Room_Available)
+            {
+                return BadRequest(new { success = false, message = "This room is currently empty.Request cannot be proceed." });
+            }
+
             var serviceItem = _unitOfWork.ServiceItem.GetFirstOrDefault(u => u.Id == obj.ServiceItemId);
             if (serviceItem == null)
             {
@@ -215,13 +226,14 @@ namespace HotelCSS.Controllers
             if (ModelState.IsValid)
             {
                 Request newRequest = new Request
-                {   
+                {
                     RoomNumber = roomNumber,
                     ServiceItemId = obj.ServiceItemId,
                     Quantity = obj.Quantity,
                     Note = obj.Note,
                     RequestDate = DateTime.Now,
-                    Status = SD.StatusPending
+                    Status = SD.StatusPending,
+                    Type = obj.Type
                 };
                 bool isTechnicService = serviceItem.DepartmentId == _unitOfWork.Department.GetFirstOrDefault(u => u.DepartmentName == "Technic").Id;
 
