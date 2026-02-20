@@ -60,7 +60,7 @@ const ServiceItemsPage = () => {
         IsAvailable: item.isAvailable !== undefined ? item.isAvailable : true,
         RequiredOptions: item.requiredOptions || '',
       });
-      setImagePreview(item.imageUrl ? `${getBackendOrigin()}${item.imageUrl}` : null);
+      setImagePreview(item.imageUrl ? getImageUrl(item.imageUrl) : null);
     } else {
       setEditingItem(null);
       setFormData({
@@ -154,7 +154,8 @@ const ServiceItemsPage = () => {
 
   const getImageUrl = (imageUrl) => {
     if (!imageUrl) return null;
-    return `${getBackendOrigin()}${imageUrl}`;
+    const normalized = imageUrl.replace(/\\/g, '/');
+    return `${getBackendOrigin()}${normalized}`;
   };
 
   const getDepartmentName = (departmentId) => {

@@ -55,7 +55,7 @@ namespace HotelCSS.Controllers
 
             if (ModelState.IsValid)
             {
-                // Store issue details in Note field, ServiceItemId intentionally left null
+                // Store issue details in Note field, ServiceItemId intentionally left fixed (e.g., generic technic service)
                 string combinedNote = $"{obj.Title}: {obj.Description}";
 
                 Request newRequest = new Request
@@ -65,7 +65,9 @@ namespace HotelCSS.Controllers
                     Quantity = 1,
                     Note = combinedNote,
                     RequestDate = DateTime.Now,
-                    Status = SD.StatusPending
+                    Status = SD.StatusPending,
+                    // ReportIssue is always a technic request
+                    Type = SD.Type_Request_Technic
                 };
 
                 // Save photo if provided
@@ -82,7 +84,8 @@ namespace HotelCSS.Controllers
                     {
                         obj.Photo.CopyTo(fileStream);
                     }
-                    newRequest.PhotoPath = @"\images\requests\" + fileName;
+                    // URL path should always use forward slashes
+                    newRequest.PhotoPath = "/images/requests/" + fileName;
                 }
 
                 _unitOfWork.Request.Add(newRequest);
@@ -225,6 +228,34 @@ namespace HotelCSS.Controllers
 
             if (ModelState.IsValid)
             {
+                // Determine request type based on service item's department
+                var department = _unitOfWork.Department.GetFirstOrDefault(u => u.Id == serviceItem.DepartmentId);
+                if (department == null)
+                {
+                    return BadRequest(new { success = false, message = "Department not found for service item" });
+                }
+
+                string requestType;
+                var deptName = department.DepartmentName;
+
+                if (deptName == "Technic")
+                {
+                    requestType = SD.Type_Request_Technic;
+                }
+                else if (deptName == "Reception")
+                {
+                    requestType = SD.Type_Request_Reception;
+                }
+                else if (deptName == "Housekeeping" || deptName == "Restaurant" || deptName == "Kitchen")
+                {
+                    requestType = SD.Type_Request_Room;
+                }
+                else
+                {
+                    // Default group as Room if not explicitly mapped
+                    requestType = SD.Type_Request_Room;
+                }
+
                 Request newRequest = new Request
                 {
                     RoomNumber = roomNumber,
@@ -233,9 +264,10 @@ namespace HotelCSS.Controllers
                     Note = obj.Note,
                     RequestDate = DateTime.Now,
                     Status = SD.StatusPending,
-                    Type = obj.Type
+                    Type = requestType
                 };
-                bool isTechnicService = serviceItem.DepartmentId == _unitOfWork.Department.GetFirstOrDefault(u => u.DepartmentName == "Technic").Id;
+
+                bool isTechnicService = deptName == "Technic";
 
                 if (isTechnicService && obj.Photo != null && obj.Photo.Length > 0)
                 {

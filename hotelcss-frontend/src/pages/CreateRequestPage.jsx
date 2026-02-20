@@ -7,6 +7,7 @@ import SuccessMessage from '../components/SuccessMessage';
 import { createRequest, getRequestDepartments, getServicesByDepartment } from '../api/requests';
 import { getServiceItems } from '../api/serviceItems';
 import { getRooms } from '../api/rooms';
+import { getDepartments } from '../api/departments';
 import { getBackendOrigin } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 
@@ -46,10 +47,14 @@ const CreateRequestPage = () => {
         setDepartments(Array.isArray(deptsRes) ? deptsRes : deptsRes?.data ?? []);
         setServiceItems([]);
       } else {
-        const itemsRes = await getServiceItems();
+        const [itemsRes, roomsRes, deptsRes] = await Promise.all([
+          getServiceItems(),
+          getRooms(),
+          getDepartments(),
+        ]);
         setServiceItems(itemsRes?.data || []);
-        const roomsRes = await getRooms();
         setRooms(roomsRes?.data || []);
+        setDepartments(Array.isArray(deptsRes) ? deptsRes : deptsRes?.data ?? []);
       }
     } catch (err) {
       setError('Failed to load data');
@@ -83,6 +88,31 @@ const CreateRequestPage = () => {
     setFormData((prev) => ({ ...prev, ServiceItemId: '' }));
   };
 
+  const getRequestType = () => {
+    // For Room user, use selected department name
+    if (isRoomUser && selectedDepartmentName) {
+      const deptName = selectedDepartmentName.toLowerCase();
+      if (deptName.includes('technic')) return 'Technic';
+      if (deptName.includes('reception')) return 'Reception';
+      return 'Room';
+    }
+    
+    // For other users, check service item's department
+    if (selectedServiceItem && departments.length > 0) {
+      const department = departments.find(
+        (dept) => dept.id === selectedServiceItem.departmentId
+      );
+      if (department) {
+        const deptName = (department.departmentName || department.DepartmentName || '').toLowerCase();
+        if (deptName.includes('technic')) return 'Technic';
+        if (deptName.includes('reception')) return 'Reception';
+      }
+    }
+    
+    // Default fallback
+    return 'Room';
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -90,10 +120,13 @@ const CreateRequestPage = () => {
       setError('');
       setSuccess('');
 
+      const requestType = getRequestType();
+
       const requestData = {
         ServiceItemId: parseInt(formData.ServiceItemId),
         Quantity: parseInt(formData.Quantity),
         Note: formData.Note || '',
+        Type: requestType,
       };
 
       await createRequest(requestData);
@@ -121,7 +154,8 @@ const CreateRequestPage = () => {
 
   const getImageUrl = (imageUrl) => {
     if (!imageUrl) return null;
-    return `${getBackendOrigin()}${imageUrl}`;
+    const normalized = imageUrl.replace(/\\/g, '/');
+    return `${getBackendOrigin()}${normalized}`;
   };
 
   const selectedServiceItem = serviceItems.find(

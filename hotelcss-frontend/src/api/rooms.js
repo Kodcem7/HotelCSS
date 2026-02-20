@@ -5,10 +5,16 @@ import api from './axios';
  * @returns {Promise} List of rooms
  */
 export const getRooms = async () => {
-  const response = await api.get('/Room');
-  return response.data;
+    const response = await api.get('/Room');
+    return response.data;
 };
 
+export const getRoom = async (roomNumber) => {
+    // axios yerine senin tokenlý 'api' aracýný kullanýyoruz
+    // ve path'i getRooms'daki gibi '/Room' formatýna uyduruyoruz
+    const response = await api.get(`/Room/${roomNumber}`);
+    return response.data;
+};
 /**
  * Create a single room
  * @param {Object} roomData - Room data

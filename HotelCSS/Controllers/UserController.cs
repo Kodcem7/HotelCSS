@@ -37,6 +37,7 @@ namespace HotelCSS.Controllers
         }
 
         [HttpGet("GetStaffList")]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
         public IActionResult GetAll()
         {
             var staffList = _unitOfWork.ApplicationUser
@@ -45,6 +46,7 @@ namespace HotelCSS.Controllers
         }
 
         [HttpPost("CreatingNewUser")]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
         public async Task<IActionResult> Create([FromBody] UserRegisterDTO obj)
         {
             var existingUser = await _userManager.FindByNameAsync(obj.UserName);
@@ -95,6 +97,7 @@ namespace HotelCSS.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
         public async Task<IActionResult> Update(string id, [FromBody] UserRegisterDTO obj)
         {
             if (obj == null || id != obj.Id)
@@ -199,6 +202,7 @@ namespace HotelCSS.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
         public async Task<IActionResult> Delete(string id)
         {
             var userFromDb = await _userManager.FindByIdAsync(id);

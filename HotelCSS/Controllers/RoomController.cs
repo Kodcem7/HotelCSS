@@ -11,7 +11,6 @@ namespace HotelCSS.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Area("Admin")]
-    [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception)]
     public class RoomController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -21,10 +20,19 @@ namespace HotelCSS.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception)]
         public IActionResult GetAll()
         {
             var rooms = _unitOfWork.Room.GetAll();
             return Ok(new { data = rooms });
+        }
+        [HttpGet("{id}")]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception + "," + SD.Role_Room)]
+        public IActionResult GetRoom(int id)
+        {
+            var room = _unitOfWork.Room.GetFirstOrDefault(u => u.RoomNumber == id);
+            if (room == null) return NotFound(new { success = false, message = "Room not found" });
+            return Ok(new { success = true, data = room });
         }
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
         [HttpPost("CreateRoom")]

@@ -26,6 +26,9 @@ export const createRequest = async (requestData) => {
   if (requestData.Note) {
     formData.append('Note', requestData.Note);
   }
+  if (requestData.Type) {
+    formData.append('Type', requestData.Type);
+  }
   if (requestData.Photo) {
     formData.append('Photo', requestData.Photo);
   }

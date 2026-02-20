@@ -5,6 +5,7 @@ import ErrorMessage from '../components/ErrorMessage';
 import SuccessMessage from '../components/SuccessMessage';
 import SearchBar from '../components/SearchBar';
 import { getRequests, updateRequestStatus, deleteRequest } from '../api/requests';
+import { getBackendOrigin } from '../api/axios';
 
 const RequestsPage = () => {
   const [requests, setRequests] = useState([]);
@@ -12,7 +13,9 @@ const RequestsPage = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
+  const [filterType, setFilterType] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
+  const [previewImage, setPreviewImage] = useState('');
 
   useEffect(() => {
     fetchRequests();
@@ -75,14 +78,21 @@ const RequestsPage = () => {
     }
   };
 
+  const getImageUrl = (path) => {
+    if (!path) return null;
+    const normalized = path.replace(/\\/g, '/');
+    return `${getBackendOrigin()}${normalized}`;
+  };
+
   const filteredRequests = requests.filter((request) => {
     const matchesStatus = filterStatus === 'All' || request.status === filterStatus;
+    const matchesType = filterType === 'All' || request.type === filterType;
     const matchesSearch =
       searchTerm === '' ||
       request.roomNumber?.toString().includes(searchTerm) ||
       request.serviceItem?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       request.id?.toString().includes(searchTerm);
-    return matchesStatus && matchesSearch;
+    return matchesStatus && matchesType && matchesSearch;
   });
 
   if (loading) {
@@ -96,19 +106,31 @@ const RequestsPage = () => {
   return (
     <Layout>
       <div className="mb-6">
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
           <h2 className="text-2xl font-bold text-gray-900">Guest Requests</h2>
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="All">All Status</option>
-            <option value="Pending">Pending</option>
-            <option value="InProcess">In Process</option>
-            <option value="Completed">Completed</option>
-            <option value="Cancelled">Cancelled</option>
-          </select>
+          <div className="flex flex-wrap gap-3">
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="All">All Status</option>
+              <option value="Pending">Pending</option>
+              <option value="InProcess">In Process</option>
+              <option value="Completed">Completed</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+            <select
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="All">All Types</option>
+              <option value="Technic">Technic</option>
+              <option value="Reception">Reception</option>
+              <option value="Room">Room</option>
+            </select>
+          </div>
         </div>
         <SearchBar
           value={searchTerm}
@@ -137,10 +159,16 @@ const RequestsPage = () => {
                     Room
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Type
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Service Item
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Quantity
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Photo
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Status
@@ -163,10 +191,26 @@ const RequestsPage = () => {
                       Room {request.roomNumber}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {request.type || 'N/A'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {request.serviceItem?.name || 'N/A'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {request.quantity}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {request.photoPath ? (
+                        <button
+                          type="button"
+                          onClick={() => setPreviewImage(getImageUrl(request.photoPath))}
+                          className="text-blue-600 hover:text-blue-800 underline"
+                        >
+                          View
+                        </button>
+                      ) : (
+                        <span className="text-gray-400 text-xs">No photo</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
@@ -216,6 +260,30 @@ const RequestsPage = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+      {previewImage && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70"
+          onClick={() => setPreviewImage('')}
+        >
+          <div
+            className="relative max-w-4xl max-h-[90vh] mx-4 bg-black rounded-lg overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setPreviewImage('')}
+              className="absolute top-3 right-3 z-10 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white hover:bg-black/80"
+            >
+              Close
+            </button>
+            <img
+              src={previewImage}
+              alt="Request"
+              className="block max-h-[90vh] max-w-full object-contain"
+            />
           </div>
         </div>
       )}

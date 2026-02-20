@@ -68,7 +68,8 @@ namespace HotelCSS.Controllers
                     {
                         obj.Image.CopyTo(fileStream);
                     }
-                    newServiceItem.ImageUrl = @"\images\serviceitems\" + fileName;
+                    // URL path should always use forward slashes
+                    newServiceItem.ImageUrl = "/images/serviceitems/" + fileName;
                 }
                 _unitOfWork.ServiceItem.Add(newServiceItem);
                 _unitOfWork.Save();
@@ -113,7 +114,8 @@ namespace HotelCSS.Controllers
                     {
                         obj.Image.CopyTo(fileStream);
                     }
-                    objFromDb.ImageUrl = @"\images\serviceitems\" + fileName;
+                    // URL path should always use forward slashes
+                    objFromDb.ImageUrl = "/images/serviceitems/" + fileName;
 
                 }
                 objFromDb.Name = obj.Name;

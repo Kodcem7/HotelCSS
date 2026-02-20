@@ -70,7 +70,7 @@ const AppRoutes = () => {
         <Route
           path="/admin"
           element={
-            <ProtectedRoute allowedRoles="Admin">
+            <ProtectedRoute allowedRoles={['Admin', 'Manager']}>
               <AdminDashboard />
             </ProtectedRoute>
           }
@@ -106,7 +106,7 @@ const AppRoutes = () => {
         <Route
           path="/reception/services"
           element={
-            <ProtectedRoute allowedRoles={['Reception', 'Admin']}>
+            <ProtectedRoute allowedRoles={['Reception', 'Admin', 'Manager']}>
               <ReceptionServicesPage />
             </ProtectedRoute>
           }
@@ -124,7 +124,7 @@ const AppRoutes = () => {
         <Route
           path="/admin/requests"
           element={
-            <ProtectedRoute allowedRoles="Admin">
+            <ProtectedRoute allowedRoles={['Admin', 'Manager']}>
               <RequestsPage />
             </ProtectedRoute>
           }
@@ -133,7 +133,7 @@ const AppRoutes = () => {
         <Route
           path="/admin/rooms"
           element={
-            <ProtectedRoute allowedRoles="Admin">
+            <ProtectedRoute allowedRoles={['Admin', 'Manager']}>
               <RoomsPage />
             </ProtectedRoute>
           }
@@ -151,7 +151,7 @@ const AppRoutes = () => {
         <Route
           path="/admin/staff"
           element={
-            <ProtectedRoute allowedRoles="Admin">
+            <ProtectedRoute allowedRoles={['Admin', 'Manager']}>
               <StaffManagementPage />
             </ProtectedRoute>
           }
@@ -160,7 +160,7 @@ const AppRoutes = () => {
         <Route
           path="/admin/departments"
           element={
-            <ProtectedRoute allowedRoles="Admin">
+            <ProtectedRoute allowedRoles={['Admin', 'Manager']}>
               <DepartmentsPage />
             </ProtectedRoute>
           }

@@ -11,39 +11,40 @@ const RoomLogin = () => {
   const navigate = useNavigate();
   const { loginWithToken } = useAuth();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
 
-    if (!roomId || !qrToken) {
-      setError('Please enter both room number and QR token.');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const res = await roomLogin(Number(roomId), qrToken);
-
-      if (res.success && res.token) {
-        const ok = loginWithToken(res.token);
-        if (!ok) {
-          setError('Invalid token returned from server.');
-        } else {
-          navigate('/room');
+        if (!roomId || !qrToken) {
+            setError('Please enter both room number and QR token.');
+            return;
         }
-      } else {
-        setError(res.message || 'Room login failed.');
-      }
-    } catch (err) {
-      const msg =
-        err?.response?.data?.message ||
-        err?.message ||
-        'Room login failed.';
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
-  };
+
+        setLoading(true);
+        try {
+            const res = await roomLogin(Number(roomId), qrToken);
+
+            if (res.success && res.token) {
+                const ok = loginWithToken(res.token);
+                if (!ok) {
+                    setError('Invalid token returned from server.');
+                } else {
+                    // Send them explicitly to the dashboard path, bypassing the root '/room' route
+                    navigate('/room/dashboard');
+                }
+            } else {
+                setError(res.message || 'Room login failed.');
+            }
+        } catch (err) {
+            const msg =
+                err?.response?.data?.message ||
+                err?.message ||
+                'Room login failed.';
+            setError(msg);
+        } finally {
+            setLoading(false);
+        }
+    };
 
   return (
     <div className="min-h-screen flex items-center justify-center overflow-hidden relative px-4">
