@@ -29,6 +29,10 @@ namespace CSSHotel.Utility
         public const string Type_Request_Room = "Room";
         public const string Type_Request_Reception = "Reception";
 
+        public const string Status_Reception_Pending = "Pending";
+        public const string Status_Reception_InProgress = "InProcess";
+        public const string Status_Reception_Completed = "Completed";
+
 
     }
 }

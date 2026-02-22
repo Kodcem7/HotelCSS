@@ -22,7 +22,7 @@ namespace CSSHotel.Models
         public string RequestType { get; set; }
         public DateTime? ScheduledTime { get; set; } // for wake up calls, etc.
         public DateTime PickUpTime { get; set; } 
-        public string? Status { get; set; } = "Pending"; // Pending, Completed, Cancelled
+        public string? Status { get; set; } = "Pending"; // Pending, Completed, InProcess
         public string? Notes { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }

@@ -19,6 +19,8 @@ namespace CSSHotel.Models
         public string Status { get; set; } = "Available";
         // This stores the unique string/URL for the QR code
         public string QrCodeString { get; set; } = Guid.NewGuid().ToString();
+        public string? CurrentGuestMail { get; set; }
+        public DateTime? CurrentCheckInDate { get; set; }
 
     }
 }

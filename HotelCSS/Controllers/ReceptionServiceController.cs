@@ -129,7 +129,7 @@ namespace HotelCSS.Controllers
                     ScheduledTime = obj.ScheduledTime,
                     Notes = obj.Notes,
 
-                    Status = "Pending",
+                    Status = SD.Status_Reception_Pending,
                     CreatedAt = DateTime.Now
                 };
 
@@ -143,7 +143,7 @@ namespace HotelCSS.Controllers
         }
 
         [HttpPut("wakeup/{id}")]
-        public IActionResult UpdateWakeUpService(int id, DateTime obj)
+        public IActionResult UpdateWakeUpService(int id, DateTime obj, string status)
         {
             if (obj == null)
             {
@@ -157,11 +157,25 @@ namespace HotelCSS.Controllers
                     return BadRequest(new { success = false, message = "Wake-up service request not found" });
                 }
                 objFromDb.ScheduledTime = obj;
+                objFromDb.Status = status; 
                 _unitOfWork.ReceptionService.Update(objFromDb);
                 _unitOfWork.Save();
                 return Ok(new { success = true, message = "Wake-up service time updated successfully" });
             }
             return BadRequest(ModelState);
+        }
+        [HttpDelete("Delete_WakeUp/{id}")]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception)]
+        public IActionResult DeleteWakeUpService(int id)
+        {
+            var objFromDb = _unitOfWork.ReceptionService.GetFirstOrDefault(u => u.Id == id);
+            if (objFromDb == null)
+            {
+                return BadRequest(new { success = false, message = "Wake-up service request not found" });
+            }
+            _unitOfWork.ReceptionService.Remove(objFromDb);
+            _unitOfWork.Save();
+            return Ok(new { success = true, message = "Wake-up service request deleted successfully" });
         }
 
         [HttpPost("SetPickUpTime")]
@@ -187,7 +201,7 @@ namespace HotelCSS.Controllers
                     RequestType = "Pick-Up",
                     PickUpTime = obj.ScheduledTime,
                     Notes = obj.Notes,
-                    Status = "Pending",
+                    Status = SD.Status_Reception_Pending,
                     CreatedAt = DateTime.Now
                 };
 
@@ -200,7 +214,7 @@ namespace HotelCSS.Controllers
         }
         [HttpPut("pickup/{id}")]
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception)]
-        public IActionResult UpdatePickUpTime(int id, DateTime obj)
+        public IActionResult UpdatePickUpTime(int id, DateTime obj,string status)
         {
             if (obj == null)
             {
@@ -214,11 +228,25 @@ namespace HotelCSS.Controllers
                     return BadRequest(new { success = false, message = "Pick-up information not found" });
                 }
                 objFromDb.PickUpTime = obj;
+                objFromDb.Status = status;
                 _unitOfWork.ReceptionService.Update(objFromDb);
                 _unitOfWork.Save();
                 return Ok(new { success = true, message = "Pick-up time updated successfully" });
             }
             return BadRequest(ModelState);
+        }
+        [HttpDelete("Delete_PickUp/{id}")]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception)]
+        public IActionResult DeletePickUpTime(int id)
+        {
+            var objFromDb = _unitOfWork.ReceptionService.GetFirstOrDefault(u => u.Id == id);
+            if (objFromDb == null)
+            {
+                return BadRequest(new { success = false, message = "Pick-up information not found" });
+            }
+            _unitOfWork.ReceptionService.Remove(objFromDb);
+            _unitOfWork.Save();
+            return Ok(new { success = true, message = "Pick-up information deleted successfully" });
         }
 
     }

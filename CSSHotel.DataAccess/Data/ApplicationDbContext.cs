@@ -23,6 +23,7 @@ namespace CSSHotel.DataAccess.Data
         public DbSet<Request> Requests { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<ReceptionService> ReceptionServices { get; set; }
+        public DbSet<HistoryLog> HistoryLogs { get; set; }
 
 
 
