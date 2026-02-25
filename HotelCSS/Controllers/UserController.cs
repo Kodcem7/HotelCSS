@@ -249,26 +249,44 @@ namespace HotelCSS.Controllers
 
         [HttpGet("Room Login")]
 
-        public async Task<IActionResult> RoomLogin(int roomId, string token)
+        public async Task<IActionResult> RoomLogin([FromForm] RoomLoginDTO obj)
         {
-            if (roomId == 0 || string.IsNullOrEmpty(token))
+            if (obj.RoomId == 0 || string.IsNullOrEmpty(obj.Token) || string.IsNullOrEmpty(obj.Email))
             {
                 return BadRequest(new { success = false, message = "Invalid QR Code" });
             }
 
-            var room = _unitOfWork.Room.GetFirstOrDefault(u => u.RoomNumber == roomId);
+            var room = _unitOfWork.Room.GetFirstOrDefault(u => u.RoomNumber == obj.RoomId);
 
             if (room == null)
             {
                 return NotFound(new { success = false, message = "Room not found!" });
             }
 
-            if (room.QrCodeString != token)
+            if (room.QrCodeString != obj.Token)
             {
                 return Unauthorized(new { success = false, message = "Invalid Security Token!" });
             }
 
-            string username = "Room" + roomId;
+            if (room.Status == "Available")
+            {
+                room.Status = "Occupied";
+                room.CurrentGuestMail = obj.Email;
+                room.CurrentCheckInDate = DateTime.Now;
+
+                _unitOfWork.Room.Update(room);
+                _unitOfWork.Save();
+            }
+            else if (room.Status == "Occupied")
+            {
+
+                if (!string.Equals(room.CurrentGuestMail, obj.Email, StringComparison.OrdinalIgnoreCase))
+                {
+                    return Unauthorized(new { success = false, message = "This room is occupied by another guest." });
+                }
+            }
+
+            string username = "Room" + obj.RoomId;
             var user = await _userManager.FindByNameAsync(username);
 
             if (user == null)
@@ -288,6 +306,39 @@ namespace HotelCSS.Controllers
                 token = jwtToken, // Return the token here!
                 message = "Login Successful! You are now authenticated as " + user.UserName
             });
+        }
+
+        [HttpPost("Check-Out")]
+        public IActionResult CheckOut(int roomNumber)
+        {
+            var room = _unitOfWork.Room.GetFirstOrDefault(u => u.RoomNumber == roomNumber);
+            if (room == null || room.Status == SD.Status_Room_Available)
+            {
+                return BadRequest(new { success = false, message = "Room not found or already empty." });
+            }
+
+            HistoryLog history = new HistoryLog
+            {
+                RoomNumber = room.RoomNumber,
+                GuestMail = room.CurrentGuestMail ?? "unknown",
+                CheckInDate = room.CurrentCheckInDate ?? DateTime.Now,
+                CheckOutDate = DateTime.Now
+            };
+            _unitOfWork.HistoryLog.Add(history);
+            //Delete the requests after check-out
+            var oldServiceRequests = _unitOfWork.Request.GetAll(u => u.RoomNumber == roomNumber);
+            _unitOfWork.Request.RemoveRange(oldServiceRequests);
+            //Delete ReceptionService Requests from it's table after c/o
+            var oldReceptionRequests = _unitOfWork.ReceptionService.GetAll(u => u.RoomNumber == roomNumber);
+            _unitOfWork.ReceptionService.RemoveRange(oldReceptionRequests);
+            //Reset room to available
+            room.Status = SD.Status_Room_Available;
+            room.CurrentGuestMail = null;
+            room.CurrentCheckInDate = null;
+            _unitOfWork.Room.Update(room);
+            _unitOfWork.Save();
+
+            return Ok(new { success = true, message = $"Room {roomNumber} has been checked out and wiped clean." });
         }
 
         [HttpPost("ForgotPassword")]
