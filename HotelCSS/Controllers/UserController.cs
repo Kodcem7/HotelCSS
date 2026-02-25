@@ -247,8 +247,7 @@ namespace HotelCSS.Controllers
             return Ok(new { success = true, token = tokenString });
         }
 
-        [HttpGet("Room Login")]
-
+        [HttpPost("Room Login")]
         public async Task<IActionResult> RoomLogin([FromForm] RoomLoginDTO obj)
         {
             if (obj.RoomId == 0 || string.IsNullOrEmpty(obj.Token) || string.IsNullOrEmpty(obj.Email))
