@@ -2,9 +2,11 @@ using CSSHotel.DataAccess.Repository.IRepository;
 using CSSHotel.Models;
 using CSSHotel.Models.ViewModels;
 using CSSHotel.Utility;
+using HotelCSS.Hubs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Security.Claims;
 
@@ -17,15 +19,17 @@ namespace HotelCSS.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IWebHostEnvironment _hostEnvironment;
-        public RequestController(IUnitOfWork unitOfWork, IWebHostEnvironment hostEnvironment)
+        private readonly IHubContext<NotificationHub> _hubContext;
+        public RequestController(IUnitOfWork unitOfWork, IWebHostEnvironment hostEnvironment, IHubContext<NotificationHub> hubContext)
         {
             _unitOfWork = unitOfWork;
             _hostEnvironment = hostEnvironment;
+            _hubContext = hubContext;
         }
 
         [HttpPost("ReportIssue")]
         [Authorize(Roles = SD.Role_Room)]
-        public IActionResult ReportIssue([FromForm] IssueCreateDTO obj)
+        public async Task<IActionResult> ReportIssueAsync([FromForm] IssueCreateDTO obj)
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
@@ -90,6 +94,7 @@ namespace HotelCSS.Controllers
 
                 _unitOfWork.Request.Add(newRequest);
                 _unitOfWork.Save();
+                await _hubContext.Clients.Group("StaffGroup").SendAsync("ReceiveMessage", $"New {newRequest.Type} request from Room {roomNumber}!");
                 return Ok(new { success = true, message = "Issue reported successfully!" });
             }
 
@@ -184,7 +189,7 @@ namespace HotelCSS.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromForm] RequestCreateDTO obj)
+        public async Task<IActionResult> CreateAsync([FromForm] RequestCreateDTO obj)
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
@@ -286,6 +291,7 @@ namespace HotelCSS.Controllers
                 }
                 _unitOfWork.Request.Add(newRequest);
                 _unitOfWork.Save();
+                await _hubContext.Clients.Group("StaffGroup").SendAsync("ReceiveMessage", $"New {newRequest.Type} request from Room {roomNumber}!");
                 return Ok(new { success = true, message = "Order placed successfully!" });
             }
             return BadRequest(ModelState);

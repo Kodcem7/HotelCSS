@@ -2,9 +2,12 @@ using CSSHotel.DataAccess.Repository.IRepository;
 using CSSHotel.Models;
 using CSSHotel.Models.ViewModels;
 using CSSHotel.Utility;
+using HotelCSS.Hubs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using System.Net;
 using System.Security.Claims;
 
 namespace HotelCSS.Controllers
@@ -15,10 +18,11 @@ namespace HotelCSS.Controllers
     public class ReceptionServiceController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IWebHostEnvironment _hostEnvironment;
-        public ReceptionServiceController(IUnitOfWork unitOfWork)
+        private readonly IHubContext<NotificationHub> _hubContext;
+        public ReceptionServiceController(IUnitOfWork unitOfWork, IHubContext<NotificationHub> hubContext)
         {
             _unitOfWork = unitOfWork;
+            _hubContext = hubContext;
         }
 
         [AllowAnonymous]
@@ -84,7 +88,7 @@ namespace HotelCSS.Controllers
         }
 
         [HttpPost("Wake-Up Service")]
-        public IActionResult WakeUpService([FromForm] ReceptionServiceDTO obj)
+        public async Task<IActionResult> WakeUpServiceAsync([FromForm] ReceptionServiceDTO obj)
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
@@ -136,6 +140,7 @@ namespace HotelCSS.Controllers
                 // Save the new request to the database
                 _unitOfWork.ReceptionService.Add(newRequest);
                 _unitOfWork.Save();
+                await _hubContext.Clients.Group("StaffGroup").SendAsync("ReceiveMessage", $"New {newRequest.RequestType} request from Room {roomNumber}!");
                 return Ok(new { success = true, message = $"Wake-up service added successfully. We will call your room at {"" + obj.ScheduledTime}" });
 
             }
@@ -180,7 +185,7 @@ namespace HotelCSS.Controllers
 
         [HttpPost("SetPickUpTime")]
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception)]
-        public IActionResult SetPickUpTime(int roomNumber, [FromForm] ReceptionServiceDTO obj)
+        public async Task<IActionResult> SetPickUpTimeAsync(int roomNumber, [FromForm] ReceptionServiceDTO obj)
         {
             if (roomNumber == null)
             {
@@ -207,6 +212,7 @@ namespace HotelCSS.Controllers
 
                 _unitOfWork.ReceptionService.Add(newInfo);
                 _unitOfWork.Save();
+                await _hubContext.Clients.Group("StaffGroup").SendAsync("ReceiveMessage", $"New {newInfo.RequestType} request from Room {roomNumber}!");
                 return Ok(new { success = true, message = "Pick-up time information added successfully" });
 
             }

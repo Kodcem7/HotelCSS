@@ -110,6 +110,8 @@ builder.Services.AddCors(options =>
     });
 });
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddSignalR();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -132,7 +134,7 @@ SeedDatabase();
 // Redirect root to Swagger so http://localhost:5237/ opens Swagger directly
 app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
 app.MapControllers();
-
+app.MapHub<HotelCSS.Hubs.NotificationHub>("/hubs/notifications");
 app.Run();
 
 
