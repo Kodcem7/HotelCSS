@@ -33,7 +33,7 @@ namespace HotelCSS.Controllers
         [HttpGet("GetDepartmentsForRoom")]
         public IActionResult IndexRoom()
         {
-            var departments = _unitOfWork.Department.GetAll(u => u.DepartmentName != "Reception" && u.DepartmentName != "Technic"
+            var departments = _unitOfWork.Department.GetAll(u => u.DepartmentName != "Technic"
                                                             && u.DepartmentName != "Manager" && u.DepartmentName != "Administration"
                                                             && u.DepartmentName != "Room");
             return Ok(departments);

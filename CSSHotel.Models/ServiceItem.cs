@@ -31,6 +31,7 @@ namespace CSSHotel.Models
         public decimal? Price { get; set; }
         public bool IsAvailable { get; set; } = true;
         public string? RequiredOptions { get; set; }
+        public int PointsEarned { get; set; } = 0;
 
     }
 }

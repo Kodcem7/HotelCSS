@@ -51,10 +51,10 @@ namespace HotelCSS.Controllers
             if (ModelState.IsValid)
             {
                 Room room = new Room
-                    {
-                        RoomNumber = obj.RoomNumber,
-                        Status = "Available",
-                    };
+                {
+                    RoomNumber = obj.RoomNumber,
+                    Status = "Available",
+                };
                 _unitOfWork.Room.Add(room);
                 _unitOfWork.Save();
                 return Ok(new { success = true, message = "Room created successfully" });
@@ -139,7 +139,10 @@ namespace HotelCSS.Controllers
                 return BadRequest(new { success = false, message = "Invalid room status. Allowed values are 'Available' or 'Occupied'." });
             }
 
+            int currentPoints = roomFromDb.CurrentPoints + obj.PointsAdded;
+
             roomFromDb.Status = newStatus;
+            roomFromDb.CurrentPoints = currentPoints;
             _unitOfWork.Room.Update(roomFromDb);
             _unitOfWork.Save();
             return Ok(new { success = true, message = "Room updated successfully" });

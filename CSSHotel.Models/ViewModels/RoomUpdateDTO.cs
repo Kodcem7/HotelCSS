@@ -6,6 +6,7 @@ namespace CSSHotel.Models.ViewModels
     {
         [Required]
         public string Status { get; set; }
+        public int PointsAdded { get; set; }
     }
 }
 

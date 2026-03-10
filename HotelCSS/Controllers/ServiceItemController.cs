@@ -47,8 +47,8 @@ namespace HotelCSS.Controllers
                     Description = obj.Description,
                     Price = obj.Price,
                     IsAvailable = true,
-                    RequiredOptions = obj.RequiredOptions
-
+                    RequiredOptions = obj.RequiredOptions,
+                    PointsEarned = obj.PointsEarned                    
                 };
 
 
@@ -124,6 +124,7 @@ namespace HotelCSS.Controllers
                 objFromDb.Price = obj.Price;
                 objFromDb.IsAvailable = obj.IsAvailable;
                 objFromDb.RequiredOptions = obj.RequiredOptions;
+                objFromDb.PointsEarned = obj.PointsEarned;
                 _unitOfWork.ServiceItem.Update(objFromDb);
                 _unitOfWork.Save();
                 return Ok(new { success = true, message = "Service Item Updated Successfully", data = objFromDb });

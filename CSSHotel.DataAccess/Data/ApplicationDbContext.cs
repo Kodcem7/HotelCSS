@@ -45,12 +45,12 @@ namespace CSSHotel.DataAccess.Data
             // B. Seed Service Items (Examples)
             modelBuilder.Entity<ServiceItem>().HasData(
                 // Housekeeping Items
-                new ServiceItem { Id = 1, Name = "Towel", DepartmentId = 1 },
-                new ServiceItem { Id = 2, Name = "Shampoo", DepartmentId = 1 },
-                new ServiceItem { Id = 3, Name = "Extra Blanket", DepartmentId = 1 },
+                new ServiceItem { Id = 1, Name = "Towel", DepartmentId = 1,PointsEarned = 30 },
+                new ServiceItem { Id = 2, Name = "Shampoo", DepartmentId = 1, PointsEarned = 20 },
+                new ServiceItem { Id = 3, Name = "Extra Blanket", DepartmentId = 1, PointsEarned = 50 },
                 // Kitchen Items
-                new ServiceItem { Id = 4, Name = "Hamburger", DepartmentId = 2 },
-                new ServiceItem { Id = 5, Name = "Cola", DepartmentId = 2 },
+                new ServiceItem { Id = 4, Name = "Hamburger", DepartmentId = 2, PointsEarned = 100 },
+                new ServiceItem { Id = 5, Name = "Cola", DepartmentId = 2, PointsEarned = 150 },
                 // Technic Items
                 new ServiceItem { Id = 6, Name = "Tech Issue", DepartmentId = 3 }
             );

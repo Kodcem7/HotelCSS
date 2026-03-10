@@ -4,6 +4,7 @@ using CSSHotel.DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CSSHotel.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260227204626_addRoomPointsToDb")]
+    partial class addRoomPointsToDb
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -305,9 +308,6 @@ namespace CSSHotel.DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("PointsEarned")
-                        .HasColumnType("int");
-
                     b.Property<decimal?>("Price")
                         .HasColumnType("decimal(18, 2)");
 
@@ -326,48 +326,42 @@ namespace CSSHotel.DataAccess.Migrations
                             Id = 1,
                             DepartmentId = 1,
                             IsAvailable = true,
-                            Name = "Towel",
-                            PointsEarned = 30
+                            Name = "Towel"
                         },
                         new
                         {
                             Id = 2,
                             DepartmentId = 1,
                             IsAvailable = true,
-                            Name = "Shampoo",
-                            PointsEarned = 20
+                            Name = "Shampoo"
                         },
                         new
                         {
                             Id = 3,
                             DepartmentId = 1,
                             IsAvailable = true,
-                            Name = "Extra Blanket",
-                            PointsEarned = 50
+                            Name = "Extra Blanket"
                         },
                         new
                         {
                             Id = 4,
                             DepartmentId = 2,
                             IsAvailable = true,
-                            Name = "Hamburger",
-                            PointsEarned = 100
+                            Name = "Hamburger"
                         },
                         new
                         {
                             Id = 5,
                             DepartmentId = 2,
                             IsAvailable = true,
-                            Name = "Cola",
-                            PointsEarned = 150
+                            Name = "Cola"
                         },
                         new
                         {
                             Id = 6,
                             DepartmentId = 3,
                             IsAvailable = true,
-                            Name = "Tech Issue",
-                            PointsEarned = 0
+                            Name = "Tech Issue"
                         });
                 });
 

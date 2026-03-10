@@ -237,7 +237,7 @@ namespace HotelCSS.Controllers
                 var department = _unitOfWork.Department.GetFirstOrDefault(u => u.Id == serviceItem.DepartmentId);
                 if (department == null)
                 {
-                    return BadRequest(new { success = false, message = "Department not found for service item" });
+                    return BadRequest(new { success = false, message = "Department not found for this service item" });
                 }
 
                 string requestType;
@@ -270,6 +270,7 @@ namespace HotelCSS.Controllers
                     RequestDate = DateTime.Now,
                     Status = SD.StatusPending,
                     Type = requestType
+                    
                 };
 
                 bool isTechnicService = deptName == "Technic";
@@ -319,17 +320,32 @@ namespace HotelCSS.Controllers
             {
                 return BadRequest(new { success = false, message = $"Invalid Status. Allowed values are: {string.Join(", ", allowedStatus)}" });
             }
-            var order = _unitOfWork.Request.GetFirstOrDefault(u => u.Id == id);
+            var order = _unitOfWork.Request.GetFirstOrDefault(u => u.Id == id, includeProperties: "ServiceItem");
 
             if (order == null)
             {
-                return NotFound(new { success = false, message = "ID cannot be empty" });
+                return NotFound(new { success = false, message = "Order not found!" });
             }
+
+            //Prevent double points
+            bool justCompleted = (newStatus == SD.StatusCompleted && order.Status != SD.StatusCompleted);
 
             order.Status = newStatus;
             _unitOfWork.Request.Update(order);
+            string responseMessage = "Order status updated successfully!";
+            if (justCompleted)
+            {
+                var room = _unitOfWork.Room.GetFirstOrDefault(u => u.RoomNumber == order.RoomNumber);
+                if (room != null && order.ServiceItem != null)
+                {
+                    var pointsAdded = order.ServiceItem.PointsEarned;
+                    room.CurrentPoints += pointsAdded;
+                    _unitOfWork.Room.Update(room);
+                    responseMessage = $"Order updated! Room {room.RoomNumber} earned {order.ServiceItem.PointsEarned} points. Total: {room.CurrentPoints}";
+                }
+            }
             _unitOfWork.Save();
-            return Ok(new { success = true, message = "Order status updated successfully!" });
+            return Ok(new { success = true, message = responseMessage});
         }
 
         [HttpDelete("{id}")]

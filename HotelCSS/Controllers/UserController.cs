@@ -272,6 +272,7 @@ namespace HotelCSS.Controllers
                 room.Status = "Occupied";
                 room.CurrentGuestMail = obj.Email;
                 room.CurrentCheckInDate = DateTime.Now;
+                room.CurrentPoints = 0;
 
                 _unitOfWork.Room.Update(room);
                 _unitOfWork.Save();
@@ -334,6 +335,7 @@ namespace HotelCSS.Controllers
             room.Status = SD.Status_Room_Available;
             room.CurrentGuestMail = null;
             room.CurrentCheckInDate = null;
+            room.CurrentPoints = 0;
             _unitOfWork.Room.Update(room);
             _unitOfWork.Save();
 
