@@ -16,6 +16,7 @@ const RequestsPage = () => {
   const [filterType, setFilterType] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [previewImage, setPreviewImage] = useState('');
+  const [sortConfig, setSortConfig] = useState({ key: 'requestDate', direction: 'desc' });
 
   useEffect(() => {
     fetchRequests();
@@ -95,6 +96,56 @@ const RequestsPage = () => {
     return matchesStatus && matchesType && matchesSearch;
   });
 
+  const sortedRequests = [...filteredRequests].sort((a, b) => {
+    if (!sortConfig?.key) return 0;
+
+    const { key, direction } = sortConfig;
+    const dir = direction === 'asc' ? 1 : -1;
+
+    let aVal = a[key];
+    let bVal = b[key];
+
+    // Nested fields support (e.g., 'serviceItem.name')
+    if (key.includes('.')) {
+      const [root, child] = key.split('.');
+      aVal = a[root]?.[child];
+      bVal = b[root]?.[child];
+    }
+
+    // Dates
+    if (key === 'requestDate') {
+      const aTime = new Date(a.requestDate).getTime();
+      const bTime = new Date(b.requestDate).getTime();
+      return (aTime - bTime) * dir;
+    }
+
+    // Numbers
+    if (typeof aVal === 'number' && typeof bVal === 'number') {
+      return (aVal - bVal) * dir;
+    }
+
+    // Strings / fallback
+    const aStr = (aVal ?? '').toString().toLowerCase();
+    const bStr = (bVal ?? '').toString().toLowerCase();
+    if (aStr < bStr) return -1 * dir;
+    if (aStr > bStr) return 1 * dir;
+    return 0;
+  });
+
+  const handleSort = (key) => {
+    setSortConfig((prev) => {
+      if (prev.key === key) {
+        return { key, direction: prev.direction === 'asc' ? 'desc' : 'asc' };
+      }
+      return { key, direction: 'asc' };
+    });
+  };
+
+  const getSortIcon = (key) => {
+    if (sortConfig.key !== key) return '↕';
+    return sortConfig.direction === 'asc' ? '↑' : '↓';
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -152,29 +203,51 @@ const RequestsPage = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    ID
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                    onClick={() => handleSort('id')}
+                  >
+                    ID <span className="text-gray-400">{getSortIcon('id')}</span>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Room
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                    onClick={() => handleSort('roomNumber')}
+                  >
+                    Room <span className="text-gray-400">{getSortIcon('roomNumber')}</span>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Type
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                    onClick={() => handleSort('type')}
+                  >
+                    Type <span className="text-gray-400">{getSortIcon('type')}</span>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Service Item
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                    onClick={() => handleSort('serviceItem.name')}
+                  >
+                    Service Item{' '}
+                    <span className="text-gray-400">{getSortIcon('serviceItem.name')}</span>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Quantity
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                    onClick={() => handleSort('quantity')}
+                  >
+                    Quantity <span className="text-gray-400">{getSortIcon('quantity')}</span>
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Photo
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                    onClick={() => handleSort('status')}
+                  >
+                    Status <span className="text-gray-400">{getSortIcon('status')}</span>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                    onClick={() => handleSort('requestDate')}
+                  >
+                    Date <span className="text-gray-400">{getSortIcon('requestDate')}</span>
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
@@ -182,7 +255,7 @@ const RequestsPage = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredRequests.map((request) => (
+                {sortedRequests.map((request) => (
                   <tr key={request.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       #{request.id}

@@ -247,10 +247,11 @@ namespace HotelCSS.Controllers
             return Ok(new { success = true, token = tokenString });
         }
 
-        [HttpPost("Room Login")]
+        [HttpPost("RoomLogin")]
         public async Task<IActionResult> RoomLogin([FromForm] RoomLoginDTO obj)
         {
-            if (obj.RoomId == 0 || string.IsNullOrEmpty(obj.Token) || string.IsNullOrEmpty(obj.Email))
+            // Email is optional for now; only room + token are required.
+            if (obj.RoomId == 0 || string.IsNullOrEmpty(obj.Token))
             {
                 return BadRequest(new { success = false, message = "Invalid QR Code" });
             }
@@ -270,7 +271,8 @@ namespace HotelCSS.Controllers
             if (room.Status == "Available")
             {
                 room.Status = "Occupied";
-                room.CurrentGuestMail = obj.Email;
+                // Email may be empty/null; backend logging handles it separately.
+                room.CurrentGuestMail = string.IsNullOrWhiteSpace(obj.Email) ? null : obj.Email;
                 room.CurrentCheckInDate = DateTime.Now;
 
                 _unitOfWork.Room.Update(room);
@@ -278,8 +280,9 @@ namespace HotelCSS.Controllers
             }
             else if (room.Status == "Occupied")
             {
-
-                if (!string.Equals(room.CurrentGuestMail, obj.Email, StringComparison.OrdinalIgnoreCase))
+                if (!string.IsNullOrEmpty(room.CurrentGuestMail) &&
+                    !string.IsNullOrEmpty(obj.Email) &&
+                    !string.Equals(room.CurrentGuestMail, obj.Email, StringComparison.OrdinalIgnoreCase))
                 {
                     return Unauthorized(new { success = false, message = "This room is occupied by another guest." });
                 }

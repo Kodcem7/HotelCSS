@@ -55,10 +55,21 @@ export const resetPassword = async ({ email, token, password }) => {
  * Room login with room number and QR token
  * @param {number} roomId
  * @param {string} token
+ * @param {string} [email] - Optional guest email
  */
-export const roomLogin = async (roomId, token) => {
-  const response = await api.get('/User/Room Login', {
-    params: { roomId, token },
+export const roomLogin = async (roomId, token, email) => {
+  const formData = new FormData();
+  formData.append('RoomId', roomId);
+  formData.append('Token', token);
+  if (email) {
+    formData.append('Email', email);
+  }
+
+  const response = await api.post('/User/RoomLogin', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
   });
+
   return response.data;
 };

@@ -22,6 +22,7 @@ const RoomLogin = () => {
 
         setLoading(true);
         try {
+            // Email param is optional for now, so we don't pass it
             const res = await roomLogin(Number(roomId), qrToken);
 
             if (res.success && res.token) {
