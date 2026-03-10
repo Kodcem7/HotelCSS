@@ -241,6 +241,157 @@ namespace HotelCSS.Controllers
             }
             return BadRequest(ModelState);
         }
+
+        // --- Status-only updates for reception services (no time change) ---
+
+        [HttpPut("wakeup/status/{id}")]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception)]
+        public IActionResult UpdateWakeUpStatus(int id, string status)
+        {
+            if (id <= 0)
+            {
+                return BadRequest(new { success = false, message = "Invalid wake-up request ID" });
+            }
+
+            if (string.IsNullOrEmpty(status))
+            {
+                return BadRequest(new { success = false, message = "Status cannot be empty" });
+            }
+
+            var allowedStatus = new List<string>
+            {
+                SD.Status_Reception_Pending,
+                SD.Status_Reception_InProgress,
+                SD.Status_Reception_Completed
+            };
+
+            if (!allowedStatus.Contains(status))
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = $"Invalid Status. Allowed values are: {string.Join(", ", allowedStatus)}"
+                });
+            }
+
+            var objFromDb = _unitOfWork.ReceptionService.GetFirstOrDefault(u => u.Id == id && u.RequestType == "Wake-Up Service");
+            if (objFromDb == null)
+            {
+                return NotFound(new { success = false, message = "Wake-up service request not found" });
+            }
+
+            // Simple workflow: Pending -> InProcess -> Completed
+            if (objFromDb.Status == SD.Status_Reception_Pending)
+            {
+                if (status != SD.Status_Reception_InProgress && status != SD.Status_Reception_Completed)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Pending wake-up requests can only be moved to InProcess or Completed."
+                    });
+                }
+            }
+            else if (objFromDb.Status == SD.Status_Reception_InProgress)
+            {
+                if (status != SD.Status_Reception_Completed)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "InProcess wake-up requests can only be moved to Completed."
+                    });
+                }
+            }
+            else if (objFromDb.Status == SD.Status_Reception_Completed)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Completed wake-up requests cannot be changed."
+                });
+            }
+
+            objFromDb.Status = status;
+            _unitOfWork.ReceptionService.Update(objFromDb);
+            _unitOfWork.Save();
+
+            return Ok(new { success = true, message = "Wake-up service status updated successfully" });
+        }
+
+        [HttpPut("pickup/status/{id}")]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception)]
+        public IActionResult UpdatePickUpStatus(int id, string status)
+        {
+            if (id <= 0)
+            {
+                return BadRequest(new { success = false, message = "Invalid pick-up request ID" });
+            }
+
+            if (string.IsNullOrEmpty(status))
+            {
+                return BadRequest(new { success = false, message = "Status cannot be empty" });
+            }
+
+            var allowedStatus = new List<string>
+            {
+                SD.Status_Reception_Pending,
+                SD.Status_Reception_InProgress,
+                SD.Status_Reception_Completed
+            };
+
+            if (!allowedStatus.Contains(status))
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = $"Invalid Status. Allowed values are: {string.Join(", ", allowedStatus)}"
+                });
+            }
+
+            var objFromDb = _unitOfWork.ReceptionService.GetFirstOrDefault(u => u.Id == id && u.RequestType == "Pick-Up");
+            if (objFromDb == null)
+            {
+                return NotFound(new { success = false, message = "Pick-up information not found" });
+            }
+
+            if (objFromDb.Status == SD.Status_Reception_Pending)
+            {
+                if (status != SD.Status_Reception_InProgress && status != SD.Status_Reception_Completed)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Pending pick-up requests can only be moved to InProcess or Completed."
+                    });
+                }
+            }
+            else if (objFromDb.Status == SD.Status_Reception_InProgress)
+            {
+                if (status != SD.Status_Reception_Completed)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "InProcess pick-up requests can only be moved to Completed."
+                    });
+                }
+            }
+            else if (objFromDb.Status == SD.Status_Reception_Completed)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Completed pick-up requests cannot be changed."
+                });
+            }
+
+            objFromDb.Status = status;
+            _unitOfWork.ReceptionService.Update(objFromDb);
+            _unitOfWork.Save();
+
+            return Ok(new { success = true, message = "Pick-up status updated successfully" });
+        }
         [HttpDelete("Delete_PickUp/{id}")]
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception)]
         public IActionResult DeletePickUpTime(int id)

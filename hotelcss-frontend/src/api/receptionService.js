@@ -93,4 +93,46 @@ export const updatePickUpTime = async (id, scheduledTimeIso) => {
   return response.data;
 };
 
+/**
+ * Update status for a wake-up service (Pending -> InProcess -> Completed).
+ * @param {number} id
+ * @param {'Pending' | 'InProcess' | 'Completed'} status
+ */
+export const updateWakeUpStatus = async (id, status) => {
+  const response = await api.put(
+    `/ReceptionService/wakeup/status/${id}?status=${encodeURIComponent(status)}`
+  );
+  return response.data;
+};
+
+/**
+ * Update status for a pick-up info record (Pending -> InProcess -> Completed).
+ * @param {number} id
+ * @param {'Pending' | 'InProcess' | 'Completed'} status
+ */
+export const updatePickUpStatus = async (id, status) => {
+  const response = await api.put(
+    `/ReceptionService/pickup/status/${id}?status=${encodeURIComponent(status)}`
+  );
+  return response.data;
+};
+
+/**
+ * Delete a completed wake-up service.
+ * @param {number} id
+ */
+export const deleteWakeUpService = async (id) => {
+  const response = await api.delete(`/ReceptionService/Delete_WakeUp/${id}`);
+  return response.data;
+};
+
+/**
+ * Delete a completed pick-up info.
+ * @param {number} id
+ */
+export const deletePickUpService = async (id) => {
+  const response = await api.delete(`/ReceptionService/Delete_PickUp/${id}`);
+  return response.data;
+};
+
 

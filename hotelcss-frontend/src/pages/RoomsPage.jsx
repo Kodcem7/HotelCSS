@@ -32,6 +32,18 @@ const RoomsPage = () => {
   };
 
   const handleStatusUpdate = async (roomNumber, newStatus) => {
+    // If we are switching a room to Available, warn that all guest data will be cleared.
+    if (newStatus === 'Available') {
+      const confirmed = window.confirm(
+        'Bu odayý \"Available\" yaparsan, odaya atanýþ tüm bilgiler (konuk maili vb.) silinecek.\nDevam etmek istiyor musun?'
+      );
+      if (!confirmed) {
+        // Re-sync from server to revert the select change
+        await fetchRooms();
+        return;
+      }
+    }
+
     try {
       setError('');
       setSuccess('');
@@ -49,10 +61,6 @@ const RoomsPage = () => {
         return 'bg-green-100 text-green-800';
       case 'Occupied':
         return 'bg-blue-100 text-blue-800';
-      case 'Maintenance':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'Cleaning':
-        return 'bg-purple-100 text-purple-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -67,8 +75,6 @@ const RoomsPage = () => {
     All: rooms.length,
     Available: rooms.filter((r) => r.status === 'Available').length,
     Occupied: rooms.filter((r) => r.status === 'Occupied').length,
-    Maintenance: rooms.filter((r) => r.status === 'Maintenance').length,
-    Cleaning: rooms.filter((r) => r.status === 'Cleaning').length,
   };
 
   if (loading) {
@@ -92,7 +98,7 @@ const RoomsPage = () => {
       </div>
 
       <div className="flex space-x-2 mb-4">
-        {['All', 'Available', 'Occupied', 'Maintenance', 'Cleaning'].map((status) => (
+        {['All', 'Available', 'Occupied'].map((status) => (
           <button
             key={status}
             onClick={() => setFilterStatus(status)}
@@ -139,8 +145,6 @@ const RoomsPage = () => {
                 >
                   <option value="Available">Available</option>
                   <option value="Occupied">Occupied</option>
-                  <option value="Maintenance">Maintenance</option>
-                  <option value="Cleaning">Cleaning</option>
                 </select>
               </div>
             </div>

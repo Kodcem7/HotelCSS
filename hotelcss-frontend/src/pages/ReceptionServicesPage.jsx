@@ -8,6 +8,10 @@ import {
   updateWakeUpTime,
   updatePickUpTime,
   setPickUpTime,
+  updateWakeUpStatus,
+  updatePickUpStatus,
+  deleteWakeUpService,
+  deletePickUpService,
 } from '../api/receptionService';
 
 const ReceptionServicesPage = () => {
@@ -23,6 +27,19 @@ const ReceptionServicesPage = () => {
     Notes: '',
   });
   const [pickupSubmitting, setPickupSubmitting] = useState(false);
+
+  const getStatusBadgeClass = (status) => {
+    switch (status) {
+      case 'Pending':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'InProcess':
+        return 'bg-blue-100 text-blue-800';
+      case 'Completed':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
 
   const loadServices = async () => {
     try {
@@ -129,6 +146,48 @@ const ReceptionServicesPage = () => {
       await loadServices();
     } catch (err) {
       const msg = err.response?.data?.message || 'Failed to update time';
+      setError(msg);
+    }
+  };
+
+  const handleStatusChange = async (service, nextStatus) => {
+    try {
+      setError('');
+      setSuccess('');
+
+      if (service.requestType === 'Wake-Up Service') {
+        await updateWakeUpStatus(service.id, nextStatus);
+      } else if (service.requestType === 'Pick-Up') {
+        await updatePickUpStatus(service.id, nextStatus);
+      }
+
+      setSuccess('Status updated successfully');
+      await loadServices();
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to update status';
+      setError(msg);
+    }
+  };
+
+  const handleDelete = async (service) => {
+    if (!window.confirm('Bu kaydı silmek istediğinize emin misiniz?')) {
+      return;
+    }
+
+    try {
+      setError('');
+      setSuccess('');
+
+      if (service.requestType === 'Wake-Up Service') {
+        await deleteWakeUpService(service.id);
+      } else if (service.requestType === 'Pick-Up') {
+        await deletePickUpService(service.id);
+      }
+
+      setSuccess('Record deleted successfully');
+      await loadServices();
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to delete record';
       setError(msg);
     }
   };
@@ -279,7 +338,11 @@ const ReceptionServicesPage = () => {
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                        <span
+                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(
+                            service.status
+                          )}`}
+                        >
                           {service.status}
                         </span>
                       </td>
@@ -308,6 +371,30 @@ const ReceptionServicesPage = () => {
                             className="text-blue-600 hover:text-blue-900 text-xs"
                           >
                             Edit Time
+                          </button>
+                        )}
+                        {service.status === 'Pending' && (
+                          <button
+                            onClick={() => handleStatusChange(service, 'InProcess')}
+                            className="text-blue-600 hover:text-blue-900 text-xs"
+                          >
+                            Start
+                          </button>
+                        )}
+                        {service.status === 'InProcess' && (
+                          <button
+                            onClick={() => handleStatusChange(service, 'Completed')}
+                            className="text-green-600 hover:text-green-900 text-xs"
+                          >
+                            Complete
+                          </button>
+                        )}
+                        {service.status === 'Completed' && (
+                          <button
+                            onClick={() => handleDelete(service)}
+                            className="text-red-600 hover:text-red-900 text-xs"
+                          >
+                            Delete
                           </button>
                         )}
                       </td>

@@ -164,8 +164,12 @@ namespace HotelCSS.Controllers
         [HttpGet("GetDepartments")]
         public IActionResult GetDepartments()
         {
+            // For normal room service requests we only want
+            // HouseKeeping and Kitchen departments to appear.
+            // Technic issues are handled via ReportIssue,
+            // and Reception / Restaurant requests have their own flows.
             IEnumerable<Department> departments = _unitOfWork.Department.GetAll(
-                u => u.DepartmentName != "Administration" && u.DepartmentName != "Room" && u.DepartmentName != "Manager"
+                u => u.DepartmentName == "HouseKeeping" || u.DepartmentName == "Kitchen"
             );
             return Ok(departments);
         }
@@ -299,6 +303,7 @@ namespace HotelCSS.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception)]
         public IActionResult Update(int id, string newStatus)
         {
             if (id <= 0)
@@ -325,6 +330,41 @@ namespace HotelCSS.Controllers
             if (order == null)
             {
                 return NotFound(new { success = false, message = "Order not found!" });
+            }
+            
+            // Enforce simple workflow:
+            // Room user creates -> Pending
+            // Reception "approves" -> InProcess
+            // Reception finishes -> Completed (or Cancelled)
+            if (order.Status == SD.StatusPending)
+            {
+                if (newStatus != SD.StatusInProgress && newStatus != SD.StatusCancelled)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Pending requests can only be moved to InProcess or Cancelled."
+                    });
+                }
+            }
+            else if (order.Status == SD.StatusInProgress)
+            {
+                if (newStatus != SD.StatusCompleted && newStatus != SD.StatusCancelled)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "InProcess requests can only be moved to Completed or Cancelled."
+                    });
+                }
+            }
+            else if (order.Status == SD.StatusCompleted || order.Status == SD.StatusCancelled)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Completed or Cancelled requests cannot be changed."
+                });
             }
 
             //Prevent double points
