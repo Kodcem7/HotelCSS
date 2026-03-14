@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 const RoomLogin = () => {
   const [roomId, setRoomId] = useState('');
   const [qrToken, setQrToken] = useState('');
+  const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -15,15 +16,14 @@ const RoomLogin = () => {
         e.preventDefault();
         setError('');
 
-        if (!roomId || !qrToken) {
-            setError('Please enter both room number and QR token.');
+        if (!roomId || !qrToken || !email) {
+            setError('Please enter room number, QR token and email address.');
             return;
         }
 
         setLoading(true);
         try {
-            // Email param is optional for now, so we don't pass it
-            const res = await roomLogin(Number(roomId), qrToken);
+            const res = await roomLogin(Number(roomId), qrToken, email);
 
             if (res.success && res.token) {
                 const ok = loginWithToken(res.token);
@@ -72,7 +72,7 @@ const RoomLogin = () => {
                   Room Login
                 </h1>
                 <p className="mt-2 text-sm text-slate-600 font-medium">
-                  Enter your room number and QR code string.
+                  Enter your room number, QR code string and email address.
                 </p>
               </div>
             </div>
@@ -112,6 +112,21 @@ const RoomLogin = () => {
                   onChange={(e) => setQrToken(e.target.value)}
                   className="w-full px-4 py-3 bg-slate-50/60 rounded-xl border-2 border-slate-200 focus:border-slate-400 focus:outline-none text-slate-800 placeholder-slate-400 text-sm font-medium transition-colors"
                   placeholder="Paste QR token here"
+                  required
+                  disabled={loading}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                  Email address
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-3 bg-slate-50/60 rounded-xl border-2 border-slate-200 focus:border-slate-400 focus:outline-none text-slate-800 placeholder-slate-400 text-sm font-medium transition-colors"
+                  placeholder="e.g. guest@example.com"
                   required
                   disabled={loading}
                 />

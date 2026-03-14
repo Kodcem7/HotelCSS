@@ -4,11 +4,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import SuccessMessage from '../components/SuccessMessage';
 import { useAuth } from '../context/AuthContext';
-import {
-  createWakeUpService,
-  getReceptionServices,
-  getPickUpTime,
-} from '../api/receptionService';
+import { createWakeUpService, getPickUpTime } from '../api/receptionService';
 
 const RoomReceptionRequestPage = () => {
   const { user } = useAuth();
@@ -19,28 +15,12 @@ const RoomReceptionRequestPage = () => {
     Notes: '',
   });
   const [submitting, setSubmitting] = useState(false);
-  const [loadingExisting, setLoadingExisting] = useState(true);
-  const [existingRequests, setExistingRequests] = useState([]);
   const [loadingPickup, setLoadingPickup] = useState(false);
   const [pickupInfos, setPickupInfos] = useState([]);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
-    const loadExisting = async () => {
-      try {
-        setLoadingExisting(true);
-        setError('');
-        const data = await getReceptionServices();
-        setExistingRequests(Array.isArray(data) ? data : data?.data ?? []);
-      } catch (err) {
-        // Not critical, just log
-        console.error(err);
-      } finally {
-        setLoadingExisting(false);
-      }
-    };
-
     const loadPickupInfos = async () => {
       try {
         setLoadingPickup(true);
@@ -53,7 +33,6 @@ const RoomReceptionRequestPage = () => {
       }
     };
 
-    loadExisting();
     loadPickupInfos();
   }, []);
 
@@ -74,11 +53,10 @@ const RoomReceptionRequestPage = () => {
       setError('');
       setSuccess('');
 
-      // Convert HTML datetime-local (local time) to ISO string so backend can parse DateTime
-      const scheduledDate = new Date(formData.ScheduledTime);
-
       await createWakeUpService({
-        ScheduledTime: scheduledDate.toISOString(),
+        // HTML datetime-local already returns local time in "YYYY-MM-DDTHH:mm" format.
+        // Bunu direkt backend'e gönderiyoruz ki ek bir UTC dönüşümü yapılmasın.
+        ScheduledTime: formData.ScheduledTime,
         Notes: formData.Notes || undefined,
       });
 
@@ -87,10 +65,6 @@ const RoomReceptionRequestPage = () => {
         ScheduledTime: '',
         Notes: '',
       });
-
-      // Refresh existing list
-      const data = await getReceptionServices();
-      setExistingRequests(Array.isArray(data) ? data : data?.data ?? []);
     } catch (err) {
       const msg =
         err.response?.data?.message ||
@@ -141,7 +115,6 @@ const RoomReceptionRequestPage = () => {
 
         {/* Wake-up Service form & list */}
         {selectedType === 'wake-up' && (
-          <>
             <form
               onSubmit={handleSubmit}
               className="bg-white rounded-lg shadow p-6 space-y-6 mb-8"
@@ -198,38 +171,6 @@ const RoomReceptionRequestPage = () => {
                 </button>
               </div>
             </form>
-
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Mevcut Wake-up İstekleriniz
-              </h3>
-              {loadingExisting ? (
-                <LoadingSpinner text="Yükleniyor..." />
-              ) : existingRequests.length === 0 ? (
-                <p className="text-gray-500 text-sm">
-                  Kayıtlı bir wake-up servisi isteğiniz bulunmuyor.
-                </p>
-              ) : (
-                <ul className="divide-y divide-gray-200">
-                  {existingRequests.map((req) => (
-                    <li key={req.id} className="py-3 flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">
-                          {new Date(req.scheduledTime).toLocaleString()}
-                        </p>
-                        {req.notes && (
-                          <p className="text-xs text-gray-500 mt-0.5">{req.notes}</p>
-                        )}
-                      </div>
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                        {req.status}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </>
         )}
 
         {/* Learn Pick-Up Time view */}

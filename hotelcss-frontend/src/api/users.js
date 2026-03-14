@@ -68,3 +68,14 @@ export const updateProfile = async ({ Name, UserName }) => {
   });
   return response.data;
 };
+
+/**
+ * Check-out a room by room number.
+ * Calls backend UserController.CheckOut (POST /User/Check-Out?roomNumber=XXX)
+ * and performs full checkout: history log, clearing requests, resetting room.
+ * @param {number} roomNumber
+ */
+export const checkOutRoom = async (roomNumber) => {
+  const response = await api.post(`/User/Check-Out?roomNumber=${roomNumber}`);
+  return response.data;
+};

@@ -77,10 +77,10 @@ const ReceptionServicesPage = () => {
       setSuccess('');
       setPickupSubmitting(true);
 
-      const scheduledIso = new Date(pickupForm.ScheduledTime).toISOString();
-
       await setPickUpTime(Number(pickupForm.roomNumber), {
-        ScheduledTime: scheduledIso,
+        // HTML datetime-local zaten yerel zamanı "YYYY-MM-DDTHH:mm" formatında veriyor.
+        // Bunu doğrudan gönderiyoruz; ekstra UTC dönüşümü yapmıyoruz.
+        ScheduledTime: pickupForm.ScheduledTime,
         Notes: pickupForm.Notes || undefined,
       });
 
@@ -132,12 +132,12 @@ const ReceptionServicesPage = () => {
       setError('');
       setSuccess('');
 
-      const iso = new Date(editingTime).toISOString();
-
       if (service.requestType === 'Wake-Up Service') {
-        await updateWakeUpTime(service.id, iso);
+        // editingTime de datetime-local formatında yerel saat,
+        // backend'e direkt bu string'i yolluyoruz.
+        await updateWakeUpTime(service.id, editingTime);
       } else if (service.requestType === 'Pick-Up') {
-        await updatePickUpTime(service.id, iso);
+        await updatePickUpTime(service.id, editingTime);
       }
 
       setSuccess('Time updated successfully');

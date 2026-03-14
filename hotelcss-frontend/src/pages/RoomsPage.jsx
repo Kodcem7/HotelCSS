@@ -5,6 +5,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import SuccessMessage from '../components/SuccessMessage';
 import { getRooms, updateRoom } from '../api/rooms';
+import { checkOutRoom } from '../api/users';
 
 const RoomsPage = () => {
   const [rooms, setRooms] = useState([]);
@@ -70,6 +71,25 @@ const RoomsPage = () => {
     filterStatus === 'All'
       ? rooms
       : rooms.filter((r) => r.status === filterStatus);
+
+  const handleCheckOut = async (roomNumber) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to check-out Room ${roomNumber}?\n` +
+        'This will finalize the stay, move data to history, clear all requests and reset the room.'
+    );
+    if (!confirmed) return;
+
+    try {
+      setError('');
+      setSuccess('');
+      const res = await checkOutRoom(roomNumber);
+      setSuccess(res?.message || `Room ${roomNumber} has been checked out successfully.`);
+      await fetchRooms();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to check-out room');
+      console.error(err);
+    }
+  };
 
   const statusCounts = {
     All: rooms.length,
@@ -137,7 +157,7 @@ const RoomsPage = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <select
                   value={room.status}
                   onChange={(e) => handleStatusUpdate(room.roomNumber, e.target.value)}
@@ -146,6 +166,23 @@ const RoomsPage = () => {
                   <option value="Available">Available</option>
                   <option value="Occupied">Occupied</option>
                 </select>
+
+                <div className="text-xs text-gray-600 bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">
+                  <p className="font-semibold mb-1">Current guest email</p>
+                  <p className="font-mono break-all">
+                    {room.currentGuestMail || '—'}
+                  </p>
+                </div>
+
+                {room.status === 'Occupied' && (
+                  <button
+                    type="button"
+                    onClick={() => handleCheckOut(room.roomNumber)}
+                    className="w-full px-3 py-2 text-xs font-semibold rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
+                  >
+                    Check-out room
+                  </button>
+                )}
               </div>
             </div>
           ))}
