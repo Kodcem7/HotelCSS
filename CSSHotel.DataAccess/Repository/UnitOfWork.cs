@@ -1,4 +1,4 @@
-﻿using CSSHotel.DataAccess.Data;
+using CSSHotel.DataAccess.Data;
 using CSSHotel.DataAccess.Repository.IRepository;
 using System;
 using System.Collections.Generic;
@@ -19,6 +19,7 @@ namespace CSSHotel.DataAccess.Repository
         public IApplicationUserRepository ApplicationUser { get; private set; }
         public IReceptionServiceRepository ReceptionService { get; private set; }
         public IHistoryLogRepository HistoryLog { get; private set; }
+        public IHotelEventRepository HotelEvent { get; private set; }
 
         public UnitOfWork(ApplicationDbContext db)
         {
@@ -30,6 +31,7 @@ namespace CSSHotel.DataAccess.Repository
             ApplicationUser = new ApplicationUserRepository(_db);
             ReceptionService = new ReceptionServiceRepository(_db);
             HistoryLog = new HistoryLogRepository(_db);
+            HotelEvent = new HotelEventRepository(_db);
         }
 
         public void Save()

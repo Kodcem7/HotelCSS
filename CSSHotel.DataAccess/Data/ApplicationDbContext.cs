@@ -1,4 +1,4 @@
-﻿using CSSHotel.Models;
+using CSSHotel.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +24,7 @@ namespace CSSHotel.DataAccess.Data
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<ReceptionService> ReceptionServices { get; set; }
         public DbSet<HistoryLog> HistoryLogs { get; set; }
+        public DbSet<HotelEvent> HotelEvents { get; set; }
 
 
 

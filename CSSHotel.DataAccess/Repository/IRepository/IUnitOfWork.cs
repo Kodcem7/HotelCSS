@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,6 +15,7 @@ namespace CSSHotel.DataAccess.Repository.IRepository
         IApplicationUserRepository ApplicationUser { get; }
         IReceptionServiceRepository ReceptionService { get; }   
         IHistoryLogRepository HistoryLog { get; }
+        IHotelEventRepository HotelEvent { get; }
         void Save();
     }
 }
