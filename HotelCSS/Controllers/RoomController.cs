@@ -140,7 +140,6 @@ namespace HotelCSS.Controllers
             }
 
             int currentPoints = roomFromDb.CurrentPoints + obj.PointsAdded;
-
             roomFromDb.Status = newStatus;
             roomFromDb.CurrentPoints = currentPoints;
             _unitOfWork.Room.Update(roomFromDb);

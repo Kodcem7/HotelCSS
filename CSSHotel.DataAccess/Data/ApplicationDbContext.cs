@@ -24,6 +24,8 @@ namespace CSSHotel.DataAccess.Data
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<ReceptionService> ReceptionServices { get; set; }
         public DbSet<HistoryLog> HistoryLogs { get; set; }
+        public DbSet<RewardVoucher> RewardVouchers { get; set; }
+        public DbSet<BonusCampaign> BonusCampaigns { get; set; }
 
 
 
@@ -52,7 +54,9 @@ namespace CSSHotel.DataAccess.Data
                 new ServiceItem { Id = 4, Name = "Hamburger", DepartmentId = 2, PointsEarned = 100 },
                 new ServiceItem { Id = 5, Name = "Cola", DepartmentId = 2, PointsEarned = 150 },
                 // Technic Items
-                new ServiceItem { Id = 6, Name = "Tech Issue", DepartmentId = 3 }
+                new ServiceItem { Id = 6, Name = "Tech Issue", DepartmentId = 3 },
+                //Reception Items
+                new ServiceItem { Id = 7, Name = "2 Days Free Sunbed Voucher", DepartmentId = 4, PointsEarned = 0,PointsCost = 50 }
             );
         }
     }

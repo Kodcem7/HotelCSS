@@ -274,7 +274,7 @@ namespace HotelCSS.Controllers
                     RequestDate = DateTime.Now,
                     Status = SD.StatusPending,
                     Type = requestType
-                    
+
                 };
 
                 bool isTechnicService = deptName == "Technic";
@@ -331,7 +331,7 @@ namespace HotelCSS.Controllers
             {
                 return NotFound(new { success = false, message = "Order not found!" });
             }
-            
+
             // Enforce simple workflow:
             // Room user creates -> Pending
             // Reception "approves" -> InProcess
@@ -378,14 +378,39 @@ namespace HotelCSS.Controllers
                 var room = _unitOfWork.Room.GetFirstOrDefault(u => u.RoomNumber == order.RoomNumber);
                 if (room != null && order.ServiceItem != null)
                 {
-                    var pointsAdded = order.ServiceItem.PointsEarned;
-                    room.CurrentPoints += pointsAdded;
+                    int basePoints = order.ServiceItem.PointsEarned;
+                    int bonusPoints = 0;
+
+                    var today = DateTime.Now;
+
+                    var activeBonus = _unitOfWork.BonusCampaign.GetFirstOrDefault(u =>
+                        u.ServiceItemId == order.ServiceItemId &&
+                        u.IsActive == true &&            // <-- The Admin's Kill-Switch is checked here!
+                        u.StartDate <= today &&          // <-- Is it after the start date?
+                        u.EndDate >= today               // <-- Is it before the end date?
+                        );
+
+                    if (activeBonus != null)
+                    {
+                        bonusPoints = activeBonus.ExtraPoints;
+                    }
+
+                    int totalPoints = basePoints + bonusPoints;
+                    room.CurrentPoints += totalPoints;
                     _unitOfWork.Room.Update(room);
-                    responseMessage = $"Order updated! Room {room.RoomNumber} earned {order.ServiceItem.PointsEarned} points. Total: {room.CurrentPoints}";
+
+                    if (bonusPoints > 0)
+                    {
+                        responseMessage = $"Order updated! Room {room.RoomNumber} earned {basePoints} base pts + {bonusPoints} BONUS pts! Total: {room.CurrentPoints}";
+                    }
+                    else
+                    {
+                        responseMessage = $"Order updated! Room {room.RoomNumber} earned {basePoints} points. Total: {room.CurrentPoints}";
+                    }
                 }
             }
             _unitOfWork.Save();
-            return Ok(new { success = true, message = responseMessage});
+            return Ok(new { success = true, message = responseMessage });
         }
 
         [HttpDelete("{id}")]

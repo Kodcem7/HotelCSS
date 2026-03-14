@@ -32,6 +32,7 @@ namespace CSSHotel.Models
         public bool IsAvailable { get; set; } = true;
         public string? RequiredOptions { get; set; }
         public int PointsEarned { get; set; } = 0;
+        public int? PointsCost { get; set; } 
 
     }
 }

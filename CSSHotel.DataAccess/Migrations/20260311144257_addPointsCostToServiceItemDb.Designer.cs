@@ -4,6 +4,7 @@ using CSSHotel.DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CSSHotel.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260311144257_addPointsCostToServiceItemDb")]
+    partial class addPointsCostToServiceItemDb
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -94,36 +97,6 @@ namespace CSSHotel.DataAccess.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("CSSHotel.Models.BonusCampaign", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("ExtraPoints")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("ServiceItemId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ServiceItemId");
-
-                    b.ToTable("BonusCampaigns");
                 });
 
             modelBuilder.Entity("CSSHotel.Models.Department", b =>
@@ -284,40 +257,6 @@ namespace CSSHotel.DataAccess.Migrations
                     b.ToTable("Requests");
                 });
 
-            modelBuilder.Entity("CSSHotel.Models.RewardVoucher", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ItemName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("PointsPaid")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RoomNumber")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("VoucherCode")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("RewardVouchers");
-                });
-
             modelBuilder.Entity("CSSHotel.Models.Room", b =>
                 {
                     b.Property<int>("RoomNumber")
@@ -394,6 +333,7 @@ namespace CSSHotel.DataAccess.Migrations
                             DepartmentId = 1,
                             IsAvailable = true,
                             Name = "Towel",
+                            PointsCost = 0,
                             PointsEarned = 30
                         },
                         new
@@ -402,6 +342,7 @@ namespace CSSHotel.DataAccess.Migrations
                             DepartmentId = 1,
                             IsAvailable = true,
                             Name = "Shampoo",
+                            PointsCost = 0,
                             PointsEarned = 20
                         },
                         new
@@ -410,6 +351,7 @@ namespace CSSHotel.DataAccess.Migrations
                             DepartmentId = 1,
                             IsAvailable = true,
                             Name = "Extra Blanket",
+                            PointsCost = 0,
                             PointsEarned = 50
                         },
                         new
@@ -418,6 +360,7 @@ namespace CSSHotel.DataAccess.Migrations
                             DepartmentId = 2,
                             IsAvailable = true,
                             Name = "Hamburger",
+                            PointsCost = 0,
                             PointsEarned = 100
                         },
                         new
@@ -426,6 +369,7 @@ namespace CSSHotel.DataAccess.Migrations
                             DepartmentId = 2,
                             IsAvailable = true,
                             Name = "Cola",
+                            PointsCost = 0,
                             PointsEarned = 150
                         },
                         new
@@ -434,15 +378,7 @@ namespace CSSHotel.DataAccess.Migrations
                             DepartmentId = 3,
                             IsAvailable = true,
                             Name = "Tech Issue",
-                            PointsEarned = 0
-                        },
-                        new
-                        {
-                            Id = 7,
-                            DepartmentId = 4,
-                            IsAvailable = true,
-                            Name = "2 Days Free Sunbed Voucher",
-                            PointsCost = 50,
+                            PointsCost = 0,
                             PointsEarned = 0
                         });
                 });
@@ -587,17 +523,6 @@ namespace CSSHotel.DataAccess.Migrations
                         .HasForeignKey("DepartmentId");
 
                     b.Navigation("Department");
-                });
-
-            modelBuilder.Entity("CSSHotel.Models.BonusCampaign", b =>
-                {
-                    b.HasOne("CSSHotel.Models.ServiceItem", "ServiceItem")
-                        .WithMany()
-                        .HasForeignKey("ServiceItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ServiceItem");
                 });
 
             modelBuilder.Entity("CSSHotel.Models.ReceptionService", b =>

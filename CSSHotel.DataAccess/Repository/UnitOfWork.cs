@@ -19,6 +19,8 @@ namespace CSSHotel.DataAccess.Repository
         public IApplicationUserRepository ApplicationUser { get; private set; }
         public IReceptionServiceRepository ReceptionService { get; private set; }
         public IHistoryLogRepository HistoryLog { get; private set; }
+        public IRewardVoucherRepository RewardVoucher { get; private set; }
+        public IBonusCampaignRepository BonusCampaign { get; private set; }
 
         public UnitOfWork(ApplicationDbContext db)
         {
@@ -30,6 +32,8 @@ namespace CSSHotel.DataAccess.Repository
             ApplicationUser = new ApplicationUserRepository(_db);
             ReceptionService = new ReceptionServiceRepository(_db);
             HistoryLog = new HistoryLogRepository(_db);
+            RewardVoucher = new RewardVoucherRepository(_db);
+            BonusCampaign = new BonusCampaignRepository(_db);
         }
 
         public void Save()

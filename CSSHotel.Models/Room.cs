@@ -15,7 +15,6 @@ namespace CSSHotel.Models
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         [Display(Name = "Room Number")]
         public int RoomNumber { get; set; } // e.g., 310
-
         public string Status { get; set; } = "Available";
         // This stores the current points for the room, which is used for rewards or discounts
         public int CurrentPoints { get; set; } = 0;

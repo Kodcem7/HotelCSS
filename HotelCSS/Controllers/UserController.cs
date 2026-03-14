@@ -15,7 +15,6 @@ namespace HotelCSS.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-
     public class UserController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -270,6 +269,11 @@ namespace HotelCSS.Controllers
 
             if (room.Status == "Available")
             {
+                var existingMail = _unitOfWork.Room.GetFirstOrDefault(u => u.CurrentGuestMail == obj.Email);
+                if (existingMail != null)
+                {
+                    return BadRequest(new { success = false, message = "This email is already in use!" });
+                }
                 room.Status = "Occupied";
                 // Email may be empty/null; backend logging handles it separately.
                 room.CurrentGuestMail = string.IsNullOrWhiteSpace(obj.Email) ? null : obj.Email;
@@ -335,6 +339,9 @@ namespace HotelCSS.Controllers
             var oldReceptionRequests = _unitOfWork.ReceptionService.GetAll(u => u.RoomNumber == roomNumber);
             _unitOfWork.ReceptionService.RemoveRange(oldReceptionRequests);
             //Reset room to available
+            var oldPointsSpent = _unitOfWork.RewardVoucher.GetAll(u => u.RoomNumber == roomNumber);
+            _unitOfWork.RewardVoucher.RemoveRange(oldPointsSpent);
+
             room.Status = SD.Status_Room_Available;
             room.CurrentGuestMail = null;
             room.CurrentCheckInDate = null;
