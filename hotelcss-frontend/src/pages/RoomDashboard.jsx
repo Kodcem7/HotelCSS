@@ -229,6 +229,30 @@ const RoomDashboard = () => {
             </div>
           </div>
         </Link>
+
+        <Link
+          to="/room/events"
+          className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow"
+        >
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-purple-100 rounded-full">
+              <svg className="h-8 w-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">Hotel Events</h3>
+              <p className="text-sm text-gray-600">
+                See today&apos;s events, announcements and meal information.
+              </p>
+            </div>
+          </div>
+        </Link>
       </div>
 
       <div className="mt-6 bg-white rounded-lg shadow p-6">

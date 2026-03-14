@@ -155,12 +155,6 @@ const Login = () => {
               <p>Demo credentials available in backend documentation</p>
               <div className="flex items-center gap-4">
                 <Link
-                  to="/register"
-                  className="font-semibold text-slate-700 hover:text-slate-900"
-                >
-                  Register
-                </Link>
-                <Link
                   to="/room-login"
                   className="font-semibold text-slate-700 hover:text-slate-900"
                 >
