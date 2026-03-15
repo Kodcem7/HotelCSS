@@ -24,12 +24,9 @@ namespace CSSHotel.DataAccess.Data
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<ReceptionService> ReceptionServices { get; set; }
         public DbSet<HistoryLog> HistoryLogs { get; set; }
-<<<<<<< HEAD
+        public DbSet<HotelEvent> HotelEvents { get; set; }
         public DbSet<RewardVoucher> RewardVouchers { get; set; }
         public DbSet<BonusCampaign> BonusCampaigns { get; set; }
-=======
-        public DbSet<HotelEvent> HotelEvents { get; set; }
->>>>>>> ea0b5d435af9cc3cfc44e5a72b1d9a3a3d630217
 
 
 
