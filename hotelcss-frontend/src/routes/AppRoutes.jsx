@@ -27,6 +27,8 @@ import Register from '../pages/Register';
 import RoomLogin from '../pages/RoomLogin';
 import HotelEventsManagementPage from '../pages/HotelEventsManagementPage';
 import HotelEventsPage from '../pages/HotelEventsPage';
+import RoomRewardsPage from '../pages/RoomRewardsPage';
+import ReceptionRewardVouchersPage from '../pages/ReceptionRewardVouchersPage';
 
 const AppRoutes = () => {
   const { isAuthenticated, user } = useAuth();
@@ -110,6 +112,15 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute allowedRoles={['Reception', 'Admin', 'Manager']}>
               <ReceptionServicesPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/reception/rewards"
+          element={
+            <ProtectedRoute allowedRoles={['Reception', 'Admin', 'Manager']}>
+              <ReceptionRewardVouchersPage />
             </ProtectedRoute>
           }
         />
@@ -272,6 +283,15 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute allowedRoles="Room">
               <HotelEventsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/room/rewards"
+          element={
+            <ProtectedRoute allowedRoles="Room">
+              <RoomRewardsPage />
             </ProtectedRoute>
           }
         />

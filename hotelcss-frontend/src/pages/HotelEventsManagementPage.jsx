@@ -9,12 +9,13 @@ import {
   updateHotelEvent,
   deleteHotelEvent,
 } from '../api/events';
+import { getServiceItems } from '../api/serviceItems';
 
 const EVENT_TYPES = [
   { value: 'General', label: 'General' },
   { value: 'Meal', label: 'Meal / Menu' },
-  { value: 'EarnPoints', label: 'Earn Points Campaign' },
-  { value: 'Discount', label: 'Discount / Promotion' },
+  // Backend supports BonusPoint (creates BonusCampaign via controller)
+  { value: 'BonusPoint', label: 'Bonus Point Campaign' },
 ];
 
 const HotelEventsManagementPage = () => {
@@ -24,6 +25,7 @@ const HotelEventsManagementPage = () => {
   const [success, setSuccess] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
+  const [serviceItems, setServiceItems] = useState([]);
   const [formData, setFormData] = useState({
     Title: '',
     Description: '',
@@ -31,12 +33,16 @@ const HotelEventsManagementPage = () => {
     StartDate: '',
     EndDate: '',
     BonusPoints: 0,
+    CampaignType: 'AllItems',
+    ServiceItemId: '',
+    BonusRules: [{ ServiceItemId: '', BonusPoints: 0, CampaignType: 'AllItems' }],
     MealInfo: '',
     IsActive: true,
   });
 
   useEffect(() => {
     fetchEvents();
+    fetchServiceItems();
   }, []);
 
   const fetchEvents = async () => {
@@ -53,6 +59,18 @@ const HotelEventsManagementPage = () => {
     }
   };
 
+  const fetchServiceItems = async () => {
+    try {
+      const res = await getServiceItems();
+      const items = Array.isArray(res) ? res : res?.data ?? [];
+      setServiceItems(items);
+    } catch (err) {
+      console.error(err);
+      // non-blocking: event management can still work without items
+      setServiceItems([]);
+    }
+  };
+
   const resetForm = () => {
     setEditingEvent(null);
     setFormData({
@@ -62,6 +80,9 @@ const HotelEventsManagementPage = () => {
       StartDate: '',
       EndDate: '',
       BonusPoints: 0,
+      CampaignType: 'AllItems',
+      ServiceItemId: '',
+      BonusRules: [{ ServiceItemId: '', BonusPoints: 0, CampaignType: 'AllItems' }],
       MealInfo: '',
       IsActive: true,
     });
@@ -77,6 +98,15 @@ const HotelEventsManagementPage = () => {
         StartDate: ev.startDate ? ev.startDate.slice(0, 16) : '',
         EndDate: ev.endDate ? ev.endDate.slice(0, 16) : '',
         BonusPoints: ev.bonusPoints ?? 0,
+        CampaignType: ev.campaignType || 'AllItems',
+        ServiceItemId: ev.serviceItemId ?? '',
+        BonusRules: [
+          {
+            ServiceItemId: ev.serviceItemId ?? '',
+            BonusPoints: ev.bonusPoints ?? 0,
+            CampaignType: ev.campaignType || 'AllItems',
+          },
+        ],
         MealInfo: ev.mealInfo || '',
         IsActive: ev.isActive ?? true,
       });
@@ -97,23 +127,65 @@ const HotelEventsManagementPage = () => {
       setError('');
       setSuccess('');
 
-      const payload = {
+      const basePayload = {
         Title: formData.Title,
         Description: formData.Description || null,
         EventType: formData.EventType || null,
         StartDate: formData.StartDate || null,
         EndDate: formData.EndDate || null,
-        BonusPoints: Number(formData.BonusPoints) || 0,
-        MealInfo: formData.MealInfo || null,
+        MealInfo: formData.EventType === 'Meal' ? formData.MealInfo || null : null,
         IsActive: formData.IsActive,
       };
 
-      if (editingEvent) {
-        await updateHotelEvent(editingEvent.id, payload);
-        setSuccess('Hotel event updated successfully');
+      // BonusPoint: allow multiple rules (input array). Each rule becomes one backend create call
+      // because backend DTO accepts a single ServiceItemId + BonusPoints per request.
+      if (!editingEvent && formData.EventType === 'BonusPoint') {
+        const rules = (formData.BonusRules || [])
+          .map((r) => ({
+            CampaignType: r.CampaignType || 'AllItems',
+            ServiceItemId: r.CampaignType === 'AllItems' ? null : Number(r.ServiceItemId) || null,
+            BonusPoints: Number(r.BonusPoints) || 0,
+          }))
+          .filter((r) => r.BonusPoints > 0);
+
+        if (rules.length === 0) {
+          setError('Please add at least one bonus rule with Bonus Points > 0.');
+          return;
+        }
+
+        await Promise.all(
+          rules.map((r, idx) =>
+            createHotelEvent({
+              ...basePayload,
+              Title: rules.length > 1 ? `${formData.Title} #${idx + 1}` : formData.Title,
+              EventType: 'BonusPoint',
+              CampaignType: r.CampaignType,
+              ServiceItemId: r.ServiceItemId,
+              BonusPoints: r.BonusPoints,
+            }),
+          ),
+        );
+        setSuccess('Bonus point campaign event(s) created successfully');
       } else {
-        await createHotelEvent(payload);
-        setSuccess('Hotel event created successfully');
+        const payload = {
+          ...basePayload,
+          BonusPoints: formData.EventType === 'BonusPoint' ? Number(formData.BonusPoints) || 0 : 0,
+          CampaignType: formData.EventType === 'BonusPoint' ? formData.CampaignType || null : null,
+          ServiceItemId:
+            formData.EventType === 'BonusPoint'
+              ? formData.CampaignType === 'AllItems'
+                ? null
+                : Number(formData.ServiceItemId) || null
+              : null,
+        };
+
+        if (editingEvent) {
+          await updateHotelEvent(editingEvent.id, payload);
+          setSuccess('Hotel event updated successfully');
+        } else {
+          await createHotelEvent(payload);
+          setSuccess('Hotel event created successfully');
+        }
       }
 
       closeModal();
@@ -154,10 +226,8 @@ const HotelEventsManagementPage = () => {
     switch (type) {
       case 'Meal':
         return 'bg-blue-100 text-blue-800';
-      case 'EarnPoints':
-        return 'bg-green-100 text-green-800';
-      case 'Discount':
-        return 'bg-purple-100 text-purple-800';
+      case 'BonusPoint':
+        return 'bg-amber-100 text-amber-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -177,7 +247,7 @@ const HotelEventsManagementPage = () => {
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Hotel Events Management</h2>
           <p className="text-gray-600 mt-1 text-sm">
-            Create announcements, meal menus and earn-points campaigns for guests.
+            Create announcements, meal menus and bonus point campaigns for guests.
           </p>
         </div>
         <button
@@ -248,10 +318,9 @@ const HotelEventsManagementPage = () => {
                   </p>
                 )}
 
-                {ev.eventType === 'EarnPoints' && (
-                  <p className="mt-2 text-xs text-green-700 bg-green-50 border border-green-100 rounded px-2 py-1">
-                    Earn Points campaign: current eligible purchases will grant extra{' '}
-                    <span className="font-semibold">{ev.bonusPoints}</span> points.
+                {ev.eventType === 'BonusPoint' && (
+                  <p className="mt-2 text-xs text-amber-800 bg-amber-50 border border-amber-100 rounded px-2 py-1">
+                    Bonus point campaign is active for eligible purchases.
                   </p>
                 )}
 
@@ -382,43 +451,170 @@ const HotelEventsManagementPage = () => {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Bonus Points (for Earn Points campaigns)
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  value={formData.BonusPoints}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      BonusPoints: e.target.value,
-                    })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  When Event Type is <span className="font-semibold">EarnPoints</span>, this
-                  value will be shown on the guest event page as extra points that can be
-                  earned from purchases.
-                </p>
-              </div>
+              {formData.EventType === 'BonusPoint' && editingEvent && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Extra Points
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={formData.BonusPoints}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        BonusPoints: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Editing an existing BonusPoint event updates its bonus points (single rule).
+                  </p>
+                </div>
+              )}
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Meal Info (breakfast / lunch / dinner details)
-                </label>
-                <textarea
-                  value={formData.MealInfo}
-                  onChange={(e) =>
-                    setFormData({ ...formData, MealInfo: e.target.value })
-                  }
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                  placeholder="e.g. Breakfast: ...&#10;Lunch: ...&#10;Dinner: ..."
-                />
-              </div>
+              {formData.EventType === 'BonusPoint' && !editingEvent && (
+                <div className="border border-amber-200 bg-amber-50/40 rounded-xl p-4 space-y-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h4 className="text-sm font-semibold text-amber-900">
+                        Bonus rules (input array)
+                      </h4>
+                      <p className="text-xs text-amber-900/70 mt-0.5">
+                        Each rule becomes a separate BonusPoint event+campaign in backend.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormData({
+                          ...formData,
+                          BonusRules: [
+                            ...(formData.BonusRules || []),
+                            { ServiceItemId: '', BonusPoints: 0, CampaignType: 'AllItems' },
+                          ],
+                        })
+                      }
+                      className="px-3 py-2 text-xs font-semibold rounded-lg bg-amber-600 text-white hover:bg-amber-700 transition"
+                    >
+                      + Add rule
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    {(formData.BonusRules || []).map((rule, idx) => (
+                      <div
+                        key={idx}
+                        className="bg-white rounded-lg border border-amber-200 p-3"
+                      >
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          <div>
+                            <label className="block text-xs font-semibold text-gray-700 mb-1">
+                              Campaign Type
+                            </label>
+                            <select
+                              value={rule.CampaignType || 'AllItems'}
+                              onChange={(e) => {
+                                const next = [...(formData.BonusRules || [])];
+                                next[idx] = {
+                                  ...next[idx],
+                                  CampaignType: e.target.value,
+                                  ServiceItemId:
+                                    e.target.value === 'AllItems' ? '' : next[idx].ServiceItemId,
+                                };
+                                setFormData({ ...formData, BonusRules: next });
+                              }}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm"
+                            >
+                              <option value="AllItems">All Items</option>
+                              <option value="SpecificItem">Specific Item</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-semibold text-gray-700 mb-1">
+                              Service Item (SpecificItem)
+                            </label>
+                            <select
+                              value={rule.ServiceItemId || ''}
+                              onChange={(e) => {
+                                const next = [...(formData.BonusRules || [])];
+                                next[idx] = { ...next[idx], ServiceItemId: e.target.value };
+                                setFormData({ ...formData, BonusRules: next });
+                              }}
+                              disabled={(rule.CampaignType || 'AllItems') !== 'SpecificItem'}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm disabled:bg-gray-100"
+                            >
+                              <option value="">Select service item...</option>
+                              {serviceItems.map((it) => (
+                                <option key={it.id} value={it.id}>
+                                  {it.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-semibold text-gray-700 mb-1">
+                              Extra Points
+                            </label>
+                            <input
+                              type="number"
+                              min="0"
+                              value={rule.BonusPoints ?? 0}
+                              onChange={(e) => {
+                                const next = [...(formData.BonusRules || [])];
+                                next[idx] = { ...next[idx], BonusPoints: e.target.value };
+                                setFormData({ ...formData, BonusRules: next });
+                              }}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex justify-end mt-3">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const next = [...(formData.BonusRules || [])];
+                              next.splice(idx, 1);
+                              setFormData({
+                                ...formData,
+                                BonusRules:
+                                  next.length > 0
+                                    ? next
+                                    : [{ ServiceItemId: '', BonusPoints: 0, CampaignType: 'AllItems' }],
+                              });
+                            }}
+                            className="px-3 py-2 text-xs font-semibold rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {formData.EventType === 'Meal' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Meal Info (breakfast / lunch / dinner details)
+                  </label>
+                  <textarea
+                    value={formData.MealInfo}
+                    onChange={(e) =>
+                      setFormData({ ...formData, MealInfo: e.target.value })
+                    }
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    placeholder="e.g. Breakfast: ...&#10;Lunch: ...&#10;Dinner: ..."
+                    required
+                  />
+                </div>
+              )}
 
               <div className="flex justify-end gap-3 pt-4">
                 <button
