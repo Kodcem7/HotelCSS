@@ -9,6 +9,7 @@ namespace CSSHotel.DataAccess.Repository.IRepository
 {
     public interface IBonusCampaignRepository : IRepository<BonusCampaign>
     {
+        int GetTotalBonusPointsToday(int serviceItemId, DateTime today);
         void Update(BonusCampaign obj);
     }
 }

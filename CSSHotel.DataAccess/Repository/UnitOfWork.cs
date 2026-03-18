@@ -33,6 +33,8 @@ namespace CSSHotel.DataAccess.Repository
             ApplicationUser = new ApplicationUserRepository(_db);
             ReceptionService = new ReceptionServiceRepository(_db);
             HistoryLog = new HistoryLogRepository(_db);
+            BonusCampaign = new BonusCampaignRepository(_db);
+            HotelEvent = new HotelEventRepository(_db);
         }
 
         public void Save()

@@ -20,5 +20,15 @@ namespace CSSHotel.DataAccess.Repository
         {
             _db.BonusCampaigns.Update(obj);
         }
+        public int GetTotalBonusPointsToday(int serviceItemId, DateTime today)
+        {
+            // This tells SQL Server to do the math and just return the final integer!
+            return _db.BonusCampaigns
+                .Where(b => b.IsActive == true &&
+                            b.StartDate <= today &&
+                            b.EndDate >= today &&
+                            (b.CampaignType == "AllItems" || b.ServiceItemId == serviceItemId))
+                .Sum(b => b.ExtraPoints);
+        }
     }
 }

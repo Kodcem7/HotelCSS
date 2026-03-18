@@ -32,40 +32,84 @@ namespace HotelCSS.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            var events = _unitOfWork.HotelEvent.GetAll();
-            return Ok(new { data = events });
+            var events = _unitOfWork.HotelEvent.GetAll(u => u.IsActive);
+            return Ok(new { data = events});
         }
 
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
         [HttpPost]
-        public IActionResult Create([FromBody] HotelEventDTO dto)
+        public IActionResult Create([FromForm] HotelEventDTO dto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var entity = new HotelEvent
+            if (dto.EventType == "BonusPoint")
             {
-                Title = dto.Title,
-                Description = dto.Description,
-                EventType = dto.EventType,
-                StartDate = dto.StartDate,
-                EndDate = dto.EndDate,
-                BonusPoints = dto.BonusPoints,
-                MealInfo = dto.MealInfo,
-                IsActive = dto.IsActive
-            };
+                var bonusDTO = new BonusCampaignDTO
+                {
+                    ServiceItemId = dto.CampaignType == "AllItems" ? null : dto.ServiceItemId,
+                    ExtraPoints = dto.BonusPoints.Value,
+                    CampaignType = dto.CampaignType,
+                    StartDate = dto.StartDate.Value,
+                    EndDate = dto.EndDate.Value,
+                    IsActive = dto.IsActive
+                };
 
-            _unitOfWork.HotelEvent.Add(entity);
-            _unitOfWork.Save();
+                var newEvent = new HotelEvent
+                {
+                    Title = dto.Title,
+                    Description = dto.Description,
+                    EventType = dto.EventType,
+                    StartDate = dto.StartDate,
+                    EndDate = dto.EndDate,
+                    IsActive = dto.IsActive
+                };
 
-            return Ok(new { success = true, message = "Hotel event created successfully", data = entity });
+                _unitOfWork.HotelEvent.Add(newEvent);
+                _unitOfWork.Save();
+                var bonusController = new BonusCampaignController(_unitOfWork);
+                return bonusController.CreateBonusCampaign(bonusDTO);
+            }
+            else if (dto.EventType == "General")
+            {
+                var newEvent = new HotelEvent
+                {
+                    Title = dto.Title,
+                    Description = dto.Description,
+                    EventType = dto.EventType,
+                    StartDate = dto.StartDate,
+                    EndDate = dto.EndDate,
+                    IsActive = dto.IsActive
+                };
+                _unitOfWork.HotelEvent.Add(newEvent);
+                _unitOfWork.Save();
+                return Ok(new { success = true, message = $"{newEvent.Title} event has created successfully", data = newEvent });
+            }
+            else if (dto.EventType == "Meal")
+            {
+                var newEvent = new HotelEvent
+                {
+                    Title = dto.Title,
+                    Description = dto.Description,
+                    EventType = dto.EventType,
+                    StartDate = dto.StartDate,
+                    EndDate = dto.EndDate,
+                    IsActive = dto.IsActive,
+                    MealInfo = dto.MealInfo
+                };
+                _unitOfWork.HotelEvent.Add(newEvent);
+                _unitOfWork.Save();
+                return Ok(new { success = true, message = "New Meal info has created successfully", data = newEvent });
+            }
+
+            return BadRequest(new { success = false, message = "Invalid event type. Allowed values are 'BonusPoint' or 'RegularEvent'." });
         }
 
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] HotelEventDTO dto)
+        public IActionResult Update(int id, [FromForm] HotelEventDTO dto)
         {
             var existing = _unitOfWork.HotelEvent.GetFirstOrDefault(u => u.Id == id);
             if (existing == null)
@@ -83,7 +127,6 @@ namespace HotelCSS.Controllers
             existing.EventType = dto.EventType;
             existing.StartDate = dto.StartDate;
             existing.EndDate = dto.EndDate;
-            existing.BonusPoints = dto.BonusPoints;
             existing.MealInfo = dto.MealInfo;
             existing.IsActive = dto.IsActive;
 

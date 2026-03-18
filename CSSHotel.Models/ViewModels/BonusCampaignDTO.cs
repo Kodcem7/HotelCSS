@@ -8,9 +8,11 @@ namespace CSSHotel.Models.ViewModels
 {
     public class BonusCampaignDTO
     {
-        public int ServiceItemId { get; set; }
+        public string CampaignType { get; set; }
+        public int? ServiceItemId { get; set; }
         public int ExtraPoints { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public bool? IsActive { get; set; } = true;
     }
 }

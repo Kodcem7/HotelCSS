@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Security.Claims;
+using System.Linq;
 
 namespace HotelCSS.Controllers
 {
@@ -379,21 +380,17 @@ namespace HotelCSS.Controllers
                 if (room != null && order.ServiceItem != null)
                 {
                     int basePoints = order.ServiceItem.PointsEarned;
-                    int bonusPoints = 0;
-
                     var today = DateTime.Now;
 
                     var activeBonus = _unitOfWork.BonusCampaign.GetFirstOrDefault(u =>
-                        u.ServiceItemId == order.ServiceItemId &&
+
                         u.IsActive == true &&            // <-- The Admin's Kill-Switch is checked here!
                         u.StartDate <= today &&          // <-- Is it after the start date?
-                        u.EndDate >= today               // <-- Is it before the end date?
-                        );
+                        u.EndDate >= today &&           // <-- Is it before the end date?
+                        (u.CampaignType == "AllItems" || u.ServiceItemId == order.ServiceItemId)
 
-                    if (activeBonus != null)
-                    {
-                        bonusPoints = activeBonus.ExtraPoints;
-                    }
+                        );
+                    int bonusPoints = _unitOfWork.BonusCampaign.GetTotalBonusPointsToday(order.ServiceItemId.Value, today);
 
                     int totalPoints = basePoints + bonusPoints;
                     room.CurrentPoints += totalPoints;

@@ -17,15 +17,12 @@ namespace CSSHotel.Models
 
         [MaxLength(50)]
         public string? EventType { get; set; }
-
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
 
-        public int BonusPoints { get; set; } = 0;
-
         [MaxLength(2000)]
         public string? MealInfo { get; set; }
-        public bool IsActive { get; set; } = true;
+        public bool IsActive {  get; set; } = true;
     }
 }
 

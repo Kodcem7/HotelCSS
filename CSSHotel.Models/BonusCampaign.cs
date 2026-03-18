@@ -14,12 +14,14 @@ namespace CSSHotel.Models
         [Key]
         public int Id { get; set; }
 
-        [Required]
-        public int ServiceItemId { get; set; }
+        public int? ServiceItemId { get; set; }
 
         [ForeignKey("ServiceItemId")]
         [ValidateNever]
         public ServiceItem ServiceItem { get; set; }
+
+        [Required]
+        public string CampaignType { get; set; }
 
         [Required]
         public int ExtraPoints { get; set; }
