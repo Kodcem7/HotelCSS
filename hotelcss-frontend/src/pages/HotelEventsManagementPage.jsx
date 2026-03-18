@@ -101,8 +101,6 @@ const HotelEventsManagementPage = () => {
         Title: formData.Title,
         Description: formData.Description || null,
         EventType: formData.EventType || null,
-        // datetime-local already gives local time in \"YYYY-MM-DDTHH:mm\" format.
-        // We send this string directly so backend stores it as local time without UTC shift.
         StartDate: formData.StartDate || null,
         EndDate: formData.EndDate || null,
         BonusPoints: Number(formData.BonusPoints) || 0,
