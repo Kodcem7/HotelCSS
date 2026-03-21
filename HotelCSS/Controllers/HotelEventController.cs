@@ -18,6 +18,22 @@ namespace HotelCSS.Controllers
         {
             _unitOfWork = unitOfWork;
         }
+        [AllowAnonymous]
+        [HttpGet("GetActiveBonusEventsForDashboard")]
+        public IActionResult GetBonusEvents()
+        {
+            var activeCampaigns = _unitOfWork.BonusCampaign
+        .GetAll(b => b.IsActive)
+        .Select(b => new
+        {
+            Id = b.Id,
+            Title = b.CampaignType == "AllItems" ? "Store-Wide Bonus Points!" : "Special Item Bonus Points!",
+            BonusPoints = b.ExtraPoints,
+            StartDate = b.StartDate, // Let's pass the start date to React just in case!
+            EndDate = b.EndDate
+        });
+            return Ok(new { data = activeCampaigns });
+        }
 
         [AllowAnonymous]
         [HttpGet("GetActiveEvents")]
@@ -33,7 +49,7 @@ namespace HotelCSS.Controllers
         public IActionResult GetAll()
         {
             var events = _unitOfWork.HotelEvent.GetAll(u => u.IsActive);
-            return Ok(new { data = events});
+            return Ok(new { data = events });
         }
 
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]

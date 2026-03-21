@@ -18,7 +18,7 @@ namespace CSSHotel.Models
 
         [ForeignKey("ServiceItemId")]
         [ValidateNever]
-        public ServiceItem ServiceItem { get; set; }
+        public ServiceItem? ServiceItem { get; set; }
 
         [Required]
         public string CampaignType { get; set; }

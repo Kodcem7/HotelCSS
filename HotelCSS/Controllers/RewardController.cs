@@ -31,6 +31,28 @@ namespace HotelCSS.Controllers
             var vouchers = _unitOfWork.RewardVoucher.GetAll().ToList();
             return Ok(vouchers);
         }
+        [HttpGet("GetVouchersForRoom")]
+        [Authorize(Roles = SD.Role_Room)]
+        public IActionResult GetVouchersForRoom()
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+            if (claim == null)
+            {
+                return BadRequest(new { success = false, message = "User identity not found." });
+            }
+            string userId = claim.Value;
+            var roomUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == userId);
+            if (roomUser == null)
+            {
+                return BadRequest(new { success = false, message = "User not found" });
+            }
+            string roomNumString = roomUser.UserName.Replace("Room", "");
+            int.TryParse(roomNumString, out int roomNumber);
+            var vouchers = _unitOfWork.RewardVoucher.GetAll(u => u.RoomNumber == roomNumber).ToList();
+            return Ok(vouchers);
+        }
+
 
         [HttpPost("ClaimReward")]
         [Authorize]
@@ -110,7 +132,7 @@ namespace HotelCSS.Controllers
             {
                 return NotFound(new { success = false, message = "Reward voucher not found." });
             }
-            if (newStatus != SD.StatusInProgress && newStatus != SD.StatusCancelled && newStatus != SD.StatusCompleted)
+            if (newStatus != SD.StatusInProgress && newStatus != SD.StatusCancelled && newStatus != SD.StatusCompleted && newStatus != SD.StatusPending)
             {
                 return BadRequest(new { success = false, message = "Invalid status value." });
             }

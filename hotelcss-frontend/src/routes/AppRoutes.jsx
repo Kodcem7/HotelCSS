@@ -29,290 +29,292 @@ import HotelEventsManagementPage from '../pages/HotelEventsManagementPage';
 import HotelEventsPage from '../pages/HotelEventsPage';
 import RoomRewardsPage from '../pages/RoomRewardsPage';
 import ReceptionRewardVouchersPage from '../pages/ReceptionRewardVouchersPage';
+import RewardVouchersPage from '../pages/RewardVouchersPage';
 
 const AppRoutes = () => {
-  const { isAuthenticated, user } = useAuth();
+    const { isAuthenticated, user } = useAuth();
 
-  return (
-    <BrowserRouter>
-      <Routes>
-        {/* Public Routes */}
-        <Route
-          path="/login"
-          element={
-            isAuthenticated ? (
-              <Navigate to={getDashboardPathForRole(user?.role)} replace />
-            ) : (
-              <Login />
-            )
-          }
-        />
-        <Route
-          path="/register"
-          element={
-            isAuthenticated ? (
-              <Navigate to={getDashboardPathForRole(user?.role)} replace />
-            ) : (
-              <Register />
-            )
-          }
-        />
-        <Route
-          path="/room-login"
-          element={
-            isAuthenticated ? (
-              <Navigate to={getDashboardPathForRole(user?.role)} replace />
-            ) : (
-              <RoomLogin />
-            )
-          }
-        />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+    return (
+        <BrowserRouter>
+            <Routes>
+                {/* Public Routes */}
+                <Route
+                    path="/login"
+                    element={
+                        isAuthenticated ? (
+                            <Navigate to={getDashboardPathForRole(user?.role)} replace />
+                        ) : (
+                            <Login />
+                        )
+                    }
+                />
+                <Route
+                    path="/register"
+                    element={
+                        isAuthenticated ? (
+                            <Navigate to={getDashboardPathForRole(user?.role)} replace />
+                        ) : (
+                            <Register />
+                        )
+                    }
+                />
+                <Route
+                    path="/room-login"
+                    element={
+                        isAuthenticated ? (
+                            <Navigate to={getDashboardPathForRole(user?.role)} replace />
+                        ) : (
+                            <RoomLogin />
+                        )
+                    }
+                />
+                <Route path="/admin/vouchers" element={<RewardVouchersPage />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
 
-        {/* Protected Routes - Role-based access */}
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute allowedRoles={['Admin', 'Manager']}>
-              <AdminDashboard />
-            </ProtectedRoute>
-          }
-        />
+                {/* Protected Routes - Role-based access */}
+                <Route
+                    path="/admin"
+                    element={
+                        <ProtectedRoute allowedRoles={['Admin', 'Manager']}>
+                            <AdminDashboard />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/manager"
-          element={
-            <ProtectedRoute allowedRoles="Manager">
-              <ManagerDashboard />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/manager"
+                    element={
+                        <ProtectedRoute allowedRoles="Manager">
+                            <ManagerDashboard />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/reception"
-          element={
-            <ProtectedRoute allowedRoles="Reception">
-              <ReceptionDashboard />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/reception"
+                    element={
+                        <ProtectedRoute allowedRoles="Reception">
+                            <ReceptionDashboard />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/reception/requests"
-          element={
-            <ProtectedRoute allowedRoles="Reception">
-              <RequestsPage />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/reception/requests"
+                    element={
+                        <ProtectedRoute allowedRoles="Reception">
+                            <RequestsPage />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/reception/services"
-          element={
-            <ProtectedRoute allowedRoles={['Reception', 'Admin', 'Manager']}>
-              <ReceptionServicesPage />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/reception/services"
+                    element={
+                        <ProtectedRoute allowedRoles={['Reception', 'Admin', 'Manager']}>
+                            <ReceptionServicesPage />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/reception/rewards"
-          element={
-            <ProtectedRoute allowedRoles={['Reception', 'Admin', 'Manager']}>
-              <ReceptionRewardVouchersPage />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/reception/rewards"
+                    element={
+                        <ProtectedRoute allowedRoles={['Reception', 'Admin', 'Manager']}>
+                            <ReceptionRewardVouchersPage />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/reception/rooms"
-          element={
-            <ProtectedRoute allowedRoles="Reception">
-              <RoomsPage />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/reception/rooms"
+                    element={
+                        <ProtectedRoute allowedRoles="Reception">
+                            <RoomsPage />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/admin/requests"
-          element={
-            <ProtectedRoute allowedRoles={['Admin', 'Manager']}>
-              <RequestsPage />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/admin/requests"
+                    element={
+                        <ProtectedRoute allowedRoles={['Admin', 'Manager']}>
+                            <RequestsPage />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/admin/rooms"
-          element={
-            <ProtectedRoute allowedRoles={['Admin', 'Manager']}>
-              <RoomsPage />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/admin/rooms"
+                    element={
+                        <ProtectedRoute allowedRoles={['Admin', 'Manager']}>
+                            <RoomsPage />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/admin/rooms/create"
-          element={
-            <ProtectedRoute allowedRoles={['Admin', 'Manager']}>
-              <RoomCreationPage />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/admin/rooms/create"
+                    element={
+                        <ProtectedRoute allowedRoles={['Admin', 'Manager']}>
+                            <RoomCreationPage />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/admin/staff"
-          element={
-            <ProtectedRoute allowedRoles={['Admin', 'Manager']}>
-              <StaffManagementPage />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/admin/staff"
+                    element={
+                        <ProtectedRoute allowedRoles={['Admin', 'Manager']}>
+                            <StaffManagementPage />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/admin/departments"
-          element={
-            <ProtectedRoute allowedRoles={['Admin', 'Manager']}>
-              <DepartmentsPage />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/admin/departments"
+                    element={
+                        <ProtectedRoute allowedRoles={['Admin', 'Manager']}>
+                            <DepartmentsPage />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/admin/service-items"
-          element={
-            <ProtectedRoute allowedRoles={['Admin', 'Manager']}>
-              <ServiceItemsPage />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/admin/service-items"
+                    element={
+                        <ProtectedRoute allowedRoles={['Admin', 'Manager']}>
+                            <ServiceItemsPage />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/admin/events"
-          element={
-            <ProtectedRoute allowedRoles={['Admin', 'Manager']}>
-              <HotelEventsManagementPage />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/admin/events"
+                    element={
+                        <ProtectedRoute allowedRoles={['Admin', 'Manager']}>
+                            <HotelEventsManagementPage />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/staff"
-          element={
-            <ProtectedRoute allowedRoles={['Staff', 'Housekeeping', 'Restaurant', 'Kitchen', 'Technic']}>
-              <StaffDashboard />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/staff"
+                    element={
+                        <ProtectedRoute allowedRoles={['Staff', 'Housekeeping', 'Restaurant', 'Kitchen', 'Technic']}>
+                            <StaffDashboard />
+                        </ProtectedRoute>
+                    }
+                />
 
-        {/* Account settings (any authenticated user) */}
-        <Route
-          path="/account/profile"
-          element={
-            <ProtectedRoute allowedRoles={['Admin', 'Manager', 'Reception', 'Staff', 'Housekeeping', 'Restaurant', 'Kitchen', 'Technic', 'Room']}>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/account/password"
-          element={
-            <ProtectedRoute allowedRoles={['Admin', 'Manager', 'Reception', 'Staff', 'Housekeeping', 'Restaurant', 'Kitchen', 'Technic', 'Room']}>
-              <ChangePassword />
-            </ProtectedRoute>
-          }
-        />
+                {/* Account settings (any authenticated user) */}
+                <Route
+                    path="/account/profile"
+                    element={
+                        <ProtectedRoute allowedRoles={['Admin', 'Manager', 'Reception', 'Staff', 'Housekeeping', 'Restaurant', 'Kitchen', 'Technic', 'Room']}>
+                            <Profile />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/account/password"
+                    element={
+                        <ProtectedRoute allowedRoles={['Admin', 'Manager', 'Reception', 'Staff', 'Housekeeping', 'Restaurant', 'Kitchen', 'Technic', 'Room']}>
+                            <ChangePassword />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/staff/requests"
-          element={
-            <ProtectedRoute allowedRoles={['Staff', 'Housekeeping', 'Restaurant', 'Kitchen', 'Technic']}>
-              <RequestsPage />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/staff/requests"
+                    element={
+                        <ProtectedRoute allowedRoles={['Staff', 'Housekeeping', 'Restaurant', 'Kitchen', 'Technic']}>
+                            <RequestsPage />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/room"
-          element={
-            <ProtectedRoute allowedRoles="Room">
-              <RoomDashboard />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/room"
+                    element={
+                        <ProtectedRoute allowedRoles="Room">
+                            <RoomDashboard />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/room/create-request"
-          element={
-            <ProtectedRoute allowedRoles="Room">
-              <CreateRequestPage />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/room/create-request"
+                    element={
+                        <ProtectedRoute allowedRoles="Room">
+                            <CreateRequestPage />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/room/report-issue"
-          element={
-            <ProtectedRoute allowedRoles="Room">
-              <ReportIssuePage />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/room/report-issue"
+                    element={
+                        <ProtectedRoute allowedRoles="Room">
+                            <ReportIssuePage />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/room/reception-request"
-          element={
-            <ProtectedRoute allowedRoles="Room">
-              <RoomReceptionRequestPage />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/room/reception-request"
+                    element={
+                        <ProtectedRoute allowedRoles="Room">
+                            <RoomReceptionRequestPage />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/room/history"
-          element={
-            <ProtectedRoute allowedRoles="Room">
-              <RequestHistoryPage />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/room/history"
+                    element={
+                        <ProtectedRoute allowedRoles="Room">
+                            <RequestHistoryPage />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/room/events"
-          element={
-            <ProtectedRoute allowedRoles="Room">
-              <HotelEventsPage />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/room/events"
+                    element={
+                        <ProtectedRoute allowedRoles="Room">
+                            <HotelEventsPage />
+                        </ProtectedRoute>
+                    }
+                />
 
-        <Route
-          path="/room/rewards"
-          element={
-            <ProtectedRoute allowedRoles="Room">
-              <RoomRewardsPage />
-            </ProtectedRoute>
-          }
-        />
+                <Route
+                    path="/room/rewards"
+                    element={
+                        <ProtectedRoute allowedRoles="Room">
+                            <RoomRewardsPage />
+                        </ProtectedRoute>
+                    }
+                />
 
-        {/* Default route - redirect based on role */}
-        <Route
-          path="/"
-          element={
-            isAuthenticated ? (
-              <Navigate to={getDashboardPathForRole(user?.role)} replace />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
+                {/* Default route - redirect based on role */}
+                <Route
+                    path="/"
+                    element={
+                        isAuthenticated ? (
+                            <Navigate to={getDashboardPathForRole(user?.role)} replace />
+                        ) : (
+                            <Navigate to="/login" replace />
+                        )
+                    }
+                />
 
-        {/* Catch all - redirect to login or correct dashboard */}
-        <Route path="*" element={<Navigate to={isAuthenticated ? getDashboardPathForRole(user?.role) : '/login'} replace />} />
-      </Routes>
-    </BrowserRouter>
-  );
+                {/* Catch all - redirect to login or correct dashboard */}
+                <Route path="*" element={<Navigate to={isAuthenticated ? getDashboardPathForRole(user?.role) : '/login'} replace />} />
+            </Routes>
+        </BrowserRouter>
+    );
 };
 
 export default AppRoutes;

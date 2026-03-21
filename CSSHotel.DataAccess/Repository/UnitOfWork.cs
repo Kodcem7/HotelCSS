@@ -35,6 +35,7 @@ namespace CSSHotel.DataAccess.Repository
             HistoryLog = new HistoryLogRepository(_db);
             BonusCampaign = new BonusCampaignRepository(_db);
             HotelEvent = new HotelEventRepository(_db);
+            RewardVoucher = new RewardVoucherRepository(_db);
         }
 
         public void Save()
