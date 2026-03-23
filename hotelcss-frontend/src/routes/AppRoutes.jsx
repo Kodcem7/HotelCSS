@@ -27,6 +27,7 @@ import Register from '../pages/Register';
 import RoomLogin from '../pages/RoomLogin';
 import HotelEventsManagementPage from '../pages/HotelEventsManagementPage';
 import HotelEventsPage from '../pages/HotelEventsPage';
+import RoomCampaignDashboardPage from '../pages/RoomCampaignDashboardPage';
 import RoomRewardsPage from '../pages/RoomRewardsPage';
 import ReceptionRewardVouchersPage from '../pages/ReceptionRewardVouchersPage';
 import RewardVouchersPage from '../pages/RewardVouchersPage';
@@ -289,6 +290,15 @@ const AppRoutes = () => {
                     element={
                         <ProtectedRoute allowedRoles="Room">
                             <HotelEventsPage />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/room/campaigns"
+                    element={
+                        <ProtectedRoute allowedRoles="Room">
+                            <RoomCampaignDashboardPage />
                         </ProtectedRoute>
                     }
                 />

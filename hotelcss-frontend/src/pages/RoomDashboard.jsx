@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -246,6 +246,29 @@ const RoomDashboard = () => {
                             <h3 className="text-lg font-semibold text-gray-900">Hotel Events</h3>
                             <p className="text-sm text-gray-600">
                                 See today&apos;s events, announcements and meal information.
+                            </p>
+                        </div>
+                    </div>
+                </Link>
+                <Link
+                    to="/room/campaigns"
+                    className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow border-2 border-transparent hover:border-green-200"
+                >
+                    <div className="flex items-center space-x-4">
+                        <div className="p-3 bg-green-100 rounded-full">
+                            <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M12 8c-1.657 0-3 1.343-3 3v1H8a2 2 0 100 4h8a2 2 0 100-4h-1v-1c0-1.657-1.343-3-3-3zm0 0V6m0 2V6m0 0a2 2 0 114 0v1m-4-1a2 2 0 10-4 0v1"
+                                />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-semibold text-gray-900">Campaign Dashboard</h3>
+                            <p className="text-sm text-gray-600">
+                                View active bonus campaigns and manage them separately.
                             </p>
                         </div>
                     </div>
