@@ -1,6 +1,8 @@
-﻿using CSSHotel.DataAccess.Repository.IRepository;
+using CSSHotel.DataAccess.Repository.IRepository;
 using CSSHotel.Models;
 using CSSHotel.Models.ViewModels;
+using CSSHotel.Utility;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,6 +33,7 @@ namespace HotelCSS.Controllers
             return Ok(bonusCampaigns);
         }
 
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
         [HttpPost]
         public IActionResult CreateBonusCampaign([FromForm] BonusCampaignDTO obj)
         {
@@ -79,6 +82,7 @@ namespace HotelCSS.Controllers
             return Ok(new { success = true, message = "Bonus campaign has created successfully!" });
         }
 
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
         [HttpPost("toggle-status/{id}")]
         public IActionResult ToggleStatus(int id)
         {
@@ -93,6 +97,7 @@ namespace HotelCSS.Controllers
             return Ok(new { success = true, message = $"Bonus campaign has been {(campaign.IsActive ? "activated" : "deactivated")} successfully!" });
         }
 
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
         [HttpDelete("{id}")]
         public IActionResult DeleteCampaign(int id)
         {

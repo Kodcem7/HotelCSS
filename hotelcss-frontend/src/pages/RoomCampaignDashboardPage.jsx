@@ -3,16 +3,12 @@ import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
-import SuccessMessage from '../components/SuccessMessage';
-import { deleteBonusCampaign, getActiveBonusEventsForDashboard } from '../api/bonusCampaigns';
+import { getActiveBonusEventsForDashboard } from '../api/bonusCampaigns';
 
 const RoomCampaignDashboardPage = () => {
   const [campaigns, setCampaigns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
-  const [deleteError, setDeleteError] = useState('');
-  const [deleteSuccess, setDeleteSuccess] = useState('');
 
   const fetchCampaigns = async () => {
     try {
@@ -30,22 +26,6 @@ const RoomCampaignDashboardPage = () => {
   useEffect(() => {
     fetchCampaigns();
   }, []);
-
-  const onDeleteCampaign = async (campaignId) => {
-    const ok = window.confirm('Bu kampanyayı silmek istediğinizden emin misiniz?');
-    if (!ok) return;
-
-    try {
-      setDeleteError('');
-      setDeleteSuccess('');
-      await deleteBonusCampaign(campaignId);
-      setDeleteSuccess('Kampanya silindi.');
-      await fetchCampaigns();
-    } catch (err) {
-      setDeleteError(err?.response?.data?.message || 'Failed to delete campaign');
-      console.error(err);
-    }
-  };
 
   if (loading) {
     return (
@@ -74,12 +54,6 @@ const RoomCampaignDashboardPage = () => {
       </div>
 
       {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
-      {deleteError && (
-        <ErrorMessage message={deleteError} onDismiss={() => setDeleteError('')} />
-      )}
-      {deleteSuccess && (
-        <SuccessMessage message={deleteSuccess} onDismiss={() => setDeleteSuccess('')} />
-      )}
 
       {campaigns.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-8 text-center text-gray-600">
@@ -116,14 +90,6 @@ const RoomCampaignDashboardPage = () => {
                   )}
                 </p>
               </div>
-
-              <button
-                type="button"
-                onClick={() => onDeleteCampaign(c.id)}
-                className="w-full px-3 py-2 text-sm font-semibold rounded-lg bg-red-600 text-white hover:bg-red-700 transition disabled:bg-red-300"
-              >
-                Sil
-              </button>
             </div>
           ))}
         </div>
