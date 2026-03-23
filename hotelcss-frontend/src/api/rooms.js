@@ -71,3 +71,9 @@ export const deleteAllRooms = async () => {
   const response = await api.delete('/Room/DeleteAll');
   return response.data;
 };
+
+export const getMyPoints = async () => {
+    // Make sure this matches the controller name you put the C# action inside!
+    const response = await api.get('/Room/GetMyPoints');
+    return response.data;
+};

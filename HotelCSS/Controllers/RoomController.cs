@@ -5,6 +5,7 @@ using CSSHotel.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace HotelCSS.Controllers
 {
@@ -182,7 +183,42 @@ namespace HotelCSS.Controllers
             _unitOfWork.Save();
             return Ok(new { success = true, message = "All rooms deleted successfully!" });
         }
+        [HttpGet("GetMyPoints")]
+        [Authorize(Roles = SD.Role_Room)]
+        public IActionResult GetMyPoints()
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
 
+            if (claim == null)
+            {
+                return BadRequest(new { success = false, message = "User identity not found." });
+            }
+
+            string userId = claim.Value;
+
+            var roomUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == userId);
+            if (roomUser == null)
+            {
+                return BadRequest(new { success = false, message = "User not found" });
+            }
+
+            string roomNumString = roomUser.UserName.Replace("Room", "");
+            if (!int.TryParse(roomNumString, out int roomNumber))
+            {
+                return BadRequest(new { success = false, message = "Invalid Room User Format" });
+            }
+
+            var room = _unitOfWork.Room.GetFirstOrDefault(u => u.RoomNumber == roomNumber);
+            if (room == null)
+            {
+                return BadRequest(new { success = false, message = "Room not found!" });
+            }
+
+            var points = room.CurrentPoints;
+            return Ok(new { success = true, data = points });
+
+        }
     }
 
 

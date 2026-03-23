@@ -30,6 +30,8 @@ import HotelEventsPage from '../pages/HotelEventsPage';
 import RoomRewardsPage from '../pages/RoomRewardsPage';
 import ReceptionRewardVouchersPage from '../pages/ReceptionRewardVouchersPage';
 import RewardVouchersPage from '../pages/RewardVouchersPage';
+import RoomVouchersPage from '../pages/RoomVouchersPage';
+import PointShopPage from '../pages/PointShopPage';
 
 const AppRoutes = () => {
     const { isAuthenticated, user } = useAuth();
@@ -71,6 +73,8 @@ const AppRoutes = () => {
                 <Route path="/admin/vouchers" element={<RewardVouchersPage />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/room/vouchers" element={<RoomVouchersPage />} />
+                <Route path="/room/point-shop" element={<PointShopPage />} />
 
                 {/* Protected Routes - Role-based access */}
                 <Route
@@ -309,6 +313,7 @@ const AppRoutes = () => {
                         )
                     }
                 />
+
 
                 {/* Catch all - redirect to login or correct dashboard */}
                 <Route path="*" element={<Navigate to={isAuthenticated ? getDashboardPathForRole(user?.role) : '/login'} replace />} />

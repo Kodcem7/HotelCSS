@@ -22,3 +22,8 @@ export const updateRewardVoucherStatus = async (id, newStatus) => {
     return response.data;
 };
 
+export const getVouchersForRoom = async () => {
+    const response = await api.get('/Reward/GetVouchersForRoom');
+    return response.data;
+};
+

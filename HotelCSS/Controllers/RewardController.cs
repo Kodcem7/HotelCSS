@@ -19,6 +19,7 @@ namespace HotelCSS.Controllers
         }
 
         [HttpGet("GetRewardsCatalog")]
+        [Authorize(Roles = SD.Role_Room)]
         public IActionResult GetRewardsCatalog()
         {
             var rewards = _unitOfWork.ServiceItem.GetAll(u => u.PointsCost != null).ToList();
