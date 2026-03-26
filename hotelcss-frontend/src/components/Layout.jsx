@@ -76,6 +76,22 @@ const Layout = ({ children }) => {
 
     const showBackButton = !isMainDashboard();
 
+    // --- AKTİF LİNK STİL KONTROLLERİ ---
+    // Eğer bulunduğumuz sayfanın adresi, linkin adresine eşitse "aktif" stili döndürür.
+    const getAdminLinkClass = (path) => {
+        const isActive = location.pathname === path;
+        return isActive
+            ? "flex items-center gap-4 py-3 px-8 text-[#D35400] bg-white rounded-r-full font-bold transition-all active:scale-98 shadow-sm"
+            : "flex items-center gap-4 py-3 px-8 text-[#5D534A] hover:text-[#D35400] hover:translate-x-1 transition-transform duration-300";
+    };
+
+    const getStandardLinkClass = (path) => {
+        const isActive = location.pathname === path;
+        return isActive
+            ? "flex items-center gap-4 py-3 px-8 text-indigo-700 dark:text-indigo-300 bg-white dark:bg-slate-800 rounded-r-full font-bold shadow-sm transition-all active:scale-95"
+            : "flex items-center gap-4 py-3 px-8 text-slate-500 hover:text-indigo-600 transition-transform duration-300 hover:translate-x-1";
+    };
+
     return (
         <div
             className={`font-body antialiased flex min-h-screen ${
@@ -87,7 +103,8 @@ const Layout = ({ children }) => {
             {/* SideNavBar */}
             {isAdminSuite ? (
                 <aside className="h-screen w-72 fixed left-0 top-0 bg-[#FDFBF7] flex flex-col py-8 pr-5 z-50 border-r border-[#E3DCD2]/30 overflow-hidden">
-                    <div className="px-8 mb-12">
+                    {/* Header Kısmı: flex-shrink-0 vererek sıkışmasını önlüyoruz */}
+                    <div className="px-8 mb-8 flex-shrink-0">
                         <h1 className="font-headline text-lg text-[#4A3728] font-bold leading-tight">
                             Parador Beach Hotel
                         </h1>
@@ -96,86 +113,57 @@ const Layout = ({ children }) => {
                         </p>
                     </div>
 
-                    <nav className="flex-grow space-y-1 overflow-y-auto overflow-x-hidden">
-                        {/* NOTE: Dashboard '/admin' için Staff aktif görünsün */}
-                        <Link
-                            to="/admin/staff"
-                            className="flex items-center gap-4 py-3 px-8 text-[#D35400] bg-white rounded-r-full font-bold transition-all active:scale-98"
-                        >
+                    {/* Navigasyon: flex-1 ile ortadaki tüm boş alanı kaplamasını sağlıyoruz */}
+                    <nav className="flex-1 space-y-1 overflow-y-auto overflow-x-hidden">
+                        <Link to="/admin/staff" className={getAdminLinkClass('/admin/staff')}>
                             <span className="material-symbols-outlined">badge</span>
                             <span className="font-label text-[11px] uppercase tracking-widest">STAFF</span>
                         </Link>
 
-                        <Link
-                            to="/admin/departments"
-                            className="flex items-center gap-4 py-3 px-8 text-[#5D534A] hover:text-[#D35400] hover:translate-x-1 transition-transform duration-300"
-                        >
+                        <Link to="/admin/departments" className={getAdminLinkClass('/admin/departments')}>
                             <span className="material-symbols-outlined">corporate_fare</span>
                             <span className="font-label text-[11px] uppercase tracking-widest">DEPARTMENTS</span>
                         </Link>
 
-                        <Link
-                            to="/admin/requests"
-                            className="flex items-center gap-4 py-3 px-8 text-[#5D534A] hover:text-[#D35400] hover:translate-x-1 transition-transform duration-300"
-                        >
+                        <Link to="/admin/requests" className={getAdminLinkClass('/admin/requests')}>
                             <span className="material-symbols-outlined">notification_important</span>
                             <span className="font-label text-[11px] uppercase tracking-widest">REQUESTS</span>
                         </Link>
 
-                        <Link
-                            to="/admin/rooms"
-                            className="flex items-center gap-4 py-3 px-8 text-[#5D534A] hover:text-[#D35400] hover:translate-x-1 transition-transform duration-300"
-                        >
+                        <Link to="/admin/rooms" className={getAdminLinkClass('/admin/rooms')}>
                             <span className="material-symbols-outlined">bed</span>
                             <span className="font-label text-[11px] uppercase tracking-widest">ROOMS</span>
                         </Link>
 
-                        <Link
-                            to="/admin/rooms/create"
-                            className="flex items-center gap-4 py-3 px-8 text-[#5D534A] hover:text-[#D35400] hover:translate-x-1 transition-transform duration-300"
-                        >
+                        <Link to="/admin/rooms/create" className={getAdminLinkClass('/admin/rooms/create')}>
                             <span className="material-symbols-outlined">add_circle</span>
                             <span className="font-label text-[11px] uppercase tracking-widest">CREATE ROOMS</span>
                         </Link>
 
-                        <Link
-                            to="/admin/service-items"
-                            className="flex items-center gap-4 py-3 px-8 text-[#5D534A] hover:text-[#D35400] hover:translate-x-1 transition-transform duration-300"
-                        >
+                        <Link to="/admin/service-items" className={getAdminLinkClass('/admin/service-items')}>
                             <span className="material-symbols-outlined">room_service</span>
                             <span className="font-label text-[11px] uppercase tracking-widest">SERVICE ITEMS</span>
                         </Link>
 
-                        <Link
-                            to="/admin/events"
-                            className="flex items-center gap-4 py-3 px-8 text-[#5D534A] hover:text-[#D35400] hover:translate-x-1 transition-transform duration-300"
-                        >
+                        <Link to="/admin/events" className={getAdminLinkClass('/admin/events')}>
                             <span className="material-symbols-outlined">event</span>
                             <span className="font-label text-[11px] uppercase tracking-widest">EVENTS</span>
                         </Link>
 
-                        <Link
-                            to="/reception/services"
-                            className="flex items-center gap-4 py-3 px-8 text-[#5D534A] hover:text-[#D35400] hover:translate-x-1 transition-transform duration-300"
-                        >
+                        <Link to="/reception/services" className={getAdminLinkClass('/reception/services')}>
                             <span className="material-symbols-outlined">concierge</span>
                             <span className="font-label text-[11px] uppercase tracking-widest">RECEPTION SERVICES</span>
                         </Link>
 
-                        <Link
-                            to="/admin/vouchers"
-                            className="flex items-center gap-4 py-3 px-8 text-[#5D534A] hover:text-[#D35400] hover:translate-x-1 transition-transform duration-300"
-                        >
+                        <Link to="/admin/vouchers" className={getAdminLinkClass('/admin/vouchers')}>
                             <span className="material-symbols-outlined">confirmation_number</span>
                             <span className="font-label text-[11px] uppercase tracking-widest">VOUCHERS</span>
                         </Link>
                     </nav>
 
-                    <footer className="mt-auto space-y-1 pb-4 flex-shrink-0">
-                        <Link
-                            to="/settings"
-                            className="flex items-center gap-4 py-3 px-8 text-[#5D534A] hover:text-[#D35400] hover:translate-x-1 transition-transform duration-300"
-                        >
+                    {/* Footer: mt-auto sayesinde flex-1'in itmesiyle tamamen en alta yapışır */}
+                    <footer className="mt-auto pt-4 space-y-1 flex-shrink-0">
+                        <Link to="/settings" className={getAdminLinkClass('/settings')}>
                             <span className="material-symbols-outlined">settings</span>
                             <span className="font-label text-[12px] uppercase tracking-widest">Settings</span>
                         </Link>
@@ -190,58 +178,54 @@ const Layout = ({ children }) => {
                 </aside>
             ) : (
                 <aside className="h-screen w-64 fixed left-0 top-0 bg-slate-50 dark:bg-slate-950 flex flex-col py-8 pr-4 z-50 border-r border-slate-200 dark:border-slate-800 overflow-hidden">
-                    <div className="px-8 mb-12">
+                    <div className="px-8 mb-8 flex-shrink-0">
                         <h1 className="font-serif text-lg text-indigo-950 dark:text-white leading-tight">Parador Beach Hotel</h1>
                         <p className="font-label text-[11px] all-caps tracking-widest text-slate-500 mt-1 uppercase">
                             {getRoleDisplayName(user?.role)} Suite
                         </p>
                     </div>
 
-                    <nav className="flex-grow space-y-1 overflow-y-auto overflow-x-hidden">
-                        {/* NOTE: You can wrap these links in {user?.role === 'Admin' && (...)} to hide them from guests/staff */}
-                        <Link
-                            to="/admin/staff"
-                            className="flex items-center gap-4 py-3 px-8 text-indigo-700 dark:text-indigo-300 bg-white dark:bg-slate-800 rounded-r-full font-bold shadow-sm transition-all active:scale-95"
-                        >
+                    <nav className="flex-1 space-y-1 overflow-y-auto overflow-x-hidden">
+                        <Link to="/admin/staff" className={getStandardLinkClass('/admin/staff')}>
                             <span className="material-symbols-outlined">badge</span>
                             <span className="font-label text-[11px] uppercase tracking-widest">Staff</span>
                         </Link>
-                        <Link to="/admin/departments" className="flex items-center gap-4 py-3 px-8 text-slate-500 hover:text-indigo-600 transition-transform duration-300 hover:translate-x-1">
+                        <Link to="/admin/departments" className={getStandardLinkClass('/admin/departments')}>
                             <span className="material-symbols-outlined">corporate_fare</span>
                             <span className="font-label text-[11px] uppercase tracking-widest">Departments</span>
                         </Link>
-                        <Link to="/admin/requests" className="flex items-center gap-4 py-3 px-8 text-slate-500 hover:text-indigo-600 transition-transform duration-300 hover:translate-x-1">
+                        <Link to="/admin/requests" className={getStandardLinkClass('/admin/requests')}>
                             <span className="material-symbols-outlined">notification_important</span>
                             <span className="font-label text-[11px] uppercase tracking-widest">Requests</span>
                         </Link>
-                        <Link to="/admin/rooms" className="flex items-center gap-4 py-3 px-8 text-slate-500 hover:text-indigo-600 transition-transform duration-300 hover:translate-x-1">
+                        <Link to="/admin/rooms" className={getStandardLinkClass('/admin/rooms')}>
                             <span className="material-symbols-outlined">bed</span>
                             <span className="font-label text-[11px] uppercase tracking-widest">Rooms</span>
                         </Link>
-                        <Link to="/admin/rooms/create" className="flex items-center gap-4 py-3 px-8 text-slate-500 hover:text-indigo-600 transition-transform duration-300 hover:translate-x-1">
+                        <Link to="/admin/rooms/create" className={getStandardLinkClass('/admin/rooms/create')}>
                             <span className="material-symbols-outlined">add_circle</span>
                             <span className="font-label text-[11px] uppercase tracking-widest">Create Rooms</span>
                         </Link>
-                        <Link to="/admin/service-items" className="flex items-center gap-4 py-3 px-8 text-slate-500 hover:text-indigo-600 transition-transform duration-300 hover:translate-x-1">
+                        <Link to="/admin/service-items" className={getStandardLinkClass('/admin/service-items')}>
                             <span className="material-symbols-outlined">room_service</span>
                             <span className="font-label text-[11px] uppercase tracking-widest">Service Items</span>
                         </Link>
-                        <Link to="/admin/events" className="flex items-center gap-4 py-3 px-8 text-slate-500 hover:text-indigo-600 transition-transform duration-300 hover:translate-x-1">
+                        <Link to="/admin/events" className={getStandardLinkClass('/admin/events')}>
                             <span className="material-symbols-outlined">event</span>
                             <span className="font-label text-[11px] uppercase tracking-widest">Events</span>
                         </Link>
-                        <Link to="/reception/services" className="flex items-center gap-4 py-3 px-8 text-slate-500 hover:text-indigo-600 transition-transform duration-300 hover:translate-x-1">
+                        <Link to="/reception/services" className={getStandardLinkClass('/reception/services')}>
                             <span className="material-symbols-outlined">concierge</span>
                             <span className="font-label text-[11px] uppercase tracking-widest">Reception Services</span>
                         </Link>
-                        <Link to="/admin/vouchers" className="flex items-center gap-4 py-3 px-8 text-slate-500 hover:text-indigo-600 transition-transform duration-300 hover:translate-x-1">
+                        <Link to="/admin/vouchers" className={getStandardLinkClass('/admin/vouchers')}>
                             <span className="material-symbols-outlined">confirmation_number</span>
                             <span className="font-label text-[11px] uppercase tracking-widest">Vouchers</span>
                         </Link>
                     </nav>
 
-                    <footer className="mt-auto space-y-1 flex-shrink-0">
-                        <Link to="/settings" className="flex items-center gap-4 py-3 px-8 text-slate-500 hover:text-indigo-600 transition-transform duration-300 hover:translate-x-1">
+                    <footer className="mt-auto pt-4 space-y-1 flex-shrink-0">
+                        <Link to="/settings" className={getStandardLinkClass('/settings')}>
                             <span className="material-symbols-outlined">settings</span>
                             <span className="font-label text-[11px] uppercase tracking-widest">Settings</span>
                         </Link>
@@ -255,8 +239,7 @@ const Layout = ({ children }) => {
 
             {/* Main Canvas */}
             <main className={`flex-1 min-h-screen flex flex-col ${isAdminSuite ? 'ml-72' : 'ml-64'}`}>
-
-                {/* TopNavBar */}
+                {/* Header kodun mevcut haliyle bıraktım, değişikliğe ihtiyacı yok */}
                 {isAdminSuite ? (
                     <header className="sticky top-0 z-40 bg-[#FDFBF7]/80 border-b border-[#E3DCD2]/30 backdrop-blur-xl flex justify-between items-center w-full px-8 py-4">
                         <div className="flex items-center gap-6">
@@ -274,7 +257,6 @@ const Layout = ({ children }) => {
                                 Admin Page
                             </span>
 
-                            {/* Search Bar - Hidden on smaller screens */}
                             <div className="relative hidden lg:block">
                                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#8E735B] text-sm">search</span>
                                 <input
@@ -323,7 +305,6 @@ const Layout = ({ children }) => {
                                 {getDashboardTitle()}
                             </span>
 
-                            {/* Search Bar - Hidden on smaller screens */}
                             <div className="relative hidden lg:block">
                                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
                                 <input
@@ -335,8 +316,6 @@ const Layout = ({ children }) => {
                         </div>
 
                         <div className="flex items-center gap-4">
-
-                            {/* Points Badge for Guests */}
                             {user?.role === 'Room' && (
                                 <div className="flex items-center gap-1.5 bg-gradient-to-r from-amber-100 to-yellow-100 border border-amber-200 px-3 py-1.5 rounded-full shadow-sm">
                                     <span className="material-symbols-outlined text-amber-500 text-sm">stars</span>
@@ -369,7 +348,7 @@ const Layout = ({ children }) => {
                 )}
 
                 {/* Content Area */}
-                <div className={`flex-1 w-full ${isAdminSuite ? 'bg-[#FDFBF7]' : 'bg-background'} overflow-x-auto`}>
+                <div className={`flex-1 w-full ${isAdminSuite ? 'bg-[#FDFBF7]' : 'bg-background'} overflow-x-auto p-6`}>
                     {children}
                 </div>
             </main>
