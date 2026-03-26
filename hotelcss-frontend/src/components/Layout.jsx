@@ -1,21 +1,18 @@
-import { useState, useEffect } from 'react'; // 👈 NEW: Added React hooks
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import ChatWidget from './ChatWidget';
-import { getMyPoints } from '../api/rooms'; // 👈 NEW: Make sure to add this function to your users.js file!
+import { getMyPoints } from '../api/rooms';
 
 const Layout = ({ children }) => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
 
-    // 👇 NEW: State to hold the guest's points
     const [myPoints, setMyPoints] = useState(0);
 
-    // 👇 NEW: Fetch points when the layout loads, but ONLY if they are a guest!
     useEffect(() => {
         const fetchPoints = async () => {
-            // We only want to fetch and show points for the Room/Guest role
             if (user?.role === 'Room') {
                 try {
                     const res = await getMyPoints();
@@ -77,74 +74,136 @@ const Layout = ({ children }) => {
     const showBackButton = !isMainDashboard();
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-slate-50/90 via-white to-stone-50/70">
-            {/* Header */}
-            <header className="sticky top-0 z-10 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-sm shadow-slate-900/5">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center py-4">
-                        <div className="flex items-center gap-3">
-                            {showBackButton && (
-                                <button
-                                    onClick={() => navigate(getDashboardRoot())}
-                                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-600 bg-slate-100/80 border border-slate-200/80 hover:bg-slate-200/80 hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-300/50 transition-all"
-                                    aria-label="Back to dashboard"
-                                >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                                    </svg>
-                                    Back
-                                </button>
-                            )}
-                            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-slate-700 text-white shadow-md">
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                </svg>
+        <div className="bg-background font-body text-on-surface antialiased flex min-h-screen">
+
+            {/* SideNavBar */}
+            <aside className="h-screen w-64 fixed left-0 top-0 bg-slate-50 dark:bg-slate-950 flex flex-col py-8 pr-4 z-50 border-r border-slate-200 dark:border-slate-800">
+                <div className="px-8 mb-12">
+                    <h1 className="font-serif text-lg text-indigo-950 dark:text-white leading-tight">Parador Beach Hotel</h1>
+                    <p className="font-label text-[11px] all-caps tracking-widest text-slate-500 mt-1 uppercase">
+                        {getRoleDisplayName(user?.role)} Suite
+                    </p>
+                </div>
+
+                <nav className="flex-grow space-y-1 overflow-y-auto">
+                    {/* NOTE: You can wrap these links in {user?.role === 'Admin' && (...)} to hide them from guests/staff */}
+                    <Link to="/admin/staff" className="flex items-center gap-4 py-3 px-8 text-indigo-700 dark:text-indigo-300 bg-white dark:bg-slate-800 rounded-r-full font-bold shadow-sm transition-all active:scale-95">
+                        <span className="material-symbols-outlined">badge</span>
+                        <span className="font-label text-[11px] uppercase tracking-widest">Staff</span>
+                    </Link>
+                    <Link to="/admin/departments" className="flex items-center gap-4 py-3 px-8 text-slate-500 hover:text-indigo-600 transition-transform duration-300 hover:translate-x-1">
+                        <span className="material-symbols-outlined">corporate_fare</span>
+                        <span className="font-label text-[11px] uppercase tracking-widest">Departments</span>
+                    </Link>
+                    <Link to="/admin/requests" className="flex items-center gap-4 py-3 px-8 text-slate-500 hover:text-indigo-600 transition-transform duration-300 hover:translate-x-1">
+                        <span className="material-symbols-outlined">notification_important</span>
+                        <span className="font-label text-[11px] uppercase tracking-widest">Requests</span>
+                    </Link>
+                    <Link to="/admin/rooms" className="flex items-center gap-4 py-3 px-8 text-slate-500 hover:text-indigo-600 transition-transform duration-300 hover:translate-x-1">
+                        <span className="material-symbols-outlined">bed</span>
+                        <span className="font-label text-[11px] uppercase tracking-widest">Rooms</span>
+                    </Link>
+                    <Link to="/admin/rooms/create" className="flex items-center gap-4 py-3 px-8 text-slate-500 hover:text-indigo-600 transition-transform duration-300 hover:translate-x-1">
+                        <span className="material-symbols-outlined">add_circle</span>
+                        <span className="font-label text-[11px] uppercase tracking-widest">Create Rooms</span>
+                    </Link>
+                    <Link to="/admin/service-items" className="flex items-center gap-4 py-3 px-8 text-slate-500 hover:text-indigo-600 transition-transform duration-300 hover:translate-x-1">
+                        <span className="material-symbols-outlined">room_service</span>
+                        <span className="font-label text-[11px] uppercase tracking-widest">Service Items</span>
+                    </Link>
+                    <Link to="/admin/events" className="flex items-center gap-4 py-3 px-8 text-slate-500 hover:text-indigo-600 transition-transform duration-300 hover:translate-x-1">
+                        <span className="material-symbols-outlined">event</span>
+                        <span className="font-label text-[11px] uppercase tracking-widest">Events</span>
+                    </Link>
+                    <Link to="/reception/services" className="flex items-center gap-4 py-3 px-8 text-slate-500 hover:text-indigo-600 transition-transform duration-300 hover:translate-x-1">
+                        <span className="material-symbols-outlined">concierge</span>
+                        <span className="font-label text-[11px] uppercase tracking-widest">Reception Services</span>
+                    </Link>
+                    <Link to="/admin/vouchers" className="flex items-center gap-4 py-3 px-8 text-slate-500 hover:text-indigo-600 transition-transform duration-300 hover:translate-x-1">
+                        <span className="material-symbols-outlined">confirmation_number</span>
+                        <span className="font-label text-[11px] uppercase tracking-widest">Vouchers</span>
+                    </Link>
+                </nav>
+
+                <footer className="mt-auto space-y-1">
+                    <Link to="/settings" className="flex items-center gap-4 py-3 px-8 text-slate-500 hover:text-indigo-600 transition-transform duration-300 hover:translate-x-1">
+                        <span className="material-symbols-outlined">settings</span>
+                        <span className="font-label text-[11px] uppercase tracking-widest">Settings</span>
+                    </Link>
+                    <button onClick={handleLogout} className="flex items-center gap-4 py-3 px-8 text-slate-500 hover:text-red-600 transition-transform duration-300 hover:translate-x-1 w-full text-left">
+                        <span className="material-symbols-outlined">logout</span>
+                        <span className="font-label text-[11px] uppercase tracking-widest">Logout</span>
+                    </button>
+                </footer>
+            </aside>
+
+            {/* Main Canvas */}
+            <main className="ml-64 flex-1 min-h-screen flex flex-col">
+
+                {/* TopNavBar */}
+                <header className="sticky top-0 z-40 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0_20px_40px_rgba(15,28,44,0.06)] flex justify-between items-center w-full px-8 py-4">
+                    <div className="flex items-center gap-6">
+                        {showBackButton && (
+                            <button
+                                onClick={() => navigate(getDashboardRoot())}
+                                className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors"
+                                aria-label="Back to dashboard"
+                            >
+                                <span className="material-symbols-outlined text-sm">arrow_back</span>
+                            </button>
+                        )}
+                        <span className="font-serif italic text-xl text-indigo-900 dark:text-indigo-300">
+                            {getDashboardTitle()}
+                        </span>
+
+                        {/* Search Bar - Hidden on smaller screens */}
+                        <div className="relative hidden lg:block">
+                            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+                            <input
+                                type="text"
+                                placeholder="Search operations..."
+                                className="bg-surface-container-high border-none rounded-full py-2 pl-10 pr-4 text-sm w-64 focus:ring-1 focus:ring-primary/20 transition-all dark:bg-slate-800 dark:text-white"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+
+                        {/* Points Badge for Guests */}
+                        {user?.role === 'Room' && (
+                            <div className="flex items-center gap-1.5 bg-gradient-to-r from-amber-100 to-yellow-100 border border-amber-200 px-3 py-1.5 rounded-full shadow-sm">
+                                <span className="material-symbols-outlined text-amber-500 text-sm">stars</span>
+                                <span className="font-bold text-amber-700 tracking-wide">
+                                    {myPoints} <span className="text-xs font-semibold uppercase">pts</span>
+                                </span>
                             </div>
-                            <div>
-                                <h1 className="text-xl font-bold text-slate-800 tracking-tight">
-                                    {getDashboardTitle()}
-                                </h1>
-                                <p className="text-sm text-slate-600">
-                                    Welcome, <span className="font-semibold text-slate-800">{user?.username}</span>
-                                    <span className="text-slate-400 mx-1">•</span>
-                                    <span className="font-medium text-slate-600">{getRoleDisplayName(user?.role)}</span>
+                        )}
+
+                        <button className="p-2 rounded-full hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors relative">
+                            <span className="material-symbols-outlined text-slate-600 dark:text-slate-300">notifications</span>
+                            <span className="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+                        </button>
+
+                        <div className="flex items-center gap-3 pl-4 border-l border-outline-variant/20">
+                            <div className="text-right hidden sm:block">
+                                <p className="text-sm font-semibold text-slate-900 dark:text-white leading-none">
+                                    {user?.username || 'Guest User'}
+                                </p>
+                                <p className="text-[10px] text-slate-500 uppercase tracking-tighter mt-1">
+                                    {getRoleDisplayName(user?.role)}
                                 </p>
                             </div>
+                            <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-bold shadow-sm ring-2 ring-white dark:ring-slate-800">
+                                {user?.username ? user.username.charAt(0).toUpperCase() : 'G'}
+                            </div>
                         </div>
-
-                        {/* 👇 NEW: Wrapped the badge and Logout button in a flex container */}
-                        <div className="flex items-center gap-4">
-
-                            {/* Only render the points badge if the user is a Room/Guest */}
-                            {user?.role === 'Room' && (
-                                <div className="flex items-center gap-1.5 bg-gradient-to-r from-amber-100 to-yellow-100 border border-amber-200 px-3 py-1.5 rounded-full shadow-sm">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
-                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                    </svg>
-                                    <span className="font-bold text-amber-700 tracking-wide">
-                                        {myPoints} <span className="text-xs font-semibold uppercase">pts</span>
-                                    </span>
-                                </div>
-                            )}
-
-                            <button
-                                onClick={handleLogout}
-                                className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm text-red-700 bg-red-50 border border-red-200/80 hover:bg-red-100 hover:border-red-300 focus:outline-none focus:ring-2 focus:ring-red-300/50 transition-all duration-200"
-                            >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                                </svg>
-                                Logout
-                            </button>
-                        </div>
-
                     </div>
-                </div>
-            </header>
+                </header>
 
-            {/* Main Content */}
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {children}
+                {/* Content Area */}
+                <div className="flex-1 w-full bg-background">
+                    {children}
+                </div>
             </main>
 
             {/* Chat widget for Room users */}

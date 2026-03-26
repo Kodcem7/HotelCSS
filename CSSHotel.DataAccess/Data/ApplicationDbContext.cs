@@ -27,6 +27,11 @@ namespace CSSHotel.DataAccess.Data
         public DbSet<HotelEvent> HotelEvents { get; set; }
         public DbSet<RewardVoucher> RewardVouchers { get; set; }
         public DbSet<BonusCampaign> BonusCampaigns { get; set; }
+        public DbSet<Survey> Surveys { get; set; }
+        public DbSet<SurveyQuestion> SurveyQuestions { get; set; }
+        public DbSet<SurveyAnswer> SurveyAnswers { get; set; }
+        public DbSet<SurveyResponse> SurveyResponses { get; set; }
+
 
 
 
@@ -34,6 +39,12 @@ namespace CSSHotel.DataAccess.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder); // REQUIRED for Identity to work correctly
+
+            modelBuilder.Entity<SurveyAnswer>()
+        .HasOne(a => a.SurveyQuestion)
+        .WithMany()
+        .HasForeignKey(a => a.SurveyQuestionId)
+        .OnDelete(DeleteBehavior.NoAction); // <--- This is the magic fix!
 
             // A. Seed Departments
             modelBuilder.Entity<Department>().HasData(
@@ -48,7 +59,7 @@ namespace CSSHotel.DataAccess.Data
             // B. Seed Service Items (Examples)
             modelBuilder.Entity<ServiceItem>().HasData(
                 // Housekeeping Items
-                new ServiceItem { Id = 1, Name = "Towel", DepartmentId = 1,PointsEarned = 30 },
+                new ServiceItem { Id = 1, Name = "Towel", DepartmentId = 1, PointsEarned = 30 },
                 new ServiceItem { Id = 2, Name = "Shampoo", DepartmentId = 1, PointsEarned = 20 },
                 new ServiceItem { Id = 3, Name = "Extra Blanket", DepartmentId = 1, PointsEarned = 50 },
                 // Kitchen Items
@@ -57,7 +68,7 @@ namespace CSSHotel.DataAccess.Data
                 // Technic Items
                 new ServiceItem { Id = 6, Name = "Tech Issue", DepartmentId = 3 },
                 //Reception Items
-                new ServiceItem { Id = 7, Name = "2 Days Free Sunbed Voucher", DepartmentId = 4, PointsEarned = 0,PointsCost = 50 }
+                new ServiceItem { Id = 7, Name = "2 Days Free Sunbed Voucher", DepartmentId = 4, PointsEarned = 0, PointsCost = 50 }
             );
         }
     }

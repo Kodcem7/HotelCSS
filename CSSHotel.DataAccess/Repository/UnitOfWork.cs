@@ -22,6 +22,10 @@ namespace CSSHotel.DataAccess.Repository
         public IHotelEventRepository HotelEvent { get; private set; }
         public IRewardVoucherRepository RewardVoucher { get; private set; }
         public IBonusCampaignRepository BonusCampaign { get; private set; }
+        public ISurveyRepository Survey { get; private set; }
+        public ISurveyAnswerRepository SurveyAnswer { get; private set; }
+        public ISurveyQuestionRepository SurveyQuestion { get; private set; }
+        public ISurveyResponseRepository SurveyResponse { get; private set; }
 
         public UnitOfWork(ApplicationDbContext db)
         {
@@ -36,6 +40,10 @@ namespace CSSHotel.DataAccess.Repository
             BonusCampaign = new BonusCampaignRepository(_db);
             HotelEvent = new HotelEventRepository(_db);
             RewardVoucher = new RewardVoucherRepository(_db);
+            Survey = new SurveyRepository(_db);
+            SurveyAnswer = new SurveyAnswerRepository(_db);
+            SurveyQuestion = new SurveyQuestionRepository(_db);
+            SurveyResponse = new SurveyResponseRepository(_db);
         }
 
         public void Save()

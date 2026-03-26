@@ -18,6 +18,10 @@ namespace CSSHotel.DataAccess.Repository.IRepository
         IHotelEventRepository HotelEvent { get; }
         IRewardVoucherRepository RewardVoucher { get; }
         IBonusCampaignRepository BonusCampaign { get; }
+        ISurveyRepository Survey { get; }
+        ISurveyAnswerRepository SurveyAnswer { get; }
+        ISurveyQuestionRepository SurveyQuestion { get; }
+        ISurveyResponseRepository SurveyResponse { get; }
         void Save();
     }
 }

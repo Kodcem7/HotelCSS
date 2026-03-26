@@ -7,115 +7,70 @@ import { getStaffList } from '../api/users';
 import { getDepartments } from '../api/departments';
 import { getRequests } from '../api/requests';
 
-const statCards = [
-    {
-        key: 'totalStaff',
-        label: 'Total Staff',
-        icon: (
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-        ),
-        gradient: 'from-slate-600 to-slate-700',
-        shadow: 'shadow-slate-500/15',
-    },
-    {
-        key: 'totalDepartments',
-        label: 'Departments',
-        icon: (
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-        ),
-        gradient: 'from-slate-500 to-slate-600',
-        shadow: 'shadow-slate-500/15',
-    },
-    {
-        key: 'totalRequests',
-        label: 'Total Requests',
-        icon: (
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-        ),
-        gradient: 'from-slate-500 to-slate-700',
-        shadow: 'shadow-slate-500/15',
-    },
-    {
-        key: 'pendingRequests',
-        label: 'Pending Requests',
-        icon: (
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-        ),
-        gradient: 'from-slate-600 to-slate-800',
-        shadow: 'shadow-slate-600/20',
-    },
-];
-
+// Updated to use Material Symbol names matching your new design
 const quickLinks = [
     {
         to: '/admin/staff',
         title: 'Manage Staff',
         desc: 'View, create, and manage staff members',
-        cta: 'Staff Management',
-        icon:
-            'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z',
+        cta: 'Open Roster',
+        icon: 'badge',
     },
     {
         to: '/admin/departments',
         title: 'Manage Departments',
         desc: 'Configure hotel departments',
-        cta: 'Departments',
-        icon:
-            'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
+        cta: 'Configure Org',
+        icon: 'corporate_fare',
     },
     {
         to: '/admin/requests',
         title: 'View Requests',
         desc: 'Monitor and manage guest requests',
-        cta: 'Requests',
-        icon:
-            'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2',
+        cta: 'Queue Board',
+        icon: 'notification_important',
     },
     {
         to: '/admin/rooms',
         title: 'Manage Rooms',
         desc: 'View and manage hotel rooms',
-        cta: 'Rooms',
-        icon:
-            'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',
+        cta: 'Inventory',
+        icon: 'bed',
     },
     {
         to: '/admin/rooms/create',
         title: 'Create Rooms',
         desc: 'Create single or bulk rooms',
         cta: 'Create Rooms',
-        icon: 'M12 6v6m0 0v6m0-6h6m-6 0H6',
+        icon: 'add_circle',
     },
     {
         to: '/admin/service-items',
         title: 'Service Items',
         desc: 'Manage service items and menu',
-        cta: 'Service Items',
-        icon:
-            'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4',
+        cta: 'Edit Catalog',
+        icon: 'room_service',
     },
     {
         to: '/admin/events',
         title: 'Hotel Events',
         desc: 'Configure hotel events, meal info and earn points campaigns',
         cta: 'Hotel Events',
-        icon:
-            'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
+        icon: 'event',
     },
     {
         to: '/reception/services',
         title: 'Reception Services',
         desc: 'Manage wake-up and pick-up times',
         cta: 'Reception Services',
-        icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
+        icon: 'concierge',
     },
-    // 👇 NEW: Reward Vouchers Card added here!
     {
         to: '/admin/vouchers',
         title: 'Reward Vouchers',
         desc: 'View and manage guest reward vouchers and redemptions',
-        cta: 'Vouchers',
-        icon: 'M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z',
+        cta: 'Loyalty Suite',
+        icon: 'confirmation_number',
     },
 ];
 
@@ -174,65 +129,104 @@ const AdminDashboard = () => {
         <Layout>
             {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
 
-            {/* Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
-                {statCards.map((card) => (
-                    <div
-                        key={card.key}
-                        className={`rounded-2xl border border-slate-200/80 bg-white p-6 shadow-lg ${card.shadow} hover:shadow-xl transition-shadow duration-200`}
-                    >
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-semibold text-slate-600 uppercase tracking-wide">
-                                    {card.label}
-                                </p>
-                                <p className="text-3xl font-bold text-slate-800 mt-2 tabular-nums">
-                                    {stats[card.key]}
-                                </p>
-                            </div>
-                            <div className={`p-3 rounded-xl bg-gradient-to-br ${card.gradient} text-white shadow-md`}>
-                                <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    {card.icon}
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
+            <div className="p-10 space-y-12 max-w-7xl mx-auto">
+                {/* Hero Header */}
+                <section>
+                    <h2 className="font-headline text-display-lg text-primary mb-2">Operational Overview</h2>
+                </section>
 
-            {/* Quick Actions */}
-            <div>
-                <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                    <span className="w-1 h-6 rounded-full bg-slate-500" />
-                    Quick actions
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
-                    {quickLinks.map((link) => (
-                        <Link
-                            key={link.to}
-                            to={link.to}
-                            className="group flex items-start gap-4 p-6 rounded-2xl bg-white border border-slate-200/80 shadow-md shadow-slate-900/5 hover:shadow-xl hover:shadow-slate-500/10 hover:border-slate-300 transition-all duration-200 hover:-translate-y-0.5"
-                        >
-                            <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center group-hover:bg-slate-700 group-hover:text-white transition-all duration-200">
-                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={link.icon} />
-                                </svg>
+                {/* Stats Grid */}
+                <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {/* Card 1: Total Staff */}
+                    <div className="bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/10 shadow-[0_20px_40px_rgba(15,28,44,0.04)] group hover:scale-[1.02] transition-transform duration-300">
+                        <div className="flex justify-between items-start mb-4">
+                            <div className="w-12 h-12 rounded-full bg-primary/5 flex items-center justify-center">
+                                <span className="material-symbols-outlined text-primary">groups</span>
                             </div>
-                            <div className="flex-1 min-w-0">
-                                <h3 className="font-semibold text-slate-800 group-hover:text-slate-700 transition-colors">
-                                    {link.title}
-                                </h3>
-                                <p className="text-sm text-slate-600 mt-0.5 mb-3">{link.desc}</p>
-                                <span className="inline-flex items-center gap-1 text-sm font-semibold text-slate-600 group-hover:text-slate-800">
-                                    {link.cta}
-                                    <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                    </svg>
+                            <span className="text-xs font-label uppercase tracking-widest text-secondary opacity-60">Live</span>
+                        </div>
+                        <p className="text-4xl font-headline text-primary mb-1">{stats.totalStaff}</p>
+                        <p className="font-label text-[11px] uppercase tracking-widest text-secondary font-semibold">Total Staff</p>
+                    </div>
+
+                    {/* Card 2: Departments */}
+                    <div className="bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/10 shadow-[0_20px_40px_rgba(15,28,44,0.04)] group hover:scale-[1.02] transition-transform duration-300">
+                        <div className="flex justify-between items-start mb-4">
+                            <div className="w-12 h-12 rounded-full bg-primary/5 flex items-center justify-center">
+                                <span className="material-symbols-outlined text-primary">account_tree</span>
+                            </div>
+                            <span className="text-xs font-label uppercase tracking-widest text-secondary opacity-60"><br /></span>
+                        </div>
+                        <p className="text-4xl font-headline text-primary mb-1">{stats.totalDepartments}</p>
+                        <p className="font-label text-[11px] uppercase tracking-widest text-secondary font-semibold">Departments</p>
+                    </div>
+
+                    {/* Card 3: Total Requests */}
+                    <div className="bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/10 shadow-[0_20px_40px_rgba(15,28,44,0.04)] group hover:scale-[1.02] transition-transform duration-300">
+                        <div className="flex justify-between items-start mb-4">
+                            <div className="w-12 h-12 rounded-full bg-primary/5 flex items-center justify-center">
+                                <span className="material-symbols-outlined text-primary">receipt_long</span>
+                            </div>
+                            <span className="text-xs font-label uppercase tracking-widest text-secondary opacity-60">Today</span>
+                        </div>
+                        <p className="text-4xl font-headline text-primary mb-1">{stats.totalRequests}</p>
+                        <p className="font-label text-[11px] uppercase tracking-widest text-secondary font-semibold">Total Requests</p>
+                    </div>
+
+                    {/* Card 4: Pending Requests */}
+                    <div className="bg-primary text-white p-8 rounded-xl shadow-[0_30px_60px_rgba(14,28,43,0.15)] relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300">
+                        <div className="relative z-10">
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
+                                    <span className="material-symbols-outlined text-white">schedule</span>
+                                </div>
+                                <span className="text-[10px] font-bold uppercase tracking-widest bg-red-700 text-white px-3 py-1 rounded-full">Urgent</span>
+                            </div>
+                            <p className="text-4xl font-headline mb-1">{stats.pendingRequests}</p>
+                            <p className="font-label text-[11px] uppercase tracking-widest text-white/80 font-semibold">Pending Requests</p>
+                        </div>
+                        <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-white/5 rounded-full blur-3xl group-hover:bg-white/10 transition-colors"></div>
+                    </div>
+                </section>
+
+                {/* Quick Actions Section */}
+                <section className="space-y-8">
+                    <div className="flex items-end justify-between">
+                        <div>
+                            <h3 className="font-headline text-headline-md text-primary">Executive Actions</h3>
+                            <p className="text-sm text-secondary">Instant access to core administrative modules.</p>
+                        </div>
+                        <button className="text-sm font-semibold text-primary underline underline-offset-8 decoration-tertiary-fixed decoration-2 hover:decoration-primary transition-all">
+                            View Full Directory
+                        </button>
+                    </div>
+
+                    {/* Bento Grid for Actions */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {quickLinks.map((link) => (
+                            <Link
+                                key={link.to}
+                                to={link.to}
+                                className="bg-surface-container-low p-8 rounded-xl flex flex-col justify-between hover:bg-surface-container-lowest transition-all group border border-transparent hover:border-outline-variant/20 shadow-none hover:shadow-xl"
+                            >
+                                <div>
+                                    <span className="material-symbols-outlined text-primary text-4xl mb-6">
+                                        {link.icon}
+                                    </span>
+                                    <h4 className="font-headline text-title-md text-primary mb-2">
+                                        {link.title}
+                                    </h4>
+                                    <p className="text-sm text-on-surface-variant leading-relaxed mb-6">
+                                        {link.desc}
+                                    </p>
+                                </div>
+                                <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary group-hover:gap-4 transition-all">
+                                    {link.cta} <span className="material-symbols-outlined text-sm">arrow_forward</span>
                                 </span>
-                            </div>
-                        </Link>
-                    ))}
-                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </section>
             </div>
         </Layout>
     );
