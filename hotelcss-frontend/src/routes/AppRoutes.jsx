@@ -123,6 +123,25 @@ const AppRoutes = () => {
                     }
                 />
 
+                {/* Admin/Manager specific reception services */}
+                <Route
+                    path="/admin/reception/services"
+                    element={
+                        <ProtectedRoute allowedRoles={['Reception', 'Admin', 'Manager']}>
+                            <ReceptionServicesPage />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/manager/reception/services"
+                    element={
+                        <ProtectedRoute allowedRoles={['Reception', 'Admin', 'Manager']}>
+                            <ReceptionServicesPage />
+                        </ProtectedRoute>
+                    }
+                />
+
                 <Route
                     path="/reception/rewards"
                     element={

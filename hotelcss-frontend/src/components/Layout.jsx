@@ -9,8 +9,81 @@ const Layout = ({ children }) => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const isAdminSuite =
-        (user?.role === 'Admin' || user?.role === 'Manager') && location.pathname.startsWith('/admin');
+    // Suite görünümü, sadece kullanıcının ana dashboard rolüne göre belirlenmeli.
+    // Böylece Admin/Manager reception services'e girse bile layout reception suite'e geçmez,
+    // sadece içerik /reception/services sayfası olarak açılır.
+    const role = user?.role;
+    const isStaffLike =
+        role === 'Staff' ||
+        role === 'Housekeeping' ||
+        role === 'HouseKeeping' ||
+        role === 'Restaurant' ||
+        role === 'Kitchen' ||
+        role === 'Technic';
+
+    const suiteKey = role === 'Admin' ? 'admin' : role === 'Manager' ? 'manager' : role === 'Reception' ? 'reception' : isStaffLike ? 'staff' : role === 'Room' ? 'room' : 'none';
+
+    const isDashboardSuite = suiteKey !== 'none';
+
+    const suiteLabel =
+        suiteKey === 'admin'
+            ? 'ADMIN SUITE'
+            : suiteKey === 'manager'
+              ? 'HOTEL MANAGER SUITE'
+              : suiteKey === 'reception'
+                ? 'RECEPTION SUITE'
+                : suiteKey === 'staff'
+                  ? 'STAFF SUITE'
+                  : suiteKey === 'room'
+                    ? 'ROOM SUITE'
+                    : '';
+
+    const navItemsBySuite = {
+        admin: [
+            { to: '/admin/staff', label: 'STAFF', icon: 'badge' },
+            { to: '/admin/departments', label: 'DEPARTMENTS', icon: 'corporate_fare' },
+            { to: '/admin/requests', label: 'REQUESTS', icon: 'notification_important' },
+            { to: '/admin/rooms', label: 'ROOMS', icon: 'bed' },
+            { to: '/admin/rooms/create', label: 'CREATE ROOMS', icon: 'add_circle' },
+            { to: '/admin/service-items', label: 'SERVICE ITEMS', icon: 'room_service' },
+            { to: '/admin/events', label: 'EVENTS', icon: 'event' },
+            { to: '/admin/reception/services', label: 'RECEPTION SERVICES', icon: 'concierge' },
+            { to: '/admin/vouchers', label: 'VOUCHERS', icon: 'confirmation_number' },
+        ],
+        manager: [
+            { to: '/manager', label: 'DASHBOARD', icon: 'dashboard' },
+            { to: '/admin/staff', label: 'STAFF', icon: 'badge' },
+            { to: '/admin/departments', label: 'DEPARTMENTS', icon: 'corporate_fare' },
+            { to: '/admin/requests', label: 'REQUESTS', icon: 'notification_important' },
+            { to: '/admin/rooms', label: 'ROOMS', icon: 'bed' },
+            { to: '/admin/rooms/create', label: 'CREATE ROOMS', icon: 'add_circle' },
+            { to: '/admin/service-items', label: 'SERVICE ITEMS', icon: 'room_service' },
+            { to: '/admin/events', label: 'EVENTS', icon: 'event' },
+            { to: '/manager/reception/services', label: 'RECEPTION SERVICES', icon: 'concierge' },
+            { to: '/admin/vouchers', label: 'VOUCHERS', icon: 'confirmation_number' },
+        ],
+        reception: [
+            { to: '/reception', label: 'DASHBOARD', icon: 'dashboard' },
+            { to: '/reception/rooms', label: 'ROOMS', icon: 'bed' },
+            { to: '/reception/requests', label: 'REQUESTS', icon: 'notification_important' },
+            { to: '/reception/services', label: 'RECEPTION SERVICES', icon: 'concierge' },
+            { to: '/reception/rewards', label: 'REWARDS', icon: 'confirmation_number' },
+        ],
+        staff: [
+            { to: '/staff', label: 'MY TASKS', icon: 'badge' },
+            { to: '/staff/requests', label: 'REQUESTS', icon: 'notification_important' },
+        ],
+        room: [
+            { to: '/room', label: 'DASHBOARD', icon: 'dashboard' },
+            { to: '/room/rewards', label: 'REWARDS', icon: 'confirmation_number' },
+            { to: '/room/point-shop', label: 'POINT SHOP', icon: 'stars' },
+            { to: '/room/vouchers', label: 'VOUCHERS', icon: 'confirmation_number' },
+            { to: '/room/events', label: 'EVENTS', icon: 'event' },
+        ],
+        none: [],
+    };
+
+    const navItems = navItemsBySuite[suiteKey] ?? [];
 
     const [myPoints, setMyPoints] = useState(0);
 
@@ -50,21 +123,41 @@ const Layout = ({ children }) => {
 
     const getDashboardTitle = () => {
         const path = location.pathname;
-        if (path.includes('/admin')) return 'Admin Dashboard';
-        if (path.includes('/manager')) return 'Manager Dashboard';
-        if (path.includes('/reception')) return 'Reception Dashboard';
-        if (path.includes('/staff')) return 'Staff Dashboard';
-        if (path.includes('/room')) return 'Room Dashboard';
+        // Daha spesifik path'ler önce gelmeli; aksi halde "/reception/services" gibi alt rotalar
+        // "Reception Dashboard" olarak yanlış başlıklanır.
+        if (path.startsWith('/admin/reception/services')) return 'Reception Services';
+        if (path.startsWith('/manager/reception/services')) return 'Reception Services';
+
+        if (path.startsWith('/admin/')) return 'Admin Dashboard';
+        if (path === '/admin' || path === '/admin/') return 'Admin Dashboard';
+
+        if (path.startsWith('/manager/')) return 'Manager Dashboard';
+        if (path === '/manager' || path === '/manager/') return 'Manager Dashboard';
+
+        if (path.startsWith('/reception/services')) return 'Reception Services';
+        if (path.startsWith('/reception/requests')) return 'Reception Requests';
+        if (path.startsWith('/reception/rewards')) return 'Reward Vouchers';
+        if (path.startsWith('/reception/rooms')) return 'Reception Rooms';
+        if (path === '/reception' || path === '/reception/') return 'Reception Dashboard';
+
+        if (path.startsWith('/staff/requests')) return 'Staff Requests';
+        if (path === '/staff' || path === '/staff/') return 'Staff Dashboard';
+
+        if (path.startsWith('/room/rewards')) return 'Room Rewards';
+        if (path.startsWith('/room/point-shop')) return 'Point Shop';
+        if (path.startsWith('/room/vouchers')) return 'Room Vouchers';
+        if (path.startsWith('/room/events')) return 'Hotel Events';
+        if (path === '/room' || path === '/room/') return 'Room Dashboard';
         return 'Dashboard';
     };
 
     const getDashboardRoot = () => {
-        const path = location.pathname;
-        if (path.startsWith('/admin')) return '/admin';
-        if (path.startsWith('/manager')) return '/manager';
-        if (path.startsWith('/reception')) return '/reception';
-        if (path.startsWith('/staff')) return '/staff';
-        if (path.startsWith('/room')) return '/room';
+        // back butonu / ana dashboard dönüşü, path'e değil kullanıcı rolüne göre belirlenmeli.
+        if (suiteKey === 'admin') return '/admin';
+        if (suiteKey === 'manager') return '/manager';
+        if (suiteKey === 'reception') return '/reception';
+        if (suiteKey === 'staff') return '/staff';
+        if (suiteKey === 'room') return '/room';
         return '/';
     };
 
@@ -82,7 +175,7 @@ const Layout = ({ children }) => {
         const isActive = location.pathname === path;
         return isActive
             ? "flex items-center gap-4 py-3 px-8 text-[#D35400] bg-white rounded-r-full font-bold transition-all active:scale-98 shadow-sm"
-            : "flex items-center gap-4 py-3 px-8 text-[#5D534A] hover:text-[#D35400] hover:translate-x-1 transition-transform duration-300";
+            : "flex items-center gap-4 py-3 px-8 text-[#5D534A] hover:text-[#D35400] transition-transform duration-300";
     };
 
     const getStandardLinkClass = (path) => {
@@ -95,70 +188,30 @@ const Layout = ({ children }) => {
     return (
         <div
             className={`font-body antialiased flex min-h-screen ${
-                isAdminSuite ? 'bg-[#FDFBF7] text-[#2C241E]' : 'bg-background text-on-surface'
+                isDashboardSuite ? 'bg-[#FDFBF7] text-[#2C241E]' : 'bg-background text-on-surface'
             }`}
-            style={isAdminSuite ? { zoom: 0.8 } : undefined}
+            style={isDashboardSuite ? { zoom: 0.8 } : undefined}
         >
 
             {/* SideNavBar */}
-            {isAdminSuite ? (
+            {isDashboardSuite ? (
                 <aside className="h-screen w-72 fixed left-0 top-0 bg-[#FDFBF7] flex flex-col py-8 pr-5 z-50 border-r border-[#E3DCD2]/30 overflow-hidden">
                     {/* Header Kısmı: flex-shrink-0 vererek sıkışmasını önlüyoruz */}
                     <div className="px-8 mb-8 flex-shrink-0">
                         <h1 className="font-headline text-lg text-[#4A3728] font-bold leading-tight">
                             Parador Beach Hotel
                         </h1>
-                        <p className="font-label text-[11px] uppercase tracking-widest text-[#8E735B] mt-1">
-                            Admin Suite
-                        </p>
+                        <p className="font-label text-[11px] uppercase tracking-widest text-[#8E735B] mt-1">{suiteLabel}</p>
                     </div>
 
                     {/* Navigasyon: flex-1 ile ortadaki tüm boş alanı kaplamasını sağlıyoruz */}
                     <nav className="flex-1 space-y-1 overflow-y-auto overflow-x-hidden">
-                        <Link to="/admin/staff" className={getAdminLinkClass('/admin/staff')}>
-                            <span className="material-symbols-outlined">badge</span>
-                            <span className="font-label text-[11px] uppercase tracking-widest">STAFF</span>
-                        </Link>
-
-                        <Link to="/admin/departments" className={getAdminLinkClass('/admin/departments')}>
-                            <span className="material-symbols-outlined">corporate_fare</span>
-                            <span className="font-label text-[11px] uppercase tracking-widest">DEPARTMENTS</span>
-                        </Link>
-
-                        <Link to="/admin/requests" className={getAdminLinkClass('/admin/requests')}>
-                            <span className="material-symbols-outlined">notification_important</span>
-                            <span className="font-label text-[11px] uppercase tracking-widest">REQUESTS</span>
-                        </Link>
-
-                        <Link to="/admin/rooms" className={getAdminLinkClass('/admin/rooms')}>
-                            <span className="material-symbols-outlined">bed</span>
-                            <span className="font-label text-[11px] uppercase tracking-widest">ROOMS</span>
-                        </Link>
-
-                        <Link to="/admin/rooms/create" className={getAdminLinkClass('/admin/rooms/create')}>
-                            <span className="material-symbols-outlined">add_circle</span>
-                            <span className="font-label text-[11px] uppercase tracking-widest">CREATE ROOMS</span>
-                        </Link>
-
-                        <Link to="/admin/service-items" className={getAdminLinkClass('/admin/service-items')}>
-                            <span className="material-symbols-outlined">room_service</span>
-                            <span className="font-label text-[11px] uppercase tracking-widest">SERVICE ITEMS</span>
-                        </Link>
-
-                        <Link to="/admin/events" className={getAdminLinkClass('/admin/events')}>
-                            <span className="material-symbols-outlined">event</span>
-                            <span className="font-label text-[11px] uppercase tracking-widest">EVENTS</span>
-                        </Link>
-
-                        <Link to="/reception/services" className={getAdminLinkClass('/reception/services')}>
-                            <span className="material-symbols-outlined">concierge</span>
-                            <span className="font-label text-[11px] uppercase tracking-widest">RECEPTION SERVICES</span>
-                        </Link>
-
-                        <Link to="/admin/vouchers" className={getAdminLinkClass('/admin/vouchers')}>
-                            <span className="material-symbols-outlined">confirmation_number</span>
-                            <span className="font-label text-[11px] uppercase tracking-widest">VOUCHERS</span>
-                        </Link>
+                        {navItems.map((item) => (
+                            <Link key={item.to} to={item.to} className={getAdminLinkClass(item.to)}>
+                                <span className="material-symbols-outlined">{item.icon}</span>
+                                <span className="font-label text-[11px] uppercase tracking-widest">{item.label}</span>
+                            </Link>
+                        ))}
                     </nav>
 
                     {/* Footer: mt-auto sayesinde flex-1'in itmesiyle tamamen en alta yapışır */}
@@ -169,7 +222,7 @@ const Layout = ({ children }) => {
                         </Link>
                         <button
                             onClick={handleLogout}
-                            className="flex items-center gap-4 py-3 px-8 text-[#5D534A] hover:text-[#B22222] transition-transform duration-300 hover:translate-x-1 w-full text-left"
+                            className="flex items-center gap-4 py-3 px-8 text-[#5D534A] hover:text-[#B22222] transition-transform duration-300 w-full text-left"
                         >
                             <span className="material-symbols-outlined">logout</span>
                             <span className="font-label text-[12px] uppercase tracking-widest">Logout</span>
@@ -229,7 +282,7 @@ const Layout = ({ children }) => {
                             <span className="material-symbols-outlined">settings</span>
                             <span className="font-label text-[11px] uppercase tracking-widest">Settings</span>
                         </Link>
-                        <button onClick={handleLogout} className="flex items-center gap-4 py-3 px-8 text-slate-500 hover:text-red-600 transition-transform duration-300 hover:translate-x-1 w-full text-left">
+                        <button onClick={handleLogout} className="flex items-center gap-4 py-3 px-8 text-slate-500 hover:text-red-600 transition-transform duration-300 w-full text-left">
                             <span className="material-symbols-outlined">logout</span>
                             <span className="font-label text-[11px] uppercase tracking-widest">Logout</span>
                         </button>
@@ -238,9 +291,9 @@ const Layout = ({ children }) => {
             )}
 
             {/* Main Canvas */}
-            <main className={`flex-1 min-h-screen flex flex-col ${isAdminSuite ? 'ml-72' : 'ml-64'}`}>
+            <main className={`flex-1 min-h-screen flex flex-col ${isDashboardSuite ? 'ml-72' : 'ml-64'}`}>
                 {/* Header kodun mevcut haliyle bıraktım, değişikliğe ihtiyacı yok */}
-                {isAdminSuite ? (
+                {isDashboardSuite ? (
                     <header className="sticky top-0 z-40 bg-[#FDFBF7]/80 border-b border-[#E3DCD2]/30 backdrop-blur-xl flex justify-between items-center w-full px-8 py-4">
                         <div className="flex items-center gap-6">
                             {showBackButton && (
@@ -253,9 +306,7 @@ const Layout = ({ children }) => {
                                 </button>
                             )}
 
-                            <span className="font-headline italic text-2xl text-[#4A3728]">
-                                Admin Page
-                            </span>
+                            <span className="font-headline italic text-2xl text-[#4A3728]">{getDashboardTitle()}</span>
 
                             <div className="relative hidden lg:block">
                                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#8E735B] text-sm">search</span>
@@ -279,7 +330,7 @@ const Layout = ({ children }) => {
                                         {user?.username || 'Admin User'}
                                     </p>
                                     <p className="text-[11px] text-[#8E735B] uppercase tracking-wider mt-1">
-                                        {user?.role === 'Manager' ? 'HOTEL MANAGER' : 'ADMINISTRATOR'}
+                                        {(user?.role === 'Manager' ? 'HOTEL MANAGER' : getRoleDisplayName(user?.role)).toUpperCase()}
                                     </p>
                                 </div>
 
@@ -348,7 +399,7 @@ const Layout = ({ children }) => {
                 )}
 
                 {/* Content Area */}
-                <div className={`flex-1 w-full ${isAdminSuite ? 'bg-[#FDFBF7]' : 'bg-background'} overflow-x-auto p-6`}>
+                <div className={`flex-1 w-full ${isDashboardSuite ? 'bg-[#FDFBF7]' : 'bg-background'} overflow-x-auto p-6`}>
                     {children}
                 </div>
             </main>
