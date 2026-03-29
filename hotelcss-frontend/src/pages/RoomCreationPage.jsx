@@ -80,28 +80,37 @@ const RoomCreationPage = () => {
 
   return (
     <Layout>
-      <div className="max-w-4xl mx-auto">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Room Creation</h2>
+      <div className="p-10 space-y-8 max-w-7xl mx-auto">
+        <section className="text-center max-w-3xl mx-auto">
+          <h2 className="font-headline text-[52px] text-[#4A3728] mb-2 font-bold leading-tight">
+            Room Creation
+          </h2>
+          <p className="text-[14px] text-[#5D534A] leading-relaxed">
+            Create rooms one-by-one or in bulk.
+          </p>
+        </section>
 
         {/* Mode Toggle */}
-        <div className="mb-6 bg-white rounded-lg shadow p-4">
-          <div className="flex space-x-4">
+        <div className="max-w-4xl mx-auto bg-[#FDFBF7] rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] p-4">
+          <div className="flex flex-col sm:flex-row gap-3">
             <button
+              type="button"
               onClick={() => setMode('single')}
-              className={`flex-1 px-4 py-2 rounded-lg font-medium transition ${
+              className={`flex-1 px-4 py-3 rounded-2xl text-xs font-bold uppercase tracking-widest transition border ${
                 mode === 'single'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-[#D35400] text-white border-[#D35400]'
+                  : 'bg-[#F2EBE1] text-[#4A3728] border-[#E3DCD2]/40 hover:bg-[#E8DFD1]'
               }`}
             >
               Single Room
             </button>
             <button
+              type="button"
               onClick={() => setMode('bulk')}
-              className={`flex-1 px-4 py-2 rounded-lg font-medium transition ${
+              className={`flex-1 px-4 py-3 rounded-2xl text-xs font-bold uppercase tracking-widest transition border ${
                 mode === 'bulk'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-[#D35400] text-white border-[#D35400]'
+                  : 'bg-[#F2EBE1] text-[#4A3728] border-[#E3DCD2]/40 hover:bg-[#E8DFD1]'
               }`}
             >
               Bulk Creation
@@ -109,35 +118,39 @@ const RoomCreationPage = () => {
           </div>
         </div>
 
-        {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
-        {success && <SuccessMessage message={success} onDismiss={() => setSuccess('')} />}
+        <div className="max-w-4xl mx-auto w-full">
+          {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
+          {success && <SuccessMessage message={success} onDismiss={() => setSuccess('')} />}
+        </div>
 
         {mode === 'single' ? (
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">Create Single Room</h3>
+          <div className="max-w-4xl mx-auto bg-[#FDFBF7] rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] p-6">
+            <h3 className="font-headline text-2xl font-bold text-[#4A3728] mb-4 text-center">
+              Create Single Room
+            </h3>
             <form onSubmit={handleSingleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-[#4A3728] mb-2">
                   Room Number *
                 </label>
                 <input
                   type="number"
                   value={singleRoom.RoomNumber}
                   onChange={(e) => setSingleRoom({ ...singleRoom, RoomNumber: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E]"
                   required
                   min="1"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-[#4A3728] mb-2">
                   Initial Status *
                 </label>
                 <select
                   value={singleRoom.Status}
                   onChange={(e) => setSingleRoom({ ...singleRoom, Status: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E]"
                 >
                   <option value="Available">Available</option>
                   <option value="Occupied">Occupied</option>
@@ -149,18 +162,20 @@ const RoomCreationPage = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-[#4A3728] text-white py-3 px-4 rounded-2xl hover:bg-[#3a2b20] transition disabled:opacity-50 disabled:cursor-not-allowed font-bold uppercase tracking-widest text-xs"
               >
                 {loading ? 'Creating...' : 'Create Room'}
               </button>
             </form>
           </div>
         ) : (
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">Bulk Room Creation</h3>
+          <div className="max-w-4xl mx-auto bg-[#FDFBF7] rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] p-6">
+            <h3 className="font-headline text-2xl font-bold text-[#4A3728] mb-4 text-center">
+              Bulk Room Creation
+            </h3>
             <form onSubmit={handleBulkSubmit} className="space-y-4">
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                <p className="text-sm text-blue-800">
+              <div className="bg-[#F2EBE1]/50 border border-[#E3DCD2]/50 rounded-2xl p-4 mb-4">
+                <p className="text-sm text-[#4A3728]">
                   <strong>How it works:</strong> Rooms are created using the formula: (Floor × StartingRoomNumber) + Room
                   <br />
                   Example: Floor 3, StartingRoomNumber 100, Room 5 = (3 × 100) + 5 = 305
@@ -168,7 +183,7 @@ const RoomCreationPage = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-[#4A3728] mb-2">
                   Total Floors * (Max: 20)
                 </label>
                 <input
@@ -177,7 +192,7 @@ const RoomCreationPage = () => {
                   onChange={(e) =>
                     setBulkConfig({ ...bulkConfig, TotalFloors: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E]"
                   required
                   min="1"
                   max="20"
@@ -185,7 +200,7 @@ const RoomCreationPage = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-[#4A3728] mb-2">
                   Rooms Per Floor * (Max: 50)
                 </label>
                 <input
@@ -194,7 +209,7 @@ const RoomCreationPage = () => {
                   onChange={(e) =>
                     setBulkConfig({ ...bulkConfig, RoomsPerFloor: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E]"
                   required
                   min="1"
                   max="50"
@@ -202,7 +217,7 @@ const RoomCreationPage = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-[#4A3728] mb-2">
                   Starting Room Number Multiplier
                 </label>
                 <input
@@ -211,20 +226,20 @@ const RoomCreationPage = () => {
                   onChange={(e) =>
                     setBulkConfig({ ...bulkConfig, StartingRoomNumber: parseInt(e.target.value) || 100 })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E]"
                   min="1"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-[#8E735B] mt-1">
                   Default: 100 (creates rooms like 101, 102, 201, 202, etc.)
                 </p>
               </div>
 
               {calculateTotalRooms() > 0 && (
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <p className="text-sm font-medium text-gray-700">
-                    Total rooms to be created: <span className="text-blue-600 font-bold">{calculateTotalRooms()}</span>
+                <div className="bg-[#F2EBE1]/45 rounded-2xl p-4 border border-[#E3DCD2]/40 text-center">
+                  <p className="text-sm font-semibold text-[#4A3728]">
+                    Total rooms to be created: <span className="text-[#D35400] font-extrabold">{calculateTotalRooms()}</span>
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-[#8E735B] mt-1">
                     Note: Existing rooms with the same numbers will be skipped
                   </p>
                 </div>
@@ -233,7 +248,7 @@ const RoomCreationPage = () => {
               <button
                 type="submit"
                 disabled={loading || calculateTotalRooms() === 0}
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-[#4A3728] text-white py-3 px-4 rounded-2xl hover:bg-[#3a2b20] transition disabled:opacity-50 disabled:cursor-not-allowed font-bold uppercase tracking-widest text-xs"
               >
                 {loading ? 'Creating Rooms...' : `Create ${calculateTotalRooms() || 0} Rooms`}
               </button>

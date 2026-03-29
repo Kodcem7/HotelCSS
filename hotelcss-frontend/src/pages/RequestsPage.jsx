@@ -156,133 +156,144 @@ const RequestsPage = () => {
 
   return (
     <Layout>
-      <div className="mb-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-          <h2 className="text-2xl font-bold text-gray-900">Guest Requests</h2>
-          <div className="flex flex-wrap gap-3">
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="All">All Status</option>
-              <option value="Pending">Pending</option>
-              <option value="InProcess">In Process</option>
-              <option value="Completed">Completed</option>
-              <option value="Cancelled">Cancelled</option>
-            </select>
-            <select
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="All">All Types</option>
-              <option value="Technic">Technic</option>
-              <option value="Reception">Reception</option>
-              <option value="Room">Room</option>
-            </select>
+      <div className="p-10 space-y-8 max-w-7xl mx-auto">
+        <section className="text-center max-w-3xl mx-auto">
+          <h2 className="font-headline text-[52px] text-[#4A3728] mb-2 font-bold leading-tight">
+            Guest Requests
+          </h2>
+          <p className="text-[14px] text-[#5D534A] leading-relaxed">
+            Filter, review, and update guest requests.
+          </p>
+        </section>
+
+        <div className="max-w-5xl mx-auto w-full space-y-4">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+            <div className="flex flex-wrap justify-center lg:justify-start gap-3">
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] text-sm"
+              >
+                <option value="All">All Status</option>
+                <option value="Pending">Pending</option>
+                <option value="InProcess">In Process</option>
+                <option value="Completed">Completed</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+              <select
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value)}
+                className="px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] text-sm"
+              >
+                <option value="All">All Types</option>
+                <option value="Technic">Technic</option>
+                <option value="Reception">Reception</option>
+                <option value="Room">Room</option>
+              </select>
+            </div>
           </div>
+          <SearchBar
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder="Search by room number, service item, or request ID..."
+          />
         </div>
-        <SearchBar
-          value={searchTerm}
-          onChange={setSearchTerm}
-          placeholder="Search by room number, service item, or request ID..."
-        />
-      </div>
 
-      {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
-      {success && <SuccessMessage message={success} onDismiss={() => setSuccess('')} />}
-
-      {filteredRequests.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <p className="text-gray-600">No requests found</p>
+        <div className="max-w-5xl mx-auto w-full">
+          {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
+          {success && <SuccessMessage message={success} onDismiss={() => setSuccess('')} />}
         </div>
-      ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+
+        {filteredRequests.length === 0 ? (
+          <div className="max-w-5xl mx-auto bg-[#FDFBF7] p-10 rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] text-center text-[#5D534A]">
+            No requests found
+          </div>
+        ) : (
+          <div className="max-w-6xl mx-auto bg-[#FDFBF7] rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-[#E3DCD2]/50">
+                <thead className="bg-[#F2EBE1]/55">
                 <tr>
                   <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                    className="px-6 py-3 text-left text-[11px] font-bold text-[#8E735B] uppercase tracking-widest cursor-pointer select-none"
                     onClick={() => handleSort('id')}
                   >
-                    ID <span className="text-gray-400">{getSortIcon('id')}</span>
+                    ID <span className="text-[#8E735B]/60">{getSortIcon('id')}</span>
                   </th>
                   <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                    className="px-6 py-3 text-left text-[11px] font-bold text-[#8E735B] uppercase tracking-widest cursor-pointer select-none"
                     onClick={() => handleSort('roomNumber')}
                   >
-                    Room <span className="text-gray-400">{getSortIcon('roomNumber')}</span>
+                    Room <span className="text-[#8E735B]/60">{getSortIcon('roomNumber')}</span>
                   </th>
                   <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                    className="px-6 py-3 text-left text-[11px] font-bold text-[#8E735B] uppercase tracking-widest cursor-pointer select-none"
                     onClick={() => handleSort('type')}
                   >
-                    Type <span className="text-gray-400">{getSortIcon('type')}</span>
+                    Type <span className="text-[#8E735B]/60">{getSortIcon('type')}</span>
                   </th>
                   <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                    className="px-6 py-3 text-left text-[11px] font-bold text-[#8E735B] uppercase tracking-widest cursor-pointer select-none"
                     onClick={() => handleSort('serviceItem.name')}
                   >
                     Service Item{' '}
-                    <span className="text-gray-400">{getSortIcon('serviceItem.name')}</span>
+                    <span className="text-[#8E735B]/60">{getSortIcon('serviceItem.name')}</span>
                   </th>
                   <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                    className="px-6 py-3 text-left text-[11px] font-bold text-[#8E735B] uppercase tracking-widest cursor-pointer select-none"
                     onClick={() => handleSort('quantity')}
                   >
-                    Quantity <span className="text-gray-400">{getSortIcon('quantity')}</span>
+                    Quantity <span className="text-[#8E735B]/60">{getSortIcon('quantity')}</span>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-[11px] font-bold text-[#8E735B] uppercase tracking-widest">
                     Photo
                   </th>
                   <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                    className="px-6 py-3 text-left text-[11px] font-bold text-[#8E735B] uppercase tracking-widest cursor-pointer select-none"
                     onClick={() => handleSort('status')}
                   >
-                    Status <span className="text-gray-400">{getSortIcon('status')}</span>
+                    Status <span className="text-[#8E735B]/60">{getSortIcon('status')}</span>
                   </th>
                   <th
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none"
+                    className="px-6 py-3 text-left text-[11px] font-bold text-[#8E735B] uppercase tracking-widest cursor-pointer select-none"
                     onClick={() => handleSort('requestDate')}
                   >
-                    Date <span className="text-gray-400">{getSortIcon('requestDate')}</span>
+                    Date <span className="text-[#8E735B]/60">{getSortIcon('requestDate')}</span>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-[11px] font-bold text-[#8E735B] uppercase tracking-widest">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="divide-y divide-[#E3DCD2]/40">
                 {sortedRequests.map((request) => (
-                  <tr key={request.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <tr key={request.id} className="hover:bg-[#F2EBE1]/35">
+                    <td className="px-6 py-4 whitespace-nowrap text-[13px] font-semibold text-[#4A3728]">
                       #{request.id}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-[13px] text-[#2C241E]">
                       Room {request.roomNumber}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-[13px] text-[#2C241E]">
                       {request.type || 'N/A'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-[13px] text-[#2C241E]">
                       {request.serviceItem?.name || 'N/A'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-[13px] text-[#2C241E]">
                       {request.quantity}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-[13px] text-[#2C241E]">
                       {request.photoPath ? (
                         <button
                           type="button"
                           onClick={() => setPreviewImage(getImageUrl(request.photoPath))}
-                          className="text-blue-600 hover:text-blue-800 underline"
+                          className="text-[#D35400] hover:text-[#4A3728] transition-colors font-semibold"
                         >
                           View
                         </button>
                       ) : (
-                        <span className="text-gray-400 text-xs">No photo</span>
+                        <span className="text-[#8E735B] text-xs">No photo</span>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -294,21 +305,21 @@ const RequestsPage = () => {
                         {request.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-[13px] text-[#5D534A]">
                       {new Date(request.requestDate).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                    <td className="px-6 py-4 whitespace-nowrap text-[13px] font-semibold space-x-3">
                       {request.status === 'Pending' && (
                         <>
                           <button
                             onClick={() => handleStatusUpdate(request.id, 'InProcess')}
-                            className="text-blue-600 hover:text-blue-900"
+                            className="text-[#D35400] hover:text-[#4A3728] transition-colors"
                           >
                             Start
                           </button>
                           <button
                             onClick={() => handleStatusUpdate(request.id, 'Completed')}
-                            className="text-green-600 hover:text-green-900"
+                            className="text-[#1B7F4B] hover:text-[#4A3728] transition-colors"
                           >
                             Complete
                           </button>
@@ -317,14 +328,14 @@ const RequestsPage = () => {
                       {request.status === 'InProcess' && (
                         <button
                           onClick={() => handleStatusUpdate(request.id, 'Completed')}
-                          className="text-green-600 hover:text-green-900"
+                          className="text-[#1B7F4B] hover:text-[#4A3728] transition-colors"
                         >
                           Complete
                         </button>
                       )}
                       <button
                         onClick={() => handleDelete(request.id)}
-                        className="text-red-600 hover:text-red-900"
+                        className="text-[#B22222] hover:text-[#4A3728] transition-colors"
                       >
                         Delete
                       </button>
@@ -360,6 +371,7 @@ const RequestsPage = () => {
           </div>
         </div>
       )}
+      </div>
     </Layout>
   );
 };

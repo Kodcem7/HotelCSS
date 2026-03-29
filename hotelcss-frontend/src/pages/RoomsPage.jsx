@@ -107,69 +107,85 @@ const RoomsPage = () => {
 
   return (
     <Layout>
-      <div className="mb-6 flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">Room Management</h2>
-        <Link
-          to="/admin/rooms/create"
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-        >
-          + Create Rooms
-        </Link>
-      </div>
+      <div className="p-10 space-y-8 max-w-7xl mx-auto">
+        <section className="text-center max-w-3xl mx-auto">
+          <h2 className="font-headline text-[52px] text-[#4A3728] mb-2 font-bold leading-tight">
+            Room Management
+          </h2>
+          <p className="text-[14px] text-[#5D534A] leading-relaxed">
+            Manage room availability, occupancy, and check-outs.
+          </p>
+          <div className="mt-6">
+            <Link
+              to="/admin/rooms/create"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl font-bold text-[12px] uppercase tracking-widest bg-[#4A3728] text-white hover:bg-[#3a2b20] transition shadow-sm"
+            >
+              Create Rooms <span className="material-symbols-outlined text-sm">add</span>
+            </Link>
+          </div>
+        </section>
 
-      <div className="flex space-x-2 mb-4">
-        {['All', 'Available', 'Occupied'].map((status) => (
-          <button
-            key={status}
-            onClick={() => setFilterStatus(status)}
-            className={`px-4 py-2 rounded-lg font-medium transition ${
-              filterStatus === status
-                ? 'bg-blue-600 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-100'
-            }`}
-          >
-            {status} ({statusCounts[status] || 0})
-          </button>
-        ))}
-      </div>
-
-      {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
-      {success && <SuccessMessage message={success} onDismiss={() => setSuccess('')} />}
-
-      {filteredRooms.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <p className="text-gray-600">No rooms found</p>
+        <div className="flex flex-wrap justify-center gap-2">
+          {['All', 'Available', 'Occupied'].map((status) => (
+            <button
+              type="button"
+              key={status}
+              onClick={() => setFilterStatus(status)}
+              className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition border ${
+                filterStatus === status
+                  ? 'bg-[#D35400] text-white border-[#D35400]'
+                  : 'bg-[#FDFBF7] text-[#4A3728] border-[#E3DCD2]/50 hover:bg-[#F2EBE1]'
+              }`}
+            >
+              {status} ({statusCounts[status] || 0})
+            </button>
+          ))}
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filteredRooms.map((room) => (
-            <div key={room.roomNumber} className="bg-white rounded-lg shadow p-6">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900">Room {room.roomNumber}</h3>
+
+        <div className="max-w-5xl mx-auto w-full">
+          {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
+          {success && <SuccessMessage message={success} onDismiss={() => setSuccess('')} />}
+        </div>
+
+        {filteredRooms.length === 0 ? (
+          <div className="max-w-5xl mx-auto bg-[#FDFBF7] p-10 rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] text-center text-[#5D534A]">
+            No rooms found
+          </div>
+        ) : (
+          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredRooms.map((room) => (
+              <div
+                key={room.roomNumber}
+                className="bg-[#FDFBF7] rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] p-6"
+              >
+                <div className="text-center mb-4">
+                  <h3 className="font-headline text-2xl font-bold text-[#4A3728]">
+                    Room {room.roomNumber}
+                  </h3>
                   <span
-                    className={`mt-2 inline-block px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+                    className={`mt-2 inline-block px-3 py-1 text-[11px] font-bold rounded-full ${getStatusColor(
                       room.status
                     )}`}
                   >
                     {room.status}
                   </span>
                 </div>
-              </div>
 
               <div className="space-y-3">
                 <select
                   value={room.status}
                   onChange={(e) => handleStatusUpdate(room.roomNumber, e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] text-sm"
                 >
                   <option value="Available">Available</option>
                   <option value="Occupied">Occupied</option>
                 </select>
 
-                <div className="text-xs text-gray-600 bg-gray-50 border border-gray-100 rounded-lg px-3 py-2">
-                  <p className="font-semibold mb-1">Current guest email</p>
-                  <p className="font-mono break-all">
+                <div className="text-xs text-[#5D534A] bg-[#F2EBE1]/45 border border-[#E3DCD2]/40 rounded-2xl px-4 py-3 text-center">
+                  <p className="font-bold text-[#4A3728] mb-1 uppercase tracking-widest text-[10px]">
+                    Current guest email
+                  </p>
+                  <p className="font-mono break-all text-[12px]">
                     {room.currentGuestMail || '—'}
                   </p>
                 </div>
@@ -178,7 +194,7 @@ const RoomsPage = () => {
                   <button
                     type="button"
                     onClick={() => handleCheckOut(room.roomNumber)}
-                    className="w-full px-3 py-2 text-xs font-semibold rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
+                    className="w-full px-4 py-3 text-xs font-bold uppercase tracking-widest rounded-2xl bg-[#B22222] text-white hover:bg-[#8f1b1b] transition"
                   >
                     Check-out room
                   </button>
@@ -188,6 +204,7 @@ const RoomsPage = () => {
           ))}
         </div>
       )}
+      </div>
     </Layout>
   );
 };

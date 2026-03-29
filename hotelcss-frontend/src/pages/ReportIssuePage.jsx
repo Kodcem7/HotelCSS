@@ -64,37 +64,41 @@ const ReportIssuePage = () => {
 
   return (
     <Layout>
-      <div className="max-w-2xl mx-auto">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Report an Issue</h2>
-        <p className="text-gray-600 mb-6">
-          Use this form to report any problems in your room (e.g. broken light, leaking tap). Our staff will review your report.
-        </p>
+      <div className="p-10 space-y-10 max-w-7xl mx-auto">
+        <section>
+          <h2 className="font-headline text-[52px] text-[#4A3728] mb-2 font-bold leading-tight">
+            Report an Issue
+          </h2>
+          <p className="text-[14px] text-[#5D534A] leading-relaxed">
+            Report problems in your room (e.g. broken light, leaking tap). Our staff will review your report.
+          </p>
+        </section>
 
         {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
         {success && <SuccessMessage message={success} onDismiss={() => setSuccess('')} />}
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="bg-[#FDFBF7] rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] p-8 space-y-6 max-w-3xl mx-auto">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-[#4A3728] mb-1">
               Room
             </label>
-            <p className="px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-800">
+            <p className="px-4 py-3 border border-[#E3DCD2]/50 rounded-2xl bg-[#F2EBE1]/55 text-[#2C241E] font-semibold">
               {user?.username}
             </p>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-[#8E735B] mt-1">
               The issue will be linked to this room.
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-[#4A3728] mb-1">
               Title *
             </label>
             <input
               type="text"
               value={formData.Title}
               onChange={(e) => setFormData({ ...formData, Title: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] placeholder:text-[#8E735B]"
               placeholder="Short summary (e.g. Bathroom light not working)"
               maxLength={100}
               required
@@ -102,13 +106,13 @@ const ReportIssuePage = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-[#4A3728] mb-1">
               Description *
             </label>
             <textarea
               value={formData.Description}
               onChange={(e) => setFormData({ ...formData, Description: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] placeholder:text-[#8E735B]"
               rows="4"
               placeholder="Please describe the problem in detail..."
               maxLength={1000}
@@ -117,16 +121,16 @@ const ReportIssuePage = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-semibold text-[#4A3728] mb-1">
               Photo (optional)
             </label>
             <input
               type="file"
               accept="image/*"
               onChange={handlePhotoChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E]"
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-[#8E735B] mt-1">
               A clear photo can help staff resolve the issue faster.
             </p>
           </div>
@@ -135,14 +139,14 @@ const ReportIssuePage = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 bg-[#4A3728] text-white py-3 px-4 rounded-2xl hover:bg-[#3a2b20] transition disabled:opacity-60 disabled:cursor-not-allowed font-semibold"
             >
               {submitting ? 'Sending...' : 'Send Report'}
             </button>
             <button
               type="button"
               onClick={() => navigate('/room')}
-              className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition"
+              className="flex-1 bg-[#F2EBE1] text-[#4A3728] py-3 px-4 rounded-2xl hover:bg-[#E8DFD1] transition font-semibold border border-[#E3DCD2]/40"
             >
               Cancel
             </button>

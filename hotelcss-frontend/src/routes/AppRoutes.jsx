@@ -326,7 +326,7 @@ const AppRoutes = () => {
                     path="/room/rewards"
                     element={
                         <ProtectedRoute allowedRoles="Room">
-                            <RoomRewardsPage />
+                            <Navigate to="/room/point-shop" replace />
                         </ProtectedRoute>
                     }
                 />

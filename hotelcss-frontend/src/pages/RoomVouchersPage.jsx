@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
@@ -37,60 +37,69 @@ const RoomVouchersPage = () => {
 
     return (
         <Layout>
-            <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">My Reward Vouchers</h2>
-                <p className="text-gray-600 mt-1 text-sm">
-                    Show these codes to the reception to claim your rewards!
-                </p>
-            </div>
+            <div className="p-10 space-y-10 max-w-7xl mx-auto">
+                <section className="max-w-4xl mx-auto">
+                    <h2 className="font-headline text-[52px] text-[#4A3728] mb-2 font-bold leading-tight">
+                        My Reward Vouchers
+                    </h2>
+                    <p className="text-[14px] text-[#5D534A] leading-relaxed">
+                        Show these codes to the reception to claim your rewards.
+                    </p>
+                </section>
 
-            {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
+                {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                {vouchers.length === 0 ? (
-                    <div className="p-8 text-center text-gray-500">
-                        You don't have any vouchers yet. Visit the Rewards Catalog to spend your points!
-                    </div>
-                ) : (
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reward Item</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Voucher Code</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {vouchers.map((v) => (
-                                    <tr key={v.id} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {new Date(v.createdAt).toLocaleDateString()}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm font-medium text-gray-900">{v.itemName}</div>
-                                            <div className="text-xs text-green-600 font-semibold">{v.pointsPaid} Points</div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="font-mono text-lg font-bold tracking-wider text-blue-700 bg-blue-50 px-3 py-1.5 rounded border border-blue-200 shadow-sm">
-                                                {v.voucherCode}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                ${v.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                                                    v.status === 'Completed' || v.status === 'Redeemed' ? 'bg-green-100 text-green-800' :
-                                                        'bg-gray-100 text-gray-800'}`}>
-                                                {v.status}
-                                            </span>
-                                        </td>
+                <div className="max-w-4xl mx-auto bg-[#FDFBF7] rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] overflow-hidden">
+                    {vouchers.length === 0 ? (
+                        <div className="p-10 text-center text-[#5D534A]">
+                            You don&apos;t have any vouchers yet. Visit Point Shop to spend your points.
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full divide-y divide-[#E3DCD2]/50">
+                                <thead className="bg-[#F2EBE1]/55">
+                                    <tr>
+                                        <th className="px-6 py-3 text-left text-[11px] font-bold text-[#8E735B] uppercase tracking-widest">Date</th>
+                                        <th className="px-6 py-3 text-left text-[11px] font-bold text-[#8E735B] uppercase tracking-widest">Reward Item</th>
+                                        <th className="px-6 py-3 text-left text-[11px] font-bold text-[#8E735B] uppercase tracking-widest">Voucher Code</th>
+                                        <th className="px-6 py-3 text-left text-[11px] font-bold text-[#8E735B] uppercase tracking-widest">Status</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
+                                </thead>
+                                <tbody className="divide-y divide-[#E3DCD2]/40">
+                                    {vouchers.map((v) => (
+                                        <tr key={v.id} className="hover:bg-[#F2EBE1]/35 transition-colors">
+                                            <td className="px-6 py-4 whitespace-nowrap text-[13px] text-[#5D534A]">
+                                                {new Date(v.createdAt).toLocaleDateString()}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="text-[13px] font-semibold text-[#4A3728]">{v.itemName}</div>
+                                                <div className="text-[11px] text-[#8E735B] font-bold">{v.pointsPaid} Points</div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span className="font-mono text-[14px] font-bold tracking-wider text-[#4A3728] bg-[#F2EBE1]/55 px-3 py-1.5 rounded-2xl border border-[#E3DCD2]/40">
+                                                    {v.voucherCode}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span
+                                                    className={`px-3 py-1 inline-flex text-[11px] leading-5 font-bold rounded-full border ${
+                                                        v.status === 'Pending'
+                                                            ? 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                                                            : v.status === 'Completed' || v.status === 'Redeemed'
+                                                              ? 'bg-green-100 text-green-800 border-green-200'
+                                                              : 'bg-[#F2EBE1] text-[#4A3728] border-[#E3DCD2]/40'
+                                                    }`}
+                                                >
+                                                    {v.status}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
             </div>
         </Layout>
     );

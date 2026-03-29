@@ -75,8 +75,9 @@ const Layout = ({ children }) => {
         ],
         room: [
             { to: '/room', label: 'DASHBOARD', icon: 'dashboard' },
-            { to: '/room/rewards', label: 'REWARDS', icon: 'confirmation_number' },
             { to: '/room/point-shop', label: 'POINT SHOP', icon: 'stars' },
+            { to: '/room/history', label: 'MY REQUESTS', icon: 'history' },
+            { to: '/room/campaigns', label: 'CAMPAIGNS', icon: 'campaign' },
             { to: '/room/vouchers', label: 'VOUCHERS', icon: 'confirmation_number' },
             { to: '/room/events', label: 'EVENTS', icon: 'event' },
         ],
@@ -145,6 +146,8 @@ const Layout = ({ children }) => {
 
         if (path.startsWith('/room/rewards')) return 'Room Rewards';
         if (path.startsWith('/room/point-shop')) return 'Point Shop';
+        if (path.startsWith('/room/history')) return 'My Requests';
+        if (path.startsWith('/room/campaigns')) return 'Campaigns';
         if (path.startsWith('/room/vouchers')) return 'Room Vouchers';
         if (path.startsWith('/room/events')) return 'Hotel Events';
         if (path === '/room' || path === '/room/') return 'Room Dashboard';
@@ -319,6 +322,16 @@ const Layout = ({ children }) => {
                         </div>
 
                         <div className="flex items-center gap-4">
+                            {/* Points Badge for Room users (suite header) */}
+                            {user?.role === 'Room' && (
+                                <div className="flex items-center gap-1.5 bg-[#F2EBE1] border border-[#E3DCD2]/30 px-3 py-1.5 rounded-full shadow-sm">
+                                    <span className="material-symbols-outlined text-[#D35400] text-sm">stars</span>
+                                    <span className="font-bold text-[#4A3728] tracking-wide">
+                                        {myPoints} <span className="text-xs font-semibold uppercase text-[#8E735B]">pts</span>
+                                    </span>
+                                </div>
+                            )}
+
                             <button className="p-2 rounded-full hover:bg-[#F2EBE1] transition-colors relative">
                                 <span className="material-symbols-outlined text-[#4A3728]">notifications</span>
                                 <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-[#D35400] rounded-full"></span>

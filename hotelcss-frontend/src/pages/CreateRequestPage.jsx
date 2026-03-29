@@ -175,17 +175,26 @@ const CreateRequestPage = () => {
 
   return (
     <Layout>
-      <div className="max-w-2xl mx-auto">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Create Service Request</h2>
+      <div className="p-10 space-y-10 max-w-7xl mx-auto">
+        <section>
+          <h2 className="font-headline text-[52px] text-[#4A3728] mb-2 font-bold leading-tight">
+            Create Service Request
+          </h2>
+          <p className="text-[14px] text-[#5D534A] leading-relaxed">
+            Choose a department, then pick a service and submit your request.
+          </p>
+        </section>
 
-        {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
-        {success && <SuccessMessage message={success} onDismiss={() => setSuccess('')} />}
+        <div className="max-w-3xl mx-auto w-full">
+          {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
+          {success && <SuccessMessage message={success} onDismiss={() => setSuccess('')} />}
+        </div>
 
         {/* Room user: step 1 – choose department (with photos) */}
         {showDepartmentPicker && (
-          <div className="mb-8">
-            <p className="text-gray-600 mb-4">Choose a department to see available services.</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <section className="space-y-4">
+            <p className="text-[#5D534A]">Choose a department to see available services.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {departments.map((dept) => {
                 const name = dept.departmentName ?? dept.DepartmentName ?? 'Department';
                 const imgUrl = dept.imageUrl ?? dept.ImageUrl;
@@ -194,9 +203,9 @@ const CreateRequestPage = () => {
                     key={dept.id}
                     type="button"
                     onClick={() => handleSelectDepartment(dept)}
-                    className="bg-white rounded-xl shadow-md hover:shadow-lg transition overflow-hidden text-left border border-gray-100 hover:border-blue-300 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="bg-[#F2EBE1] rounded-[28px] hover:bg-white transition overflow-hidden text-left border border-[#E3DCD2]/20 hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)] focus:outline-none"
                   >
-                    <div className="aspect-video bg-gray-100 relative">
+                    <div className="aspect-video bg-[#FDFBF7] relative">
                       {imgUrl ? (
                         <img
                           src={getImageUrl(imgUrl)}
@@ -207,33 +216,35 @@ const CreateRequestPage = () => {
                           }}
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400 text-4xl">📋</div>
+                        <div className="w-full h-full flex items-center justify-center text-[#8E735B]">
+                          <span className="material-symbols-outlined text-5xl">apartment</span>
+                        </div>
                       )}
                     </div>
                     <div className="p-4">
-                      <h3 className="font-semibold text-gray-900">{name}</h3>
-                      <p className="text-sm text-gray-500 mt-0.5">Tap to select services</p>
+                      <h3 className="font-headline text-xl text-[#4A3728] font-bold leading-tight">{name}</h3>
+                      <p className="text-[13px] text-[#5D534A] mt-1">Tap to select services</p>
                     </div>
                   </button>
                 );
               })}
             </div>
             {departments.length === 0 && !loading && (
-              <p className="text-gray-500">No departments available for requests.</p>
+              <p className="text-[#8E735B]">No departments available for requests.</p>
             )}
-          </div>
+          </section>
         )}
 
         {/* Room user: step 2 – request form (after department selected) */}
         {isRoomUser && selectedDepartmentId != null && (
-          <div className="mb-6 flex items-center justify-between flex-wrap gap-2">
-            <p className="text-gray-600">
-              Department: <span className="font-semibold text-gray-900">{selectedDepartmentName}</span>
+          <div className="flex items-center justify-between flex-wrap gap-3 max-w-3xl mx-auto">
+            <p className="text-[#5D534A]">
+              Department: <span className="font-semibold text-[#4A3728]">{selectedDepartmentName}</span>
             </p>
             <button
               type="button"
               onClick={handleChangeDepartment}
-              className="text-sm text-blue-600 hover:text-blue-800 underline"
+              className="text-[11px] font-bold uppercase tracking-widest text-[#D35400] hover:text-[#4A3728] transition-colors"
             >
               Change department
             </button>
@@ -241,38 +252,40 @@ const CreateRequestPage = () => {
         )}
 
         {loadingServices && (
-          <div className="mb-6">
-            <LoadingSpinner text="Loading services..." />
-          </div>
+          <LoadingSpinner text="Loading services..." />
         )}
 
         {!showDepartmentPicker && !loadingServices && isRoomUser && serviceItems.length === 0 && selectedDepartmentId != null && (
-          <p className="text-gray-500 bg-gray-50 rounded-lg p-4">No services available for this department. Use &quot;Change department&quot; above to pick another.</p>
+          <div className="bg-[#FDFBF7] p-6 rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] max-w-3xl mx-auto">
+            <p className="text-[#5D534A]">
+              No services available for this department. Use <span className="font-semibold text-[#4A3728]">Change department</span> above to pick another.
+            </p>
+          </div>
         )}
 
         {!showDepartmentPicker && (!isRoomUser || serviceItems.length > 0) && (
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="bg-[#FDFBF7] rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] p-8 space-y-6 max-w-3xl mx-auto">
           {isRoomUser ? (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-semibold text-[#4A3728] mb-1">
                 Room Number
               </label>
-              <p className="px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-800">
+              <p className="px-4 py-3 border border-[#E3DCD2]/50 rounded-2xl bg-[#F2EBE1]/55 text-[#2C241E] font-semibold">
                 {user?.username}
               </p>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-[#8E735B] mt-1">
                 Requests will be created for this room.
               </p>
             </div>
           ) : (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-[#4A3728] mb-2">
                 Room Number *
               </label>
               <select
                 value={formData.RoomNumber}
                 onChange={(e) => setFormData({ ...formData, RoomNumber: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E]"
                 required
               >
                 <option value="">Select Room</option>
@@ -288,13 +301,13 @@ const CreateRequestPage = () => {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-[#4A3728] mb-2">
               Service Item *
             </label>
             <select
               value={formData.ServiceItemId}
               onChange={(e) => setFormData({ ...formData, ServiceItemId: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E]"
               required
             >
               <option value="">Select Service Item</option>
@@ -309,30 +322,30 @@ const CreateRequestPage = () => {
           </div>
 
           {selectedServiceItem && (
-            <div className="bg-gray-50 rounded-lg p-4">
+            <div className="bg-[#F2EBE1]/55 rounded-[28px] border border-[#E3DCD2]/30 p-6">
               <div className="flex items-start space-x-4">
                 {selectedServiceItem.imageUrl && (
                   <img
                     src={getImageUrl(selectedServiceItem.imageUrl)}
                     alt={selectedServiceItem.name}
-                    className="w-24 h-24 object-cover rounded-lg"
+                    className="w-24 h-24 object-cover rounded-2xl border border-[#E3DCD2]/40"
                     onError={(e) => {
                       e.target.style.display = 'none';
                     }}
                   />
                 )}
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900">{selectedServiceItem.name}</h3>
+                  <h3 className="font-headline text-xl text-[#4A3728] font-bold leading-tight">{selectedServiceItem.name}</h3>
                   {selectedServiceItem.description && (
-                    <p className="text-sm text-gray-600 mt-1">{selectedServiceItem.description}</p>
+                    <p className="text-[14px] text-[#5D534A] mt-2 leading-relaxed">{selectedServiceItem.description}</p>
                   )}
                   {selectedServiceItem.requiredOptions && (
-                    <p className="text-xs text-gray-500 mt-2">
+                    <p className="text-xs text-[#8E735B] mt-2">
                       Required options: {selectedServiceItem.requiredOptions}
                     </p>
                   )}
                   {selectedServiceItem.price && (
-                    <p className="text-lg font-bold text-gray-900 mt-2">
+                    <p className="text-lg font-bold text-[#4A3728] mt-3">
                       ${parseFloat(selectedServiceItem.price).toFixed(2)}
                     </p>
                   )}
@@ -342,7 +355,7 @@ const CreateRequestPage = () => {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-[#4A3728] mb-2">
               Quantity * (1-5)
             </label>
             <input
@@ -351,20 +364,20 @@ const CreateRequestPage = () => {
               max="5"
               value={formData.Quantity}
               onChange={(e) => setFormData({ ...formData, Quantity: parseInt(e.target.value) || 1 })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E]"
               required
             />
-            <p className="text-xs text-gray-500 mt-1">You can order between 1 and 5 items</p>
+            <p className="text-xs text-[#8E735B] mt-1">You can order between 1 and 5 items</p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-[#4A3728] mb-2">
               Special Notes (Optional)
             </label>
             <textarea
               value={formData.Note}
               onChange={(e) => setFormData({ ...formData, Note: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E]"
               rows="4"
               placeholder="Any special instructions or requests..."
             />
@@ -374,14 +387,14 @@ const CreateRequestPage = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 bg-[#4A3728] text-white py-3 px-4 rounded-2xl hover:bg-[#3a2b20] transition disabled:opacity-60 disabled:cursor-not-allowed font-semibold"
             >
               {submitting ? 'Submitting...' : 'Submit Request'}
             </button>
             <button
               type="button"
               onClick={() => navigate('/room')}
-              className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition"
+              className="flex-1 bg-[#F2EBE1] text-[#4A3728] py-3 px-4 rounded-2xl hover:bg-[#E8DFD1] transition font-semibold border border-[#E3DCD2]/40"
             >
               Cancel
             </button>

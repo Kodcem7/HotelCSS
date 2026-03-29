@@ -178,43 +178,57 @@ const ServiceItemsPage = () => {
 
   return (
     <Layout>
-      <div className="mb-6 flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">Service Items Management</h2>
-        <button
-          onClick={() => handleOpenModal()}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-        >
-          + Add Service Item
-        </button>
-      </div>
+      <div className="p-10 space-y-8 max-w-7xl mx-auto">
+        <section className="text-center max-w-3xl mx-auto">
+          <h2 className="font-headline text-[52px] text-[#4A3728] mb-2 font-bold leading-tight">
+            Service Items
+          </h2>
+          <p className="text-[14px] text-[#5D534A] leading-relaxed">
+            Create and manage service items by department.
+          </p>
+          <div className="mt-6">
+            <button
+              type="button"
+              onClick={() => handleOpenModal()}
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl font-bold text-[12px] uppercase tracking-widest bg-[#4A3728] text-white hover:bg-[#3a2b20] transition shadow-sm"
+            >
+              Add Service Item <span className="material-symbols-outlined text-sm">add</span>
+            </button>
+          </div>
+        </section>
 
-      {/* Filter */}
-      <div className="mb-4">
-        <select
-          value={filterDept}
-          onChange={(e) => setFilterDept(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        >
-          <option value="All">All Departments</option>
-          {departments.map((dept) => (
-            <option key={dept.id} value={dept.id}>
-              {dept.departmentName}
-            </option>
-          ))}
-        </select>
-      </div>
+        <div className="max-w-5xl mx-auto w-full space-y-4">
+          {/* Filter */}
+          <div className="flex justify-center">
+            <select
+              value={filterDept}
+              onChange={(e) => setFilterDept(e.target.value)}
+              className="px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] text-sm"
+            >
+              <option value="All">All Departments</option>
+              {departments.map((dept) => (
+                <option key={dept.id} value={dept.id}>
+                  {dept.departmentName}
+                </option>
+              ))}
+            </select>
+          </div>
 
-      {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
-      {success && <SuccessMessage message={success} onDismiss={() => setSuccess('')} />}
+          {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
+          {success && <SuccessMessage message={success} onDismiss={() => setSuccess('')} />}
+        </div>
 
       {filteredItems.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <p className="text-gray-600">No service items found</p>
+        <div className="max-w-5xl mx-auto bg-[#FDFBF7] p-10 rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] text-center text-[#5D534A]">
+          No service items found
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredItems.map((item) => (
-            <div key={item.id} className="bg-white rounded-lg shadow overflow-hidden">
+            <div
+              key={item.id}
+              className="bg-[#FDFBF7] rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] overflow-hidden"
+            >
               {item.imageUrl && (
                 <img
                   src={getImageUrl(item.imageUrl)}
@@ -225,11 +239,13 @@ const ServiceItemsPage = () => {
                   }}
                 />
               )}
-              <div className="p-6">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-xl font-semibold text-gray-900">{item.name}</h3>
+              <div className="p-6 text-center">
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <h3 className="font-headline text-2xl font-bold text-[#4A3728] text-left">
+                    {item.name}
+                  </h3>
                   <span
-                    className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                    className={`px-3 py-1 text-[11px] font-bold rounded-full ${
                       item.isAvailable
                         ? 'bg-green-100 text-green-800'
                         : 'bg-red-100 text-red-800'
@@ -238,30 +254,34 @@ const ServiceItemsPage = () => {
                     {item.isAvailable ? 'Available' : 'Unavailable'}
                   </span>
                 </div>
-                <p className="text-sm text-gray-600 mb-2">{getDepartmentName(item.departmentId)}</p>
+                <p className="text-sm text-[#8E735B] mb-2">
+                  {getDepartmentName(item.departmentId)}
+                </p>
                 {item.requiredOptions && (
-                  <p className="text-xs text-gray-500 mb-2">
-                    Required options: {item.requiredOptions}
+                  <p className="text-xs text-[#5D534A] mb-2">
+                    <span className="font-semibold">Required options:</span> {item.requiredOptions}
                   </p>
                 )}
                 {item.description && (
-                  <p className="text-sm text-gray-600 mb-2">{item.description}</p>
+                  <p className="text-sm text-[#5D534A] mb-3">{item.description}</p>
                 )}
                 {item.price && (
-                  <p className="text-lg font-bold text-gray-900 mb-4">
+                  <p className="text-lg font-extrabold text-[#4A3728] mb-5">
                     ${parseFloat(item.price).toFixed(2)}
                   </p>
                 )}
-                <div className="flex space-x-2">
+                <div className="flex gap-2">
                   <button
+                    type="button"
                     onClick={() => handleOpenModal(item)}
-                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
+                    className="flex-1 px-4 py-3 bg-[#D35400] text-white rounded-2xl hover:bg-[#b94702] transition text-xs font-bold uppercase tracking-widest"
                   >
                     Edit
                   </button>
                   <button
+                    type="button"
                     onClick={() => handleDelete(item.id)}
-                    className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm"
+                    className="flex-1 px-4 py-3 bg-[#F2EBE1] text-[#4A3728] rounded-2xl hover:bg-[#E8DFD1] transition text-xs font-bold uppercase tracking-widest border border-[#E3DCD2]/40"
                   >
                     Delete
                   </button>
@@ -275,33 +295,33 @@ const ServiceItemsPage = () => {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
+          <div className="bg-[#FDFBF7] rounded-[28px] border border-[#E3DCD2]/40 shadow-2xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
+            <h3 className="font-headline text-2xl font-bold text-[#4A3728] mb-4">
               {editingItem ? 'Edit Service Item' : 'Add Service Item'}
             </h3>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-semibold text-[#4A3728] mb-1">
                   Name *
                 </label>
                 <input
                   type="text"
                   value={formData.Name}
                   onChange={(e) => setFormData({ ...formData, Name: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E]"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-semibold text-[#4A3728] mb-1">
                   Department *
                 </label>
                 <select
                   value={formData.DepartmentId}
                   onChange={(e) => setFormData({ ...formData, DepartmentId: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E]"
                   required
                 >
                   <option value="">Select Department</option>
@@ -314,19 +334,19 @@ const ServiceItemsPage = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-semibold text-[#4A3728] mb-1">
                   Description
                 </label>
                 <textarea
                   value={formData.Description}
                   onChange={(e) => setFormData({ ...formData, Description: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E]"
                   rows="3"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-semibold text-[#4A3728] mb-1">
                   Required Options (comma separated)
                 </label>
                 <input
@@ -335,16 +355,16 @@ const ServiceItemsPage = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, RequiredOptions: e.target.value })
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E]"
                   placeholder="e.g. Ice, Lemon"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-[#8E735B] mt-1">
                   These options will be used by the chatbot to ask for missing details.
                 </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-semibold text-[#4A3728] mb-1">
                   Price
                 </label>
                 <input
@@ -353,7 +373,7 @@ const ServiceItemsPage = () => {
                   min="0"
                   value={formData.Price}
                   onChange={(e) => setFormData({ ...formData, Price: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E]"
                 />
               </div>
 
@@ -365,25 +385,25 @@ const ServiceItemsPage = () => {
                     onChange={(e) => setFormData({ ...formData, IsAvailable: e.target.checked })}
                     className="mr-2"
                   />
-                  <span className="text-sm font-medium text-gray-700">Available</span>
+                  <span className="text-sm font-semibold text-[#4A3728]">Available</span>
                 </label>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-semibold text-[#4A3728] mb-1">
                   Image
                 </label>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E]"
                 />
                 {imagePreview && (
                   <img
                     src={imagePreview}
                     alt="Preview"
-                    className="mt-2 w-full h-48 object-cover rounded-lg"
+                    className="mt-2 w-full h-48 object-cover rounded-2xl border border-[#E3DCD2]/40"
                   />
                 )}
               </div>
@@ -391,14 +411,14 @@ const ServiceItemsPage = () => {
               <div className="flex space-x-3 pt-4">
                 <button
                   type="submit"
-                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition"
+                  className="flex-1 bg-[#4A3728] text-white py-3 px-4 rounded-2xl hover:bg-[#3a2b20] transition font-semibold"
                 >
                   {editingItem ? 'Update' : 'Create'}
                 </button>
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="flex-1 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition"
+                  className="flex-1 bg-[#F2EBE1] text-[#4A3728] py-3 px-4 rounded-2xl hover:bg-[#E8DFD1] transition font-semibold border border-[#E3DCD2]/40"
                 >
                   Cancel
                 </button>
@@ -407,6 +427,7 @@ const ServiceItemsPage = () => {
           </div>
         </div>
       )}
+      </div>
     </Layout>
   );
 };

@@ -49,29 +49,30 @@ const RoomLogin = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center overflow-hidden relative px-4">
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-gray-50/95 to-stone-100/80" />
+      <div className="absolute inset-0 bg-[#FDFBF7]" />
+      <div className="absolute inset-0 bg-[radial-gradient(600px_circle_at_15%_10%,rgba(211,84,0,0.10),transparent_55%),radial-gradient(800px_circle_at_85%_20%,rgba(74,55,40,0.10),transparent_60%)]" />
 
       <div
         className="relative w-full max-w-md login-card"
         style={{ animation: 'fadeInUp 0.6s ease-out' }}
       >
-        <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-slate-900/10 border border-slate-200/80 overflow-hidden">
-          <div className="h-1 bg-gradient-to-r from-slate-400 via-slate-500 to-slate-600" />
+        <div className="bg-white/90 backdrop-blur-xl rounded-[28px] shadow-2xl shadow-black/10 border border-[#E3DCD2]/50 overflow-hidden">
+          <div className="h-1 bg-gradient-to-r from-[#4A3728] via-[#8E735B] to-[#D35400]" />
 
           <div className="p-8 sm:p-10">
             <div className="flex items-center justify-between mb-6">
               <button
                 type="button"
                 onClick={() => navigate('/login')}
-                className="text-xs font-semibold text-slate-500 hover:text-slate-700"
+                className="text-xs font-semibold text-[#8E735B] hover:text-[#4A3728]"
               >
                 ← Back to login
               </button>
               <div className="flex-1 text-center">
-                <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
+                <h1 className="text-2xl font-bold text-[#4A3728] tracking-tight font-headline">
                   Room Login
                 </h1>
-                <p className="mt-2 text-sm text-slate-600 font-medium">
+                <p className="mt-2 text-sm text-[#5D534A] font-medium">
                   Enter your room number, QR code string and email address.
                 </p>
               </div>
@@ -79,7 +80,7 @@ const RoomLogin = () => {
 
             {error && (
               <div
-                className="mb-5 p-4 rounded-xl bg-red-50 border border-red-200/80 text-red-700 text-sm font-medium flex items-start gap-3 shadow-sm"
+                className="mb-5 p-4 rounded-2xl bg-[#FADBD8] border border-[#E3DCD2]/80 text-[#B22222] text-sm font-medium flex items-start gap-3 shadow-sm"
                 role="alert"
               >
                 <span>{error}</span>
@@ -95,7 +96,7 @@ const RoomLogin = () => {
                   type="number"
                   value={roomId}
                   onChange={(e) => setRoomId(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-50/60 rounded-xl border-2 border-slate-200 focus:border-slate-400 focus:outline-none text-slate-800 placeholder-slate-400 text-sm font-medium transition-colors"
+                  className="w-full px-4 py-3 bg-[#F2EBE1]/55 rounded-2xl border-2 border-[#E3DCD2]/70 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] placeholder:text-[#8E735B] text-sm font-medium transition-colors"
                   placeholder="e.g. 101"
                   required
                   disabled={loading}
@@ -110,7 +111,7 @@ const RoomLogin = () => {
                   type="text"
                   value={qrToken}
                   onChange={(e) => setQrToken(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-50/60 rounded-xl border-2 border-slate-200 focus:border-slate-400 focus:outline-none text-slate-800 placeholder-slate-400 text-sm font-medium transition-colors"
+                  className="w-full px-4 py-3 bg-[#F2EBE1]/55 rounded-2xl border-2 border-[#E3DCD2]/70 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] placeholder:text-[#8E735B] text-sm font-medium transition-colors"
                   placeholder="Paste QR token here"
                   required
                   disabled={loading}
@@ -125,7 +126,7 @@ const RoomLogin = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 bg-slate-50/60 rounded-xl border-2 border-slate-200 focus:border-slate-400 focus:outline-none text-slate-800 placeholder-slate-400 text-sm font-medium transition-colors"
+                  className="w-full px-4 py-3 bg-[#F2EBE1]/55 rounded-2xl border-2 border-[#E3DCD2]/70 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] placeholder:text-[#8E735B] text-sm font-medium transition-colors"
                   placeholder="e.g. guest@example.com"
                   required
                   disabled={loading}
@@ -135,7 +136,7 @@ const RoomLogin = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full mt-2 py-3.5 px-4 rounded-xl font-semibold text-white bg-slate-700 hover:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-slate-400/40 shadow-lg shadow-slate-900/20 hover:shadow-xl disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none transition-all duration-200 active:scale-[0.99]"
+                className="w-full mt-2 py-3.5 px-4 rounded-2xl font-semibold text-white bg-[#4A3728] hover:bg-[#3a2b20] focus:outline-none focus:ring-4 focus:ring-[#D35400]/20 shadow-lg shadow-black/15 hover:shadow-xl disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none transition-all duration-200 active:scale-[0.99]"
               >
                 {loading ? 'Signing in...' : 'Sign in as room'}
               </button>

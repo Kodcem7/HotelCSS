@@ -36,38 +36,37 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center overflow-hidden relative px-4">
-      {/* Background – soft neutral with slight warmth */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-gray-50/95 to-stone-100/80" />
+      <div className="absolute inset-0 bg-[#FDFBF7]" />
+      <div className="absolute inset-0 bg-[radial-gradient(600px_circle_at_15%_10%,rgba(211,84,0,0.10),transparent_55%),radial-gradient(800px_circle_at_85%_20%,rgba(74,55,40,0.10),transparent_60%)]" />
 
       {/* Card */}
       <div
         className="relative w-full max-w-md login-card"
         style={{ animation: 'fadeInUp 0.6s ease-out' }}
       >
-        <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-slate-900/10 border border-slate-200/80 overflow-hidden">
-          {/* Header strip – subtle accent */}
-          <div className="h-1 bg-gradient-to-r from-slate-400 via-slate-500 to-slate-600" />
+        <div className="bg-white/90 backdrop-blur-xl rounded-[28px] shadow-2xl shadow-black/10 border border-[#E3DCD2]/50 overflow-hidden">
+          <div className="h-1 bg-gradient-to-r from-[#4A3728] via-[#8E735B] to-[#D35400]" />
 
           <div className="p-8 sm:p-10">
             {/* Logo / Title */}
             <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-slate-700 text-white shadow-lg mb-4">
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#4A3728] text-white shadow-lg mb-4">
                 <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
               </div>
-              <h1 className="text-3xl font-bold text-slate-800 tracking-tight">
+              <h1 className="text-3xl font-bold text-[#4A3728] tracking-tight font-headline">
                 HotelCSS
               </h1>
-              <p className="mt-2 text-sm text-slate-600 font-medium">Sign in to your account</p>
+              <p className="mt-2 text-sm text-[#5D534A] font-medium">Sign in to your account</p>
             </div>
 
             {error && (
               <div
-                className="mb-5 p-4 rounded-xl bg-red-50 border border-red-200/80 text-red-700 text-sm font-medium flex items-start gap-3 shadow-sm"
+                className="mb-5 p-4 rounded-2xl bg-[#FADBD8] border border-[#E3DCD2]/80 text-[#B22222] text-sm font-medium flex items-start gap-3 shadow-sm"
                 role="alert"
               >
-                <svg className="w-5 h-5 flex-shrink-0 mt-0.5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-5 h-5 flex-shrink-0 mt-0.5 text-[#B22222]" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
                 <span>{error}</span>
@@ -80,11 +79,11 @@ const Login = () => {
                   Username
                 </label>
                 <div
-                  className={`relative rounded-xl border-2 bg-slate-50/50 transition-all duration-200 ${
-                    focused.user ? 'border-slate-400 shadow-md shadow-slate-500/10' : 'border-slate-200 hover:border-slate-300'
+                  className={`relative rounded-2xl border-2 bg-[#F2EBE1]/55 transition-all duration-200 ${
+                    focused.user ? 'border-[#D35400]/40 shadow-md shadow-black/5' : 'border-[#E3DCD2]/70 hover:border-[#D1C7BA]'
                   }`}
                 >
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8E735B]">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
@@ -96,7 +95,7 @@ const Login = () => {
                     onChange={(e) => setUserName(e.target.value)}
                     onFocus={() => setFocused((f) => ({ ...f, user: true }))}
                     onBlur={() => setFocused((f) => ({ ...f, user: false }))}
-                    className="w-full pl-12 pr-4 py-3.5 bg-transparent rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none font-medium transition-colors"
+                    className="w-full pl-12 pr-4 py-3.5 bg-transparent rounded-2xl text-[#2C241E] placeholder:text-[#8E735B] focus:outline-none font-medium transition-colors"
                     placeholder="Enter your username"
                     disabled={loading}
                     required
@@ -109,11 +108,11 @@ const Login = () => {
                   Password
                 </label>
                 <div
-                  className={`relative rounded-xl border-2 bg-slate-50/50 transition-all duration-200 ${
-                    focused.pass ? 'border-slate-400 shadow-md shadow-slate-500/10' : 'border-slate-200 hover:border-slate-300'
+                  className={`relative rounded-2xl border-2 bg-[#F2EBE1]/55 transition-all duration-200 ${
+                    focused.pass ? 'border-[#D35400]/40 shadow-md shadow-black/5' : 'border-[#E3DCD2]/70 hover:border-[#D1C7BA]'
                   }`}
                 >
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8E735B]">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
@@ -125,7 +124,7 @@ const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     onFocus={() => setFocused((f) => ({ ...f, pass: true }))}
                     onBlur={() => setFocused((f) => ({ ...f, pass: false }))}
-                    className="w-full pl-12 pr-4 py-3.5 bg-transparent rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none font-medium transition-colors"
+                    className="w-full pl-12 pr-4 py-3.5 bg-transparent rounded-2xl text-[#2C241E] placeholder:text-[#8E735B] focus:outline-none font-medium transition-colors"
                     placeholder="Enter your password"
                     disabled={loading}
                     required
@@ -136,7 +135,7 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full mt-2 py-3.5 px-4 rounded-xl font-semibold text-white bg-slate-700 hover:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-slate-400/40 shadow-lg shadow-slate-900/20 hover:shadow-xl disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none transition-all duration-200 active:scale-[0.99]"
+                className="w-full mt-2 py-3.5 px-4 rounded-2xl font-semibold text-white bg-[#4A3728] hover:bg-[#3a2b20] focus:outline-none focus:ring-4 focus:ring-[#D35400]/20 shadow-lg shadow-black/15 hover:shadow-xl disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none transition-all duration-200 active:scale-[0.99]"
               >
                 {loading ? (
                   <span className="flex items-center justify-center gap-2">
@@ -156,13 +155,13 @@ const Login = () => {
               <div className="flex items-center gap-4">
                 <Link
                   to="/room-login"
-                  className="font-semibold text-slate-700 hover:text-slate-900"
+                  className="font-semibold text-[#4A3728] hover:text-[#D35400]"
                 >
                   Room login
                 </Link>
                 <Link
                   to="/forgot-password"
-                  className="font-semibold text-slate-700 hover:text-slate-900"
+                  className="font-semibold text-[#4A3728] hover:text-[#D35400]"
                 >
                   Forgot password?
                 </Link>

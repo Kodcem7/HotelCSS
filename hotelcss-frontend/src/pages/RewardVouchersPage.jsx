@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
@@ -61,104 +61,108 @@ const RewardVouchersPage = () => {
 
     return (
         <Layout>
-            <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h2 className="text-2xl font-bold text-gray-900">Reward Vouchers</h2>
-                    <p className="text-gray-600 mt-1 text-sm">
+            <div className="p-10 space-y-8 max-w-7xl mx-auto">
+                <section className="text-center max-w-3xl mx-auto">
+                    <h2 className="font-headline text-[52px] text-[#4A3728] mb-2 font-bold leading-tight">
+                        Reward Vouchers
+                    </h2>
+                    <p className="text-[14px] text-[#5D534A] leading-relaxed">
                         View and manage guest reward vouchers generated from points.
                     </p>
-                </div>
+                </section>
 
-                {/* 👇 NEW: The Filter Dropdown UI */}
-                <div className="flex items-center gap-2 bg-white p-2 rounded-lg border border-gray-200 shadow-sm">
-                    <label htmlFor="status-filter" className="text-sm font-medium text-gray-700 pl-2">
-                        Filter by:
-                    </label>
-                    <select
-                        id="status-filter"
-                        value={filterStatus}
-                        onChange={(e) => setFilterStatus(e.target.value)}
-                        className="text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 border p-1.5 outline-none cursor-pointer"
-                    >
-                        {/* Make sure these values match your exact C# statuses! */}
-                        <option value="All">All Vouchers</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Completed">Completed</option>
-                        <option value="Cancelled">Cancelled</option>
-                    </select>
-                </div>
-            </div>
-
-            {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
-
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                {/* 👇 Notice we check filteredVouchers.length now, not vouchers.length */}
-                {filteredVouchers.length === 0 ? (
-                    <div className="p-8 text-center text-gray-500">
-                        {vouchers.length === 0
-                            ? "No vouchers found in the system."
-                            : `No vouchers found with status: ${filterStatus}`}
+                <div className="max-w-5xl mx-auto w-full space-y-4">
+                    <div className="flex justify-center">
+                        <div className="flex items-center gap-3 bg-[#FDFBF7] px-4 py-3 rounded-[22px] border border-[#E3DCD2]/40 shadow-sm">
+                            <label htmlFor="status-filter" className="text-sm font-semibold text-[#4A3728]">
+                                Filter by
+                            </label>
+                            <select
+                                id="status-filter"
+                                value={filterStatus}
+                                onChange={(e) => setFilterStatus(e.target.value)}
+                                className="px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] text-sm outline-none cursor-pointer"
+                            >
+                                <option value="All">All Vouchers</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+                        </div>
                     </div>
-                ) : (
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Room</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item / Reward</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {/* 👇 Notice we map over filteredVouchers now! */}
-                                {filteredVouchers.map((v) => (
-                                    <tr key={v.id} className="hover:bg-gray-50 transition-colors">
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm font-bold text-gray-900">Room {v.roomNumber}</div>
-                                            <div className="text-xs text-gray-500">{new Date(v.createdAt).toLocaleDateString()}</div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm font-medium text-gray-900">{v.itemName}</div>
-                                            <div className="text-xs text-green-600 font-semibold">{v.pointsPaid} Points Paid</div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="font-mono text-sm font-bold tracking-wider text-blue-700 bg-blue-50 px-2 py-1 rounded border border-blue-100">
-                                                {v.voucherCode}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                ${v.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                                                    v.status === 'Completed' || v.status === 'Redeemed' ? 'bg-green-100 text-green-800' :
-                                                        'bg-gray-100 text-gray-800'}`}>
-                                                {v.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            {v.status === 'Pending' ? (
-                                                <button
-                                                    onClick={() => handleStatusChange(v.id, 'Completed')}
-                                                    className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-green-600 hover:bg-green-700 transition"
-                                                >
-                                                    Mark Completed
-                                                </button>
-                                            ) : (
-                                                <button
-                                                    onClick={() => handleStatusChange(v.id, 'Pending')}
-                                                    className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded shadow-sm text-gray-700 bg-white hover:bg-gray-50 transition"
-                                                >
-                                                    Revert to Pending
-                                                </button>
-                                            )}
-                                        </td>
+
+                    {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
+                </div>
+
+                <div className="max-w-6xl mx-auto bg-[#FDFBF7] rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] overflow-hidden">
+                    {filteredVouchers.length === 0 ? (
+                        <div className="p-10 text-center text-[#5D534A]">
+                            {vouchers.length === 0
+                                ? "No vouchers found in the system."
+                                : `No vouchers found with status: ${filterStatus}`}
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full divide-y divide-[#E3DCD2]/50">
+                                <thead className="bg-[#F2EBE1]/55">
+                                    <tr>
+                                        <th className="px-6 py-3 text-left text-[11px] font-bold text-[#8E735B] uppercase tracking-widest">Room</th>
+                                        <th className="px-6 py-3 text-left text-[11px] font-bold text-[#8E735B] uppercase tracking-widest">Item / Reward</th>
+                                        <th className="px-6 py-3 text-left text-[11px] font-bold text-[#8E735B] uppercase tracking-widest">Code</th>
+                                        <th className="px-6 py-3 text-left text-[11px] font-bold text-[#8E735B] uppercase tracking-widest">Status</th>
+                                        <th className="px-6 py-3 text-right text-[11px] font-bold text-[#8E735B] uppercase tracking-widest">Actions</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
+                                </thead>
+                                <tbody className="divide-y divide-[#E3DCD2]/40">
+                                    {filteredVouchers.map((v) => (
+                                        <tr key={v.id} className="hover:bg-[#F2EBE1]/35 transition-colors">
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="text-[13px] font-semibold text-[#4A3728]">Room {v.roomNumber}</div>
+                                                <div className="text-xs text-[#8E735B]">{new Date(v.createdAt).toLocaleDateString()}</div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="text-[13px] font-semibold text-[#2C241E]">{v.itemName}</div>
+                                                <div className="text-xs text-[#1B7F4B] font-bold">{v.pointsPaid} Points Paid</div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span className="font-mono text-[13px] font-bold tracking-wider text-[#4A3728] bg-[#F2EBE1] px-3 py-1.5 rounded-full border border-[#E3DCD2]/50">
+                                                    {v.voucherCode}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                                    ${v.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+                                                        v.status === 'Completed' || v.status === 'Redeemed' ? 'bg-green-100 text-green-800' :
+                                                            'bg-gray-100 text-gray-800'}`}>
+                                                    {v.status}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-right">
+                                                {v.status === 'Pending' ? (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleStatusChange(v.id, 'Completed')}
+                                                        className="inline-flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-widest rounded-2xl bg-[#D35400] text-white hover:bg-[#b94702] transition"
+                                                    >
+                                                        Mark Completed
+                                                    </button>
+                                                ) : (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleStatusChange(v.id, 'Pending')}
+                                                        className="inline-flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-widest rounded-2xl bg-[#F2EBE1] text-[#4A3728] hover:bg-[#E8DFD1] transition border border-[#E3DCD2]/40"
+                                                    >
+                                                        Revert to Pending
+                                                    </button>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
             </div>
         </Layout>
     );

@@ -76,7 +76,11 @@ const quickLinks = [
 
 const AdminDashboard = () => {
     const location = useLocation();
-    const isAdminDashboardSuite = location.pathname === '/admin' || location.pathname === '/admin/';
+    const isAdminDashboardSuite =
+        location.pathname === '/admin' ||
+        location.pathname === '/admin/' ||
+        location.pathname === '/manager' ||
+        location.pathname === '/manager/';
 
     const [stats, setStats] = useState({
         totalStaff: 0,

@@ -77,25 +77,28 @@ const RoomReceptionRequestPage = () => {
 
   return (
     <Layout>
-      <div className="max-w-2xl mx-auto">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Reception Requests</h2>
-        <p className="text-gray-600 mb-6">
-          Resepsiyondan farklı hizmetler talep edebilir veya mevcut bilgileri
-          görüntüleyebilirsiniz.
-        </p>
+      <div className="p-10 space-y-10 max-w-7xl mx-auto">
+        <section>
+          <h2 className="font-headline text-[52px] text-[#4A3728] mb-2 font-bold leading-tight">
+            Reception Requests
+          </h2>
+          <p className="text-[14px] text-[#5D534A] leading-relaxed">
+            Resepsiyondan hizmet talep edebilir veya mevcut bilgileri görüntüleyebilirsiniz.
+          </p>
+        </section>
 
         {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
         {success && <SuccessMessage message={success} onDismiss={() => setSuccess('')} />}
 
         {/* Request type selector */}
-        <div className="mb-6 flex gap-3">
+        <div className="flex gap-3 max-w-3xl mx-auto">
           <button
             type="button"
             onClick={() => setSelectedType('wake-up')}
-            className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg border transition ${
+            className={`flex-1 px-4 py-3 text-sm font-semibold rounded-2xl border transition ${
               selectedType === 'wake-up'
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                ? 'bg-[#4A3728] text-white border-[#4A3728]'
+                : 'bg-[#F2EBE1] text-[#4A3728] border-[#E3DCD2]/50 hover:bg-[#E8DFD1]'
             }`}
           >
             Wake-up Service
@@ -103,10 +106,10 @@ const RoomReceptionRequestPage = () => {
           <button
             type="button"
             onClick={() => setSelectedType('pickup-info')}
-            className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg border transition ${
+            className={`flex-1 px-4 py-3 text-sm font-semibold rounded-2xl border transition ${
               selectedType === 'pickup-info'
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                ? 'bg-[#4A3728] text-white border-[#4A3728]'
+                : 'bg-[#F2EBE1] text-[#4A3728] border-[#E3DCD2]/50 hover:bg-[#E8DFD1]'
             }`}
           >
             Learn Pick-Up Time
@@ -117,19 +120,19 @@ const RoomReceptionRequestPage = () => {
         {selectedType === 'wake-up' && (
             <form
               onSubmit={handleSubmit}
-              className="bg-white rounded-lg shadow p-6 space-y-6 mb-8"
+              className="bg-[#FDFBF7] rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] p-8 space-y-6 max-w-3xl mx-auto"
             >
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-semibold text-[#4A3728] mb-1">
                   Room
                 </label>
-                <p className="px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-800">
+                <p className="px-4 py-3 border border-[#E3DCD2]/50 rounded-2xl bg-[#F2EBE1]/55 text-[#2C241E] font-semibold">
                   {user?.username}
                 </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-semibold text-[#4A3728] mb-1">
                   Wake-up Time *
                 </label>
                 <input
@@ -138,16 +141,16 @@ const RoomReceptionRequestPage = () => {
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, ScheduledTime: e.target.value }))
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E]"
                   required
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-[#8E735B] mt-1">
                   Lütfen uyanmak istediğiniz tarihi ve saati seçin.
                 </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-semibold text-[#4A3728] mb-1">
                   Notes (optional)
                 </label>
                 <textarea
@@ -155,7 +158,7 @@ const RoomReceptionRequestPage = () => {
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, Notes: e.target.value }))
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] placeholder:text-[#8E735B]"
                   rows="3"
                   placeholder="Örneğin: Lütfen nazikçe uyandırın."
                 />
@@ -165,7 +168,7 @@ const RoomReceptionRequestPage = () => {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 bg-[#4A3728] text-white py-3 px-4 rounded-2xl hover:bg-[#3a2b20] transition disabled:opacity-60 disabled:cursor-not-allowed font-semibold"
                 >
                   {submitting ? 'Gönderiliyor...' : 'Wake-up Request Oluştur'}
                 </button>
@@ -175,33 +178,33 @@ const RoomReceptionRequestPage = () => {
 
         {/* Learn Pick-Up Time view */}
         {selectedType === 'pickup-info' && (
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <div className="bg-[#FDFBF7] rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] p-8 max-w-3xl mx-auto">
+            <h3 className="font-headline text-2xl text-[#4A3728] font-bold mb-2">
               Learn Pick-Up Time
             </h3>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-[14px] text-[#5D534A] mb-6 leading-relaxed">
               Resepsiyon tarafından sizin için tanımlanmış pick-up (transfer) saati
               varsa aşağıda görebilirsiniz.
             </p>
             {loadingPickup ? (
               <LoadingSpinner text="Yükleniyor..." />
             ) : pickupInfos.length === 0 ? (
-              <p className="text-gray-500 text-sm">
+              <p className="text-[#8E735B] text-sm">
                 Şu anda odanız için tanımlı bir pick-up zamanı bulunmuyor.
               </p>
             ) : (
-              <ul className="divide-y divide-gray-200">
+              <ul className="divide-y divide-[#E3DCD2]/50">
                 {pickupInfos.map((info) => (
                   <li key={info.id} className="py-3 flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-semibold text-[#4A3728]">
                         {new Date(info.pickUpTime).toLocaleString()}
                       </p>
                       {info.notes && (
-                        <p className="text-xs text-gray-500 mt-0.5">{info.notes}</p>
+                        <p className="text-xs text-[#8E735B] mt-1">{info.notes}</p>
                       )}
                     </div>
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                    <span className="px-2.5 py-1 inline-flex text-[11px] leading-5 font-bold rounded-full bg-[#F2EBE1] text-[#4A3728] border border-[#E3DCD2]/40">
                       {info.status}
                     </span>
                   </li>

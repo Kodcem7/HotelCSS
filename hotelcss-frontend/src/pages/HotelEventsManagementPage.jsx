@@ -243,40 +243,47 @@ const HotelEventsManagementPage = () => {
 
   return (
     <Layout>
-      <div className="mb-6 flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Hotel Events Management</h2>
-          <p className="text-gray-600 mt-1 text-sm">
+      <div className="p-10 space-y-8 max-w-7xl mx-auto">
+        <section className="text-center max-w-3xl mx-auto">
+          <h2 className="font-headline text-[52px] text-[#4A3728] mb-2 font-bold leading-tight">
+            Hotel Events
+          </h2>
+          <p className="text-[14px] text-[#5D534A] leading-relaxed">
             Create announcements, meal menus and bonus point campaigns for guests.
           </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => openModal()}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-semibold"
-        >
-          + Add Event
-        </button>
-      </div>
-
-      {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
-      {success && <SuccessMessage message={success} onDismiss={() => setSuccess('')} />}
-
-      {events.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-8 text-center text-gray-600">
-          No hotel events defined yet.
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {events.map((ev) => (
-            <div
-              key={ev.id}
-              className="bg-white rounded-lg shadow p-5 flex flex-col justify-between"
+          <div className="mt-6">
+            <button
+              type="button"
+              onClick={() => openModal()}
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl font-bold text-[12px] uppercase tracking-widest bg-[#4A3728] text-white hover:bg-[#3a2b20] transition shadow-sm"
             >
+              Add Event <span className="material-symbols-outlined text-sm">add</span>
+            </button>
+          </div>
+        </section>
+
+        <div className="max-w-5xl mx-auto w-full">
+          {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
+          {success && <SuccessMessage message={success} onDismiss={() => setSuccess('')} />}
+        </div>
+
+        {events.length === 0 ? (
+          <div className="max-w-5xl mx-auto bg-[#FDFBF7] p-10 rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] text-center text-[#5D534A]">
+            No hotel events defined yet.
+          </div>
+        ) : (
+          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {events.map((ev) => (
+              <div
+                key={ev.id}
+                className="bg-[#FDFBF7] rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] p-6 flex flex-col justify-between"
+              >
               <div>
                 <div className="flex items-start justify-between mb-2">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{ev.title}</h3>
+                    <h3 className="font-headline text-xl font-bold text-[#4A3728]">
+                      {ev.title}
+                    </h3>
                     {ev.eventType && (
                       <span
                         className={`mt-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${renderTypeBadge(
@@ -297,11 +304,11 @@ const HotelEventsManagementPage = () => {
                 </div>
 
                 {ev.description && (
-                  <p className="text-sm text-gray-700 mt-2 line-clamp-3">{ev.description}</p>
+                  <p className="text-sm text-[#5D534A] mt-2 line-clamp-3">{ev.description}</p>
                 )}
 
                 {(ev.startDate || ev.endDate) && (
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-xs text-[#8E735B] mt-2">
                     {ev.startDate && (
                       <>
                         <span className="font-medium">Start:</span>{' '}
@@ -335,14 +342,14 @@ const HotelEventsManagementPage = () => {
                 <button
                   type="button"
                   onClick={() => openModal(ev)}
-                  className="flex-1 px-3 py-2 text-xs font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+                  className="flex-1 px-4 py-3 text-xs font-bold uppercase tracking-widest rounded-2xl bg-[#D35400] text-white hover:bg-[#b94702] transition"
                 >
                   Edit
                 </button>
                 <button
                   type="button"
                   onClick={() => handleDelete(ev)}
-                  className="flex-1 px-3 py-2 text-xs font-semibold rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
+                  className="flex-1 px-4 py-3 text-xs font-bold uppercase tracking-widest rounded-2xl bg-[#F2EBE1] text-[#4A3728] hover:bg-[#E8DFD1] transition border border-[#E3DCD2]/40"
                 >
                   Delete
                 </button>
@@ -354,27 +361,27 @@ const HotelEventsManagementPage = () => {
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-xl w-full max-h-[90vh] overflow-y-auto p-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
+          <div className="bg-[#FDFBF7] rounded-[28px] border border-[#E3DCD2]/40 shadow-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto p-6">
+            <h3 className="font-headline text-2xl font-bold text-[#4A3728] mb-4">
               {editingEvent ? 'Edit Event' : 'Create Event'}
             </h3>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-semibold text-[#4A3728] mb-1">
                   Title *
                 </label>
                 <input
                   type="text"
                   value={formData.Title}
                   onChange={(e) => setFormData({ ...formData, Title: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] text-sm"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-semibold text-[#4A3728] mb-1">
                   Description
                 </label>
                 <textarea
@@ -383,13 +390,13 @@ const HotelEventsManagementPage = () => {
                     setFormData({ ...formData, Description: e.target.value })
                   }
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] text-sm"
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-semibold text-[#4A3728] mb-1">
                     Event Type
                   </label>
                   <select
@@ -397,7 +404,7 @@ const HotelEventsManagementPage = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, EventType: e.target.value })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] text-sm"
                   >
                     {EVENT_TYPES.map((t) => (
                       <option key={t.value} value={t.value}>
@@ -408,7 +415,7 @@ const HotelEventsManagementPage = () => {
                 </div>
 
                 <div className="flex items-center mt-6 md:mt-0">
-                  <label className="flex items-center text-sm font-medium text-gray-700">
+                  <label className="flex items-center text-sm font-semibold text-[#4A3728]">
                     <input
                       type="checkbox"
                       checked={formData.IsActive}
@@ -424,7 +431,7 @@ const HotelEventsManagementPage = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-semibold text-[#4A3728] mb-1">
                     Start Date/Time
                   </label>
                   <input
@@ -433,11 +440,11 @@ const HotelEventsManagementPage = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, StartDate: e.target.value })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] text-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-semibold text-[#4A3728] mb-1">
                     End Date/Time
                   </label>
                   <input
@@ -446,14 +453,14 @@ const HotelEventsManagementPage = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, EndDate: e.target.value })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] text-sm"
                   />
                 </div>
               </div>
 
               {formData.EventType === 'BonusPoint' && editingEvent && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-semibold text-[#4A3728] mb-1">
                     Extra Points
                   </label>
                   <input
@@ -466,9 +473,9 @@ const HotelEventsManagementPage = () => {
                         BonusPoints: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] text-sm"
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-[#8E735B] mt-1">
                     Editing an existing BonusPoint event updates its bonus points (single rule).
                   </p>
                 </div>
@@ -496,7 +503,7 @@ const HotelEventsManagementPage = () => {
                           ],
                         })
                       }
-                      className="px-3 py-2 text-xs font-semibold rounded-lg bg-amber-600 text-white hover:bg-amber-700 transition"
+                      className="px-4 py-3 text-xs font-bold uppercase tracking-widest rounded-2xl bg-[#D35400] text-white hover:bg-[#b94702] transition"
                     >
                       + Add rule
                     </button>
@@ -525,7 +532,7 @@ const HotelEventsManagementPage = () => {
                                 };
                                 setFormData({ ...formData, BonusRules: next });
                               }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm"
+                              className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-white/70 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] text-sm"
                             >
                               <option value="AllItems">All Items</option>
                               <option value="SpecificItem">Specific Item</option>
@@ -544,7 +551,7 @@ const HotelEventsManagementPage = () => {
                                 setFormData({ ...formData, BonusRules: next });
                               }}
                               disabled={(rule.CampaignType || 'AllItems') !== 'SpecificItem'}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm disabled:bg-gray-100"
+                              className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-white/70 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] text-sm disabled:bg-gray-100"
                             >
                               <option value="">Select service item...</option>
                               {serviceItems.map((it) => (
@@ -568,7 +575,7 @@ const HotelEventsManagementPage = () => {
                                 next[idx] = { ...next[idx], BonusPoints: e.target.value };
                                 setFormData({ ...formData, BonusRules: next });
                               }}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm"
+                              className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-white/70 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] text-sm"
                             />
                           </div>
                         </div>
@@ -587,7 +594,7 @@ const HotelEventsManagementPage = () => {
                                     : [{ ServiceItemId: '', BonusPoints: 0, CampaignType: 'AllItems' }],
                               });
                             }}
-                            className="px-3 py-2 text-xs font-semibold rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition"
+                            className="px-4 py-3 text-xs font-bold uppercase tracking-widest rounded-2xl bg-[#F2EBE1] text-[#4A3728] hover:bg-[#E8DFD1] transition border border-[#E3DCD2]/40"
                           >
                             Remove
                           </button>
@@ -600,7 +607,7 @@ const HotelEventsManagementPage = () => {
 
               {formData.EventType === 'Meal' && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-semibold text-[#4A3728] mb-1">
                     Meal Info (breakfast / lunch / dinner details)
                   </label>
                   <textarea
@@ -609,7 +616,7 @@ const HotelEventsManagementPage = () => {
                       setFormData({ ...formData, MealInfo: e.target.value })
                     }
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] text-sm"
                     placeholder="e.g. Breakfast: ...&#10;Lunch: ...&#10;Dinner: ..."
                     required
                   />
@@ -620,13 +627,13 @@ const HotelEventsManagementPage = () => {
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="px-4 py-2 text-sm font-semibold rounded-lg bg-gray-100 text-gray-800 hover:bg-gray-200 transition"
+                  className="px-4 py-3 text-xs font-bold uppercase tracking-widest rounded-2xl bg-[#F2EBE1] text-[#4A3728] hover:bg-[#E8DFD1] transition border border-[#E3DCD2]/40"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+                  className="px-4 py-3 text-xs font-bold uppercase tracking-widest rounded-2xl bg-[#4A3728] text-white hover:bg-[#3a2b20] transition"
                 >
                   {editingEvent ? 'Update Event' : 'Create Event'}
                 </button>
@@ -635,6 +642,7 @@ const HotelEventsManagementPage = () => {
           </div>
         </div>
       )}
+      </div>
     </Layout>
   );
 };
