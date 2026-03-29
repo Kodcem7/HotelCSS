@@ -52,6 +52,36 @@
     --font-headline: "Noto Serif", serif;
     --font-body: "Inter", sans-serif;
     --font-label: "Inter", sans-serif;
+
+    /* Concierge / terracotta editorial (login, reception accents) */
+    --color-concierge-background: #fff8f5;
+    --color-concierge-surface: #fff8f5;
+    --color-concierge-surface-bright: #fff8f5;
+    --color-concierge-surface-dim: #e8d7cf;
+    --color-concierge-surface-container: #fceae0;
+    --color-concierge-surface-container-low: #fff1ea;
+    --color-concierge-surface-container-high: #f6ebe5;
+    --color-concierge-surface-container-lowest: #ffffff;
+    --color-concierge-surface-container-highest: #e5e2de;
+    --color-concierge-surface-variant: #f4e0d4;
+    --color-concierge-on-surface: #201a18;
+    --color-concierge-on-background: #201a18;
+    --color-concierge-on-surface-variant: #53433f;
+    --color-concierge-primary: #d35400;
+    --color-concierge-primary-container: #e86e30;
+    --color-concierge-on-primary: #ffffff;
+    --color-concierge-on-primary-container: #ffffff;
+    --color-concierge-outline: #85736d;
+    --color-concierge-outline-variant: #d8c2bb;
+    --color-concierge-secondary: #705d48;
+    --color-concierge-secondary-container: #fbdcb9;
+    --color-concierge-on-secondary-container: #27190b;
+    --color-concierge-inverse-surface: #362f2c;
+    --color-concierge-error: #ba1a1a;
+    --color-concierge-error-container: #ffdad6;
+    --color-concierge-on-error-container: #410002;
+    --color-concierge-primary-fixed-dim: #fbbca3;
+    --radius-concierge-card: 3rem;
 }
 
 /* Base styles – applied even if Tailwind loads late */
@@ -62,7 +92,7 @@
 body {
     margin: 0;
     min-height: 100vh;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    font-family: var(--font-body), system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 50%, #fafafa 100%);
@@ -70,4 +100,18 @@ body {
 
 code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+.concierge-glass-panel {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+}
+
+.concierge-editorial-shadow {
+    box-shadow: 0 40px 100px -20px rgba(211, 84, 0, 0.12);
+}
+
+.concierge-hero-gradient {
+    background: linear-gradient(135deg, #d35400 0%, #e86e30 100%);
 }

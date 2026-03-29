@@ -31,13 +31,13 @@ const ReceptionServicesPage = () => {
   const getStatusBadgeClass = (status) => {
     switch (status) {
       case 'Pending':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-concierge-secondary-container text-concierge-on-secondary-container';
       case 'InProcess':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-concierge-primary-fixed-dim/40 text-concierge-on-background';
       case 'Completed':
-        return 'bg-green-100 text-green-800';
+        return 'bg-emerald-100 text-emerald-900';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-concierge-surface-container-high text-concierge-on-surface-variant';
     }
   };
 
@@ -200,212 +200,228 @@ const ReceptionServicesPage = () => {
     );
   }
 
+  const inputClass =
+    'w-full px-4 py-3 bg-concierge-surface-container-low border-none rounded-full text-concierge-on-surface text-sm focus:ring-2 focus:ring-concierge-primary/25 focus:bg-concierge-surface-container-lowest transition-all placeholder:text-concierge-outline/45';
+  const textareaClass =
+    'w-full px-4 py-3 bg-concierge-surface-container-low border-none rounded-2xl text-concierge-on-surface text-sm focus:ring-2 focus:ring-concierge-primary/25 focus:bg-concierge-surface-container-lowest transition-all placeholder:text-concierge-outline/45';
+
   return (
     <Layout>
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Reception Services</h2>
-        <p className="text-gray-600 mt-1">
-          Manage wake-up services and pick-up times for guests.
-        </p>
-      </div>
+      <div className="-mx-4 sm:-mx-6 px-4 sm:px-6 py-2 min-h-[calc(100vh-6rem)] bg-concierge-background rounded-[2rem] sm:rounded-[3rem] border border-concierge-outline-variant/20 concierge-editorial-shadow">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-8 pt-2">
+            <span className="inline-block py-1.5 px-4 rounded-full bg-concierge-secondary-container text-concierge-on-secondary-container text-[10px] font-bold tracking-widest uppercase mb-3">
+              Concierge operations
+            </span>
+            <h2 className="font-headline text-3xl sm:text-4xl text-concierge-on-background tracking-tight">
+              Reception services
+            </h2>
+            <p className="text-concierge-on-surface-variant font-light text-lg mt-2 max-w-2xl">
+              Manage wake-up calls and pick-up times with the same editorial clarity as the guest-facing portal.
+            </p>
+          </div>
 
-      {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
-      {success && <SuccessMessage message={success} onDismiss={() => setSuccess('')} />}
+          {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
+          {success && <SuccessMessage message={success} onDismiss={() => setSuccess('')} />}
 
-      {/* Pick-up time creation / update form */}
-      <div className="mb-8 bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          Pick-up Zamanı Gir / Güncelle
-        </h3>
-        <p className="text-sm text-gray-600 mb-4">
-          Oda numarası girerek misafirler için yeni bir pick-up (transfer) saati
-          tanımlayabilir veya mevcut zamanı güncelleyebilirsiniz.
-        </p>
-        <form
-          onSubmit={handlePickupSubmit}
-          className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end"
-        >
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Room Number *
-            </label>
-            <input
-              type="number"
-              min="1"
-              value={pickupForm.roomNumber}
-              onChange={(e) =>
-                setPickupForm((prev) => ({ ...prev, roomNumber: e.target.value }))
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Örn: 101"
-              required
-            />
+          <div className="mb-8 bg-concierge-surface-container-lowest/90 backdrop-blur-sm rounded-[2rem] p-6 sm:p-8 border border-concierge-outline-variant/15 concierge-editorial-shadow">
+            <h3 className="font-headline text-xl text-concierge-on-background mb-1">
+              Pick-up zamanı gir / güncelle
+            </h3>
+            <p className="text-sm text-concierge-on-surface-variant mb-6">
+              Oda numarası girerek misafirler için yeni bir pick-up (transfer) saati tanımlayabilir veya mevcut zamanı
+              güncelleyebilirsiniz.
+            </p>
+            <form onSubmit={handlePickupSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
+              <div>
+                <label className="block text-[10px] font-bold tracking-widest uppercase text-concierge-outline mb-2 ml-1">
+                  Room number *
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={pickupForm.roomNumber}
+                  onChange={(e) =>
+                    setPickupForm((prev) => ({ ...prev, roomNumber: e.target.value }))
+                  }
+                  className={inputClass}
+                  placeholder="Örn: 101"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold tracking-widest uppercase text-concierge-outline mb-2 ml-1">
+                  Pick-up time *
+                </label>
+                <input
+                  type="datetime-local"
+                  value={pickupForm.ScheduledTime}
+                  onChange={(e) =>
+                    setPickupForm((prev) => ({ ...prev, ScheduledTime: e.target.value }))
+                  }
+                  className={`${inputClass} rounded-2xl`}
+                  required
+                />
+              </div>
+              <div className="md:col-span-3">
+                <label className="block text-[10px] font-bold tracking-widest uppercase text-concierge-outline mb-2 ml-1">
+                  Notes (optional)
+                </label>
+                <textarea
+                  rows={2}
+                  value={pickupForm.Notes}
+                  onChange={(e) =>
+                    setPickupForm((prev) => ({ ...prev, Notes: e.target.value }))
+                  }
+                  className={textareaClass}
+                  placeholder="Örneğin: Havaalanı transferi, otelden 2 saat önce çıkış."
+                />
+              </div>
+              <div className="md:col-span-3 flex justify-end pt-2">
+                <button
+                  type="submit"
+                  disabled={pickupSubmitting}
+                  className="concierge-hero-gradient text-white py-3.5 px-8 rounded-full text-sm font-semibold uppercase tracking-widest shadow-lg shadow-concierge-primary/20 hover:shadow-concierge-primary/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.99]"
+                >
+                  {pickupSubmitting ? 'Kaydediliyor...' : 'Pick-up zamanı kaydet'}
+                </button>
+              </div>
+            </form>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Pick-up Time *
-            </label>
-            <input
-              type="datetime-local"
-              value={pickupForm.ScheduledTime}
-              onChange={(e) =>
-                setPickupForm((prev) => ({ ...prev, ScheduledTime: e.target.value }))
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              required
-            />
-          </div>
-          <div className="md:col-span-3">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Notes (optional)
-            </label>
-            <textarea
-              rows="2"
-              value={pickupForm.Notes}
-              onChange={(e) =>
-                setPickupForm((prev) => ({ ...prev, Notes: e.target.value }))
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Örneğin: Havaalanı transferi, otelden 2 saat önce çıkış."
-            />
-          </div>
-          <div className="md:col-span-3 flex justify-end">
-            <button
-              type="submit"
-              disabled={pickupSubmitting}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {pickupSubmitting ? 'Kaydediliyor...' : 'Pick-up Zamanı Kaydet'}
-            </button>
-          </div>
-        </form>
-      </div>
 
-      {services.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-6 text-center text-gray-500">
-          No reception services found.
-        </div>
-      ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Room
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Type
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Time
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Notes
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {services.map((service) => {
-                  const isWakeUp = service.requestType === 'Wake-Up Service';
-                  const time = isWakeUp ? service.scheduledTime : service.pickUpTime;
-                  return (
-                    <tr key={service.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        Room {service.roomNumber}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {service.requestType}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {editingId === service.id ? (
-                          <input
-                            type="datetime-local"
-                            value={editingTime}
-                            onChange={(e) => setEditingTime(e.target.value)}
-                            className="px-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs"
-                          />
-                        ) : time ? (
-                          new Date(time).toLocaleString()
-                        ) : (
-                          '-'
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(
-                            service.status
-                          )}`}
-                        >
-                          {service.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 max-w-xs truncate">
-                        {service.notes || '-'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                        {editingId === service.id ? (
-                          <>
-                            <button
-                              onClick={() => saveEdit(service)}
-                              className="text-green-600 hover:text-green-900 text-xs"
-                            >
-                              Save
-                            </button>
-                            <button
-                              onClick={cancelEdit}
-                              className="text-gray-600 hover:text-gray-900 text-xs"
-                            >
-                              Cancel
-                            </button>
-                          </>
-                        ) : (
-                          <button
-                            onClick={() => startEdit(service)}
-                            className="text-blue-600 hover:text-blue-900 text-xs"
-                          >
-                            Edit Time
-                          </button>
-                        )}
-                        {service.status === 'Pending' && (
-                          <button
-                            onClick={() => handleStatusChange(service, 'InProcess')}
-                            className="text-blue-600 hover:text-blue-900 text-xs"
-                          >
-                            Start
-                          </button>
-                        )}
-                        {service.status === 'InProcess' && (
-                          <button
-                            onClick={() => handleStatusChange(service, 'Completed')}
-                            className="text-green-600 hover:text-green-900 text-xs"
-                          >
-                            Complete
-                          </button>
-                        )}
-                        {service.status === 'Completed' && (
-                          <button
-                            onClick={() => handleDelete(service)}
-                            className="text-red-600 hover:text-red-900 text-xs"
-                          >
-                            Delete
-                          </button>
-                        )}
-                      </td>
+          {services.length === 0 ? (
+            <div className="bg-concierge-surface-container-lowest/80 rounded-[2rem] p-10 text-center text-concierge-on-surface-variant border border-concierge-outline-variant/10">
+              No reception services found.
+            </div>
+          ) : (
+            <div className="bg-concierge-surface-container-lowest/90 rounded-[2rem] overflow-hidden border border-concierge-outline-variant/15 concierge-editorial-shadow">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-concierge-outline-variant/20">
+                  <thead className="bg-concierge-surface-container-high/80">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-[10px] font-bold text-concierge-outline uppercase tracking-widest">
+                        Room
+                      </th>
+                      <th className="px-6 py-4 text-left text-[10px] font-bold text-concierge-outline uppercase tracking-widest">
+                        Type
+                      </th>
+                      <th className="px-6 py-4 text-left text-[10px] font-bold text-concierge-outline uppercase tracking-widest">
+                        Time
+                      </th>
+                      <th className="px-6 py-4 text-left text-[10px] font-bold text-concierge-outline uppercase tracking-widest">
+                        Status
+                      </th>
+                      <th className="px-6 py-4 text-left text-[10px] font-bold text-concierge-outline uppercase tracking-widest">
+                        Notes
+                      </th>
+                      <th className="px-6 py-4 text-left text-[10px] font-bold text-concierge-outline uppercase tracking-widest">
+                        Actions
+                      </th>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                  </thead>
+                  <tbody className="divide-y divide-concierge-outline-variant/15">
+                    {services.map((service) => {
+                      const isWakeUp = service.requestType === 'Wake-Up Service';
+                      const time = isWakeUp ? service.scheduledTime : service.pickUpTime;
+                      return (
+                        <tr key={service.id} className="hover:bg-concierge-surface-container-low/50 transition-colors">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-concierge-on-surface">
+                            Room {service.roomNumber}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-concierge-on-surface">
+                            {service.requestType}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-concierge-on-surface">
+                            {editingId === service.id ? (
+                              <input
+                                type="datetime-local"
+                                value={editingTime}
+                                onChange={(e) => setEditingTime(e.target.value)}
+                                className={`${inputClass} rounded-xl py-2 text-xs max-w-[200px]`}
+                              />
+                            ) : time ? (
+                              new Date(time).toLocaleString()
+                            ) : (
+                              '-'
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm">
+                            <span
+                              className={`px-3 py-1 inline-flex text-xs font-semibold rounded-full ${getStatusBadgeClass(
+                                service.status
+                              )}`}
+                            >
+                              {service.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-concierge-on-surface-variant max-w-xs truncate">
+                            {service.notes || '-'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                            {editingId === service.id ? (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => saveEdit(service)}
+                                  className="text-emerald-700 hover:text-emerald-900 text-xs font-semibold"
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={cancelEdit}
+                                  className="text-concierge-on-surface-variant hover:text-concierge-on-surface text-xs"
+                                >
+                                  Cancel
+                                </button>
+                              </>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => startEdit(service)}
+                                className="text-concierge-primary hover:text-concierge-primary-container text-xs font-semibold"
+                              >
+                                Edit time
+                              </button>
+                            )}
+                            {service.status === 'Pending' && (
+                              <button
+                                type="button"
+                                onClick={() => handleStatusChange(service, 'InProcess')}
+                                className="text-concierge-primary hover:text-concierge-primary-container text-xs font-semibold"
+                              >
+                                Start
+                              </button>
+                            )}
+                            {service.status === 'InProcess' && (
+                              <button
+                                type="button"
+                                onClick={() => handleStatusChange(service, 'Completed')}
+                                className="text-emerald-700 hover:text-emerald-900 text-xs font-semibold"
+                              >
+                                Complete
+                              </button>
+                            )}
+                            {service.status === 'Completed' && (
+                              <button
+                                type="button"
+                                onClick={() => handleDelete(service)}
+                                className="text-concierge-error hover:text-red-800 text-xs font-semibold"
+                              >
+                                Delete
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </Layout>
   );
 };

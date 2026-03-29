@@ -2,16 +2,16 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { getDashboardPathForRole } from '../utils/dashboardPath';
+import ConciergeAuthLayout from '../components/ConciergeAuthLayout';
 
 const Login = () => {
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
+  const [remember, setRemember] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [focused, setFocused] = useState({ user: false, pass: false });
   const { login } = useAuth();
   const navigate = useNavigate();
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,153 +34,162 @@ const Login = () => {
     }
   };
 
+  const footer = (
+    <footer className="mt-16 pt-12 border-t border-concierge-outline-variant/10">
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
+        <div className="flex gap-4">
+          <button
+            type="button"
+            title="Google sign-in (coming soon)"
+            className="p-4 rounded-full bg-concierge-surface-container-low hover:bg-concierge-surface-container-high transition-colors opacity-60 cursor-not-allowed"
+            disabled
+          >
+            <span className="material-symbols-outlined text-concierge-outline text-xl">login</span>
+          </button>
+          <button
+            type="button"
+            title="Key login (coming soon)"
+            className="p-4 rounded-full bg-concierge-surface-container-low hover:bg-concierge-surface-container-high transition-colors opacity-60 cursor-not-allowed"
+            disabled
+          >
+            <span className="material-symbols-outlined text-concierge-outline">key</span>
+          </button>
+        </div>
+        <p className="text-sm text-concierge-on-surface-variant italic font-headline text-center sm:text-right">
+          Need room access?{' '}
+          <Link className="text-concierge-primary font-sans font-bold not-italic ml-1 hover:underline" to="/room-login">
+            Room login
+          </Link>
+          <span className="mx-2 text-concierge-outline/50">·</span>
+          <Link className="text-concierge-primary font-sans font-bold not-italic hover:underline" to="/forgot-password">
+            Recovery
+          </Link>
+        </p>
+      </div>
+      <p className="mt-6 text-center text-[11px] text-concierge-outline/80">
+        Demo credentials are documented with the backend setup.
+      </p>
+    </footer>
+  );
+
   return (
-    <div className="min-h-screen flex items-center justify-center overflow-hidden relative px-4">
-      <div className="absolute inset-0 bg-[#FDFBF7]" />
-      <div className="absolute inset-0 bg-[radial-gradient(600px_circle_at_15%_10%,rgba(211,84,0,0.10),transparent_55%),radial-gradient(800px_circle_at_85%_20%,rgba(74,55,40,0.10),transparent_60%)]" />
+    <ConciergeAuthLayout
+      badge="Concierge Portal"
+      title="Login"
+      subtitle="Please enter your credentials to access the digital atelier."
+      footer={footer}
+    >
+      {error && (
+        <div
+          className="mb-8 p-4 rounded-2xl bg-concierge-error-container/90 border border-concierge-outline-variant/30 text-concierge-on-error-container text-sm font-medium flex items-start gap-3"
+          role="alert"
+        >
+          <span className="material-symbols-outlined text-lg shrink-0">error</span>
+          <span>{error}</span>
+        </div>
+      )}
 
-      {/* Card */}
-      <div
-        className="relative w-full max-w-md login-card"
-        style={{ animation: 'fadeInUp 0.6s ease-out' }}
-      >
-        <div className="bg-white/90 backdrop-blur-xl rounded-[28px] shadow-2xl shadow-black/10 border border-[#E3DCD2]/50 overflow-hidden">
-          <div className="h-1 bg-gradient-to-r from-[#4A3728] via-[#8E735B] to-[#D35400]" />
-
-          <div className="p-8 sm:p-10">
-            {/* Logo / Title */}
-            <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#4A3728] text-white shadow-lg mb-4">
-                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-              </div>
-              <h1 className="text-3xl font-bold text-[#4A3728] tracking-tight font-headline">
-                HotelCSS
-              </h1>
-              <p className="mt-2 text-sm text-[#5D534A] font-medium">Sign in to your account</p>
-            </div>
-
-            {error && (
-              <div
-                className="mb-5 p-4 rounded-2xl bg-[#FADBD8] border border-[#E3DCD2]/80 text-[#B22222] text-sm font-medium flex items-start gap-3 shadow-sm"
-                role="alert"
-              >
-                <svg className="w-5 h-5 flex-shrink-0 mt-0.5 text-[#B22222]" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-                <span>{error}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <label htmlFor="userName" className="block text-sm font-semibold text-slate-700 mb-1.5">
-                  Username
-                </label>
-                <div
-                  className={`relative rounded-2xl border-2 bg-[#F2EBE1]/55 transition-all duration-200 ${
-                    focused.user ? 'border-[#D35400]/40 shadow-md shadow-black/5' : 'border-[#E3DCD2]/70 hover:border-[#D1C7BA]'
-                  }`}
-                >
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8E735B]">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                  </span>
-                  <input
-                    id="userName"
-                    type="text"
-                    value={userName}
-                    onChange={(e) => setUserName(e.target.value)}
-                    onFocus={() => setFocused((f) => ({ ...f, user: true }))}
-                    onBlur={() => setFocused((f) => ({ ...f, user: false }))}
-                    className="w-full pl-12 pr-4 py-3.5 bg-transparent rounded-2xl text-[#2C241E] placeholder:text-[#8E735B] focus:outline-none font-medium transition-colors"
-                    placeholder="Enter your username"
-                    disabled={loading}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="password" className="block text-sm font-semibold text-slate-700 mb-1.5">
-                  Password
-                </label>
-                <div
-                  className={`relative rounded-2xl border-2 bg-[#F2EBE1]/55 transition-all duration-200 ${
-                    focused.pass ? 'border-[#D35400]/40 shadow-md shadow-black/5' : 'border-[#E3DCD2]/70 hover:border-[#D1C7BA]'
-                  }`}
-                >
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8E735B]">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                  </span>
-                  <input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    onFocus={() => setFocused((f) => ({ ...f, pass: true }))}
-                    onBlur={() => setFocused((f) => ({ ...f, pass: false }))}
-                    className="w-full pl-12 pr-4 py-3.5 bg-transparent rounded-2xl text-[#2C241E] placeholder:text-[#8E735B] focus:outline-none font-medium transition-colors"
-                    placeholder="Enter your password"
-                    disabled={loading}
-                    required
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
+      <form onSubmit={handleSubmit} className="space-y-8">
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <label
+              className="block text-[10px] font-bold tracking-widest uppercase text-concierge-outline ml-6"
+              htmlFor="userName"
+            >
+              Username
+            </label>
+            <div className="relative group">
+              <span className="material-symbols-outlined absolute left-6 top-1/2 -translate-y-1/2 text-concierge-outline group-focus-within:text-concierge-primary transition-colors">
+                person
+              </span>
+              <input
+                id="userName"
+                type="text"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+                className="w-full pl-14 pr-6 py-4 bg-concierge-surface-container-low rounded-full border-none focus:ring-2 focus:ring-concierge-primary/20 focus:bg-concierge-surface-container-lowest transition-all duration-300 placeholder:text-concierge-outline/40 placeholder:font-light text-concierge-on-surface"
+                placeholder="concierge.username"
                 disabled={loading}
-                className="w-full mt-2 py-3.5 px-4 rounded-2xl font-semibold text-white bg-[#4A3728] hover:bg-[#3a2b20] focus:outline-none focus:ring-4 focus:ring-[#D35400]/20 shadow-lg shadow-black/15 hover:shadow-xl disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none transition-all duration-200 active:scale-[0.99]"
+                required
+              />
+              <div className="absolute inset-0 rounded-full border border-concierge-primary/0 group-focus-within:border-concierge-primary/20 pointer-events-none transition-all duration-300" />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex justify-between items-center ml-6 mr-6">
+              <label
+                className="block text-[10px] font-bold tracking-widest uppercase text-concierge-outline"
+                htmlFor="password"
               >
-                {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    Signing in...
-                  </span>
-                ) : (
-                  'Sign In'
-                )}
-              </button>
-            </form>
-            <div className="mt-4 flex items-center justify-between text-xs text-slate-500">
-              <p>Demo credentials available in backend documentation</p>
-              <div className="flex items-center gap-4">
-                <Link
-                  to="/room-login"
-                  className="font-semibold text-[#4A3728] hover:text-[#D35400]"
-                >
-                  Room login
-                </Link>
-                <Link
-                  to="/forgot-password"
-                  className="font-semibold text-[#4A3728] hover:text-[#D35400]"
-                >
-                  Forgot password?
-                </Link>
-              </div>
+                Private key
+              </label>
+              <Link
+                to="/forgot-password"
+                className="text-[10px] font-bold tracking-widest uppercase text-concierge-primary hover:text-concierge-primary/80 transition-colors"
+              >
+                Recovery
+              </Link>
+            </div>
+            <div className="relative group">
+              <span className="material-symbols-outlined absolute left-6 top-1/2 -translate-y-1/2 text-concierge-outline group-focus-within:text-concierge-primary transition-colors">
+                lock_open
+              </span>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full pl-14 pr-6 py-4 bg-concierge-surface-container-low rounded-full border-none focus:ring-2 focus:ring-concierge-primary/20 focus:bg-concierge-surface-container-lowest transition-all duration-300 placeholder:text-concierge-outline/40"
+                placeholder="••••••••"
+                disabled={loading}
+                required
+              />
+              <div className="absolute inset-0 rounded-full border border-concierge-primary/0 group-focus-within:border-concierge-primary/20 pointer-events-none transition-all duration-300" />
             </div>
           </div>
         </div>
-      </div>
 
-      <style>{`
-        .login-card {
-          animation: fadeInUp 0.6s ease-out;
-        }
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(24px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
-    </div>
+        <div className="flex items-center justify-between px-2">
+          <label className="flex items-center cursor-pointer group">
+            <input
+              type="checkbox"
+              checked={remember}
+              onChange={(e) => setRemember(e.target.checked)}
+              className="peer h-5 w-5 rounded-full border-concierge-outline-variant text-concierge-primary focus:ring-concierge-primary/20 bg-concierge-surface-container-low"
+            />
+            <span className="ml-3 text-sm text-concierge-on-surface-variant font-medium select-none group-hover:text-concierge-on-surface transition-colors">
+              Remember this workstation
+            </span>
+          </label>
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full concierge-hero-gradient text-white py-5 px-8 rounded-full font-medium tracking-wide shadow-xl shadow-concierge-primary/20 hover:shadow-concierge-primary/30 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100"
+        >
+          {loading ? (
+            <span className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest">
+              <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+              Signing in…
+            </span>
+          ) : (
+            <>
+              <span className="text-sm font-semibold uppercase tracking-widest">Enter the atelier</span>
+              <span className="material-symbols-outlined text-lg">arrow_forward</span>
+            </>
+          )}
+        </button>
+      </form>
+    </ConciergeAuthLayout>
   );
 };
 

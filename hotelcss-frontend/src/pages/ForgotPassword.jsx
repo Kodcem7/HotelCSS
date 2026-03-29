@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { forgotPassword } from '../api/auth';
+import ConciergeAuthLayout from '../components/ConciergeAuthLayout';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -24,90 +25,108 @@ const ForgotPassword = () => {
       });
     } catch (error) {
       const message =
-        error?.response?.data?.message ||
-        'An error occurred while sending the reset link.';
+        error?.response?.data?.message || 'An error occurred while sending the reset link.';
       setStatus({ type: 'error', message });
     } finally {
       setLoading(false);
     }
   };
 
+  const footer = (
+    <footer className="mt-16 pt-12 border-t border-concierge-outline-variant/10">
+      <p className="text-sm text-concierge-on-surface-variant italic font-headline text-center">
+        Remembered your credentials?{' '}
+        <Link className="text-concierge-primary font-sans font-bold not-italic hover:underline" to="/login">
+          Back to login
+        </Link>
+      </p>
+    </footer>
+  );
+
   return (
-    <div className="min-h-screen flex items-center justify-center overflow-hidden relative px-4">
-      <div className="absolute inset-0 bg-[#FDFBF7]" />
-      <div className="absolute inset-0 bg-[radial-gradient(600px_circle_at_15%_10%,rgba(211,84,0,0.10),transparent_55%),radial-gradient(800px_circle_at_85%_20%,rgba(74,55,40,0.10),transparent_60%)]" />
+    <ConciergeAuthLayout
+      badge="Account recovery"
+      title="Forgot password"
+      subtitle="Enter your work email and we will send a secure link to reset your private key."
+      backLink={{ to: '/login', label: '← Back to login' }}
+      heroHeadline={
+        <>
+          Security & <br />
+          peace of mind.
+        </>
+      }
+      heroParagraph="Password recovery is handled over encrypted email. If you do not see a message within a few minutes, check spam or contact administration."
+      footer={footer}
+    >
+      {status && (
+        <div
+          className={`mb-8 p-4 rounded-2xl text-sm font-medium flex items-start gap-3 border ${
+            status.type === 'success'
+              ? 'bg-emerald-50/90 border-emerald-200/80 text-emerald-900'
+              : 'bg-concierge-error-container/90 border-concierge-outline-variant/30 text-concierge-on-error-container'
+          }`}
+          role="alert"
+        >
+          <span className="material-symbols-outlined text-lg shrink-0">
+            {status.type === 'success' ? 'mark_email_read' : 'error'}
+          </span>
+          <span>{status.message}</span>
+        </div>
+      )}
 
-      <div className="relative w-full max-w-md">
-        <div className="bg-white/90 backdrop-blur-xl rounded-[28px] shadow-2xl shadow-black/10 border border-[#E3DCD2]/50 overflow-hidden">
-          <div className="h-1 bg-gradient-to-r from-[#4A3728] via-[#8E735B] to-[#D35400]" />
-
-          <div className="p-8 sm:p-10">
-            <div className="flex items-center justify-between mb-6">
-              <button
-                type="button"
-                onClick={() => (window.location.href = '/login')}
-                className="text-xs font-semibold text-[#8E735B] hover:text-[#4A3728]"
-              >
-                ← Back to login
-              </button>
-              <div className="flex-1 text-center">
-              <h1 className="text-2xl font-bold text-[#4A3728] tracking-tight font-headline">
-                Forgot Password
-              </h1>
-              <p className="mt-2 text-sm text-[#5D534A]">
-                Enter your email address and we&apos;ll send you a link to reset
-                your password.
-              </p>
-              </div>
-            </div>
-
-            {status && (
-              <div
-                className={`mb-5 p-4 rounded-xl text-sm font-medium flex items-start gap-3 shadow-sm ${
-                  status.type === 'success'
-                    ? 'bg-emerald-50 border border-emerald-200/80 text-emerald-700 rounded-2xl'
-                    : 'bg-[#FADBD8] border border-[#E3DCD2]/80 text-[#B22222] rounded-2xl'
-                }`}
-                role="alert"
-              >
-                <span>{status.message}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-semibold text-slate-700 mb-1.5"
-                >
-                  Email address
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3.5 bg-[#F2EBE1]/55 rounded-2xl border-2 border-[#E3DCD2]/70 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] placeholder:text-[#8E735B] text-sm font-medium transition-colors"
-                  placeholder="you@example.com"
-                  required
-                  disabled={loading}
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full mt-1 py-3.5 px-4 rounded-2xl font-semibold text-white bg-[#4A3728] hover:bg-[#3a2b20] focus:outline-none focus:ring-4 focus:ring-[#D35400]/20 shadow-lg shadow-black/15 hover:shadow-xl disabled:opacity-60 disabled:cursor-not-allowed disabled:shadow-none transition-all duration-200 active:scale-[0.99]"
-              >
-                {loading ? 'Sending reset link...' : 'Send reset link'}
-              </button>
-            </form>
+      <form onSubmit={handleSubmit} className="space-y-8">
+        <div className="space-y-2">
+          <label
+            className="block text-[10px] font-bold tracking-widest uppercase text-concierge-outline ml-6"
+            htmlFor="email"
+          >
+            Work email
+          </label>
+          <div className="relative group">
+            <span className="material-symbols-outlined absolute left-6 top-1/2 -translate-y-1/2 text-concierge-outline group-focus-within:text-concierge-primary transition-colors">
+              mail
+            </span>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full pl-14 pr-6 py-4 bg-concierge-surface-container-low rounded-full border-none focus:ring-2 focus:ring-concierge-primary/20 focus:bg-concierge-surface-container-lowest transition-all duration-300 placeholder:text-concierge-outline/40 placeholder:font-light text-concierge-on-surface"
+              placeholder="you@hotelcss.com"
+              required
+              disabled={loading}
+            />
+            <div className="absolute inset-0 rounded-full border border-concierge-primary/0 group-focus-within:border-concierge-primary/20 pointer-events-none transition-all duration-300" />
           </div>
         </div>
-      </div>
-    </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full concierge-hero-gradient text-white py-5 px-8 rounded-full font-medium tracking-wide shadow-xl shadow-concierge-primary/20 hover:shadow-concierge-primary/30 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-3 disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          {loading ? (
+            <span className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest">
+              <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
+              Sending…
+            </span>
+          ) : (
+            <>
+              <span className="text-sm font-semibold uppercase tracking-widest">Send reset link</span>
+              <span className="material-symbols-outlined text-lg">arrow_forward</span>
+            </>
+          )}
+        </button>
+      </form>
+    </ConciergeAuthLayout>
   );
 };
 
 export default ForgotPassword;
-
