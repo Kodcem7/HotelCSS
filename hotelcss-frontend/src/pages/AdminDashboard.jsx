@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Layout from '../components/Layout';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -71,6 +71,21 @@ const quickLinks = [
         desc: 'View and manage guest reward vouchers and redemptions',
         cta: 'Loyalty Suite',
         icon: 'confirmation_number',
+    },
+    {
+        to: '/admin/surveys',
+        title: 'Manage Surveys',
+        desc: 'Create active feedback surveys for guests to intercept issues early.',
+        cta: 'Survey Creator',
+        icon: 'poll',
+    },
+    // 👇 NEW: Survey Results Module Added Here!
+    {
+        to: '/admin/surveys/results',
+        title: 'Survey Results',
+        desc: 'Analyze guest feedback and view specific room responses.',
+        cta: 'View Analytics',
+        icon: 'analytics',
     },
 ];
 

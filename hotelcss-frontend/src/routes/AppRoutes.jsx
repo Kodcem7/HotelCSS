@@ -33,6 +33,8 @@ import ReceptionRewardVouchersPage from '../pages/ReceptionRewardVouchersPage';
 import RewardVouchersPage from '../pages/RewardVouchersPage';
 import RoomVouchersPage from '../pages/RoomVouchersPage';
 import PointShopPage from '../pages/PointShopPage';
+import AdminSurveyPage from '../pages/AdminSurveyPage';
+import AdminSurveyResultsPage from '../pages/AdminSurveyResultsPage';
 
 const AppRoutes = () => {
     const { isAuthenticated, user } = useAuth();
@@ -76,6 +78,8 @@ const AppRoutes = () => {
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/room/vouchers" element={<RoomVouchersPage />} />
                 <Route path="/room/point-shop" element={<PointShopPage />} />
+                <Route path="/admin/surveys" element={<AdminSurveyPage />} />
+                <Route path="/admin/surveys/results" element={<AdminSurveyResultsPage />} />
 
                 {/* Protected Routes - Role-based access */}
                 <Route
