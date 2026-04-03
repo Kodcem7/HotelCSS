@@ -2,6 +2,8 @@
 using CSSHotel.Models;
 using CSSHotel.Models.ViewModels;
 using CSSHotel.Utility;
+using CSSHotel.Utility.Service;
+using MailKit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,9 +16,11 @@ namespace HotelCSS.Controllers
     public class SurveyController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
-        public SurveyController(IUnitOfWork unitOfWork)
+        private readonly AIService _aiService;
+        public SurveyController(IUnitOfWork unitOfWork,AIService aiService)
         {
             _unitOfWork = unitOfWork;
+            _aiService = aiService;
         }
 
         [HttpGet("GetAllSurveys")]
@@ -243,5 +247,73 @@ namespace HotelCSS.Controllers
             return Ok(new { success = true, message = $"Survey '{survey.Title}' is now {(survey.IsActive ? "active" : "inactive")}." });
         }
 
+        [HttpGet("AnalyzeSurvey/{id}")]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
+        public async Task<IActionResult> AnalyzeSurvey(int id)
+        {
+            // 1. Fetch the survey and all responses
+            var survey = _unitOfWork.Survey.GetFirstOrDefault(s => s.Id == id, includeProperties: "Questions");
+            var responses = _unitOfWork.SurveyResponse.GetAll(r => r.SurveyId == id, includeProperties: "Answers").ToList();
+
+            if (survey == null)
+            {
+                return NotFound(new { success = false, message = "Survey not found." });
+            }
+            if (responses.Count == 0)
+            {
+                return BadRequest(new { success = false, message = "Not enough responses to analyze yet. Please wait for guests to complete the survey." });
+            }
+
+            // 2. Build the Prompt for Gemini
+            var promptBuilder = new System.Text.StringBuilder();
+            promptBuilder.AppendLine($"Act as an expert Hotel Operations Analyst. Analyze the following guest survey results for the '{survey.Title}' survey.");
+            promptBuilder.AppendLine("Provide a professional executive summary formatted in Markdown. Identify specific strengths and pinpoint exact areas needing improvement based on the data provided. If there are complaints about cleaning, food, or staff in the text comments, highlight them explicitly.");
+            promptBuilder.AppendLine("\n--- RAW SURVEY DATA ---");
+
+            foreach (var q in survey.Questions.OrderBy(x => x.OrderIndex))
+            {
+                promptBuilder.AppendLine($"\nQuestion: {q.QuestionText}");
+
+                // Get all answers for this specific question
+                var allAnswers = responses.SelectMany(r => r.Answers).Where(a => a.SurveyQuestionId == q.Id).ToList();
+
+                if (q.QuestionType == "StarRating")
+                {
+                    var average = allAnswers.Any() ? allAnswers.Average(a => double.Parse(a.AnswerValue)) : 0;
+                    promptBuilder.AppendLine($"- Average Score: {average:F1} out of 5 stars");
+                }
+                else if (q.QuestionType == "YesNo")
+                {
+                    int yesCount = allAnswers.Count(a => a.AnswerValue.Equals("Yes", StringComparison.OrdinalIgnoreCase));
+                    int noCount = allAnswers.Count(a => a.AnswerValue.Equals("No", StringComparison.OrdinalIgnoreCase));
+                    promptBuilder.AppendLine($"- Guest Votes: {yesCount} Yes | {noCount} No");
+                }
+                else
+                {
+                    promptBuilder.AppendLine("- Guest Comments:");
+                    foreach (var a in allAnswers)
+                    {
+                        if (!string.IsNullOrWhiteSpace(a.AnswerValue))
+                            promptBuilder.AppendLine($"  * \"{a.AnswerValue}\"");
+                    }
+                }
+            }
+            promptBuilder.AppendLine("--- END OF DATA ---");
+
+            string finalPrompt = promptBuilder.ToString();
+
+            try
+            {
+                // 3. Send the formatted data to your actual Gemini AI! 🚀
+                string aiResponse = await _aiService.GetAnswer(finalPrompt);
+
+                return Ok(new { success = true, analysis = aiResponse });
+            }
+            catch (Exception ex)
+            {
+                // If Gemini's API is down or the key fails, this catches it safely
+                return StatusCode(500, new { success = false, message = "Gemini AI Analysis failed: " + ex.Message });
+            }
+        }
     }
 }

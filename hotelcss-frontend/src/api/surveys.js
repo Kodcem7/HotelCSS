@@ -36,3 +36,13 @@ export const toggleSurveyStatus = async (id) => {
     const response = await api.put(`/Survey/ToggleActive/${id}`);
     return response.data;
 };
+
+export const analyzeSurvey = async (id) => {
+    const response = await api.get(`/Survey/AnalyzeSurvey/${id}`);
+    return response.data;
+};
+
+export const getSurveyAiAnalysis = async (surveyId) => {
+    const response = await api.get(`/Survey/AnalyzeSurvey/${surveyId}`);
+    return response.data;
+};
