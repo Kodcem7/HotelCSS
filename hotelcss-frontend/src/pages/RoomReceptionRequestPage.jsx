@@ -4,7 +4,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import SuccessMessage from '../components/SuccessMessage';
 import { useAuth } from '../context/AuthContext';
-import { createWakeUpService, getPickUpTime } from '../api/receptionService';
+import { createWakeUpCall, getPickUpTime } from '../api/receptionService';
 
 const RoomReceptionRequestPage = () => {
   const { user } = useAuth();
@@ -53,7 +53,7 @@ const RoomReceptionRequestPage = () => {
       setError('');
       setSuccess('');
 
-      await createWakeUpService({
+        await createWakeUpCall({
         // HTML datetime-local already returns local time in "YYYY-MM-DDTHH:mm" format.
         // Bunu direkt backend'e gönderiyoruz ki ek bir UTC dönüşümü yapılmasın.
         ScheduledTime: formData.ScheduledTime,

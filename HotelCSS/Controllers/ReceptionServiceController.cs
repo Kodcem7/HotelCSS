@@ -60,17 +60,18 @@ namespace HotelCSS.Controllers
             return BadRequest(new { success = false, message = "Unauthorized access." });
         }
 
-        [HttpGet("Learn Pick-Up Time")]
+        [HttpGet("GetPickUpTime")]
         public IActionResult GetPickUpTime()
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
-            string userId = claim.Value;
-            IEnumerable<ReceptionService> pickUpTime;
             if (claim == null)
             {
                 return Unauthorized(new { success = false, message = "User identity not found." });
             }
+            string userId = claim.Value;
+            IEnumerable<ReceptionService> pickUpTime;
+            
 
             if (User.IsInRole(SD.Role_Room))
             {
@@ -87,8 +88,8 @@ namespace HotelCSS.Controllers
             return BadRequest(new { success = false, message = "Unauthorized access." });
         }
 
-        [HttpPost("Wake-Up Service")]
-        public async Task<IActionResult> WakeUpServiceAsync([FromForm] ReceptionServiceDTO obj)
+        [HttpPost("WakeUpService")]
+        public async Task<IActionResult> WakeUpServiceAsync([FromBody] ReceptionServiceDTO obj)
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity;
             var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);

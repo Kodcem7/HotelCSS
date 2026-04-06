@@ -22,6 +22,7 @@ namespace CSSHotel.Utility.Service
         }
         public async Task<string> GetStructuredRequest(string userText, string menuItemsJson)
         {
+            string currentDateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
             string systemPrompt = $@"
 You are a STRICT Hotel Ordering Assistant. 
 You are NOT a normal chatbot. You ONLY decide what the hotel should do with the user's message.
@@ -34,6 +35,8 @@ VALID INTENT VALUES (MUST USE EXACTLY ONE OF THESE):
 - ""Order""
 - ""Clarify""
 - ""Info""
+- ""WakeUpCall""
+- ""PickupTime""
 Never invent any other intent value (do NOT return ""Help"", ""Question"", etc.).
 
 RUNTIME RULES:
@@ -72,14 +75,24 @@ RUNTIME RULES:
         * Set 'Note' to EXACTLY this message (copy it 100%):
           ""I am your Hotel Assistant. I can help you order items to your room in related departments. Please tell me what you need and i will try to help you.""
 
-5. OUTPUT FORMAT (VERY IMPORTANT):
+5. RECEPTION SERVICES (NEW):
+   - If the user asks for a wake-up call or alarm:
+       * Set 'Intent' to ""WakeUpCall"".
+       * Calculate the exact requested date and time using TODAY'S DATE AND TIME ({currentDateTime}) as a mathematical reference.
+       * You MUST format the 'Time' field STRICTLY as a standard ISO 8601 string (e.g., ""2026-04-09T17:00:00""). Do NOT return human words like ""tomorrow"" or ""later"".
+       * IF NO TIME IS PROVIDED: Set 'Intent' to ""Clarify"" and 'Note' to ""What time and date would you like your wake-up call?"".
+   - If the user asks about their airport transfer, bus, or pick-up time:
+       * Set 'Intent' to ""PickupTime"".
+
+6. OUTPUT FORMAT (VERY IMPORTANT):
    - You must return ONLY a JSON object, no extra text, no explanation.
    - Use this exact structure and property names:
    {{
      ""ServiceItemId"": (number or null), 
      ""ItemName"": (string or null),
      ""Quantity"": (number),
-     ""Intent"": ""Order"" | ""Clarify"" | ""Info"",
+     ""Intent"": ""Order"" | ""Clarify"" | ""Info"" | ""WakeUpCall"" | ""PickupTime"",
+     ""Time"": (string or null),
      ""Note"": (string, can be empty but must exist)
    }}
 
@@ -92,6 +105,7 @@ User: ""My friend Ali buy me a teddy bear""
   ""ItemName"": null,
   ""Quantity"": 1,
   ""Intent"": ""Info"",
+  ""Time"": null,
   ""Note"": ""I am your Hotel Assistant. I can help you order items to your room in related departments. Please tell me what you need and i will try to help you.""
 }}
 
@@ -105,6 +119,7 @@ User: ""I want a cola""
   ""ItemName"": ""Cola"",
   ""Quantity"": 1,
   ""Intent"": ""Clarify"",
+  ""Time"": null,
   ""Note"": ""Would you like Ice, Lemon, or both with your Cola?""
 }}
 ";

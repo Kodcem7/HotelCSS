@@ -1,12 +1,12 @@
-import api from './axios';
+﻿import api from './axios';
 
 /**
  * Get all requests (role-based filtering handled by backend)
  * @returns {Promise} List of requests
  */
 export const getRequests = async () => {
-  const response = await api.get('/Request');
-  return response.data;
+    const response = await api.get('/Request');
+    return response.data;
 };
 
 /**
@@ -19,26 +19,26 @@ export const getRequests = async () => {
  * @returns {Promise} Created request
  */
 export const createRequest = async (requestData) => {
-  // Backend expects form-data (RequestCreateDTO with [FromForm])
-  const formData = new FormData();
-  formData.append('ServiceItemId', requestData.ServiceItemId);
-  formData.append('Quantity', requestData.Quantity);
-  if (requestData.Note) {
-    formData.append('Note', requestData.Note);
-  }
-  if (requestData.Type) {
-    formData.append('Type', requestData.Type);
-  }
-  if (requestData.Photo) {
-    formData.append('Photo', requestData.Photo);
-  }
+    // Backend expects form-data (RequestCreateDTO with [FromForm])
+    const formData = new FormData();
+    formData.append('ServiceItemId', requestData.ServiceItemId);
+    formData.append('Quantity', requestData.Quantity);
+    if (requestData.Note) {
+        formData.append('Note', requestData.Note);
+    }
+    if (requestData.Type) {
+        formData.append('Type', requestData.Type);
+    }
+    if (requestData.Photo) {
+        formData.append('Photo', requestData.Photo);
+    }
 
-  const response = await api.post('/Request', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
-  return response.data;
+    const response = await api.post('/Request', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+    return response.data;
 };
 
 /**
@@ -50,19 +50,19 @@ export const createRequest = async (requestData) => {
  * @returns {Promise} API response
  */
 export const reportIssue = async (issueData) => {
-  const formData = new FormData();
-  formData.append('Title', issueData.Title);
-  formData.append('Description', issueData.Description);
-  if (issueData.Photo) {
-    formData.append('Photo', issueData.Photo);
-  }
+    const formData = new FormData();
+    formData.append('Title', issueData.Title);
+    formData.append('Description', issueData.Description);
+    if (issueData.Photo) {
+        formData.append('Photo', issueData.Photo);
+    }
 
-  const response = await api.post('/Request/ReportIssue', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
-  return response.data;
+    const response = await api.post('/Request/ReportIssue', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+    return response.data;
 };
 
 /**
@@ -72,8 +72,8 @@ export const reportIssue = async (issueData) => {
  * @returns {Promise} Updated request
  */
 export const updateRequestStatus = async (id, newStatus) => {
-  const response = await api.put(`/Request/${id}?newStatus=${newStatus}`);
-  return response.data;
+    const response = await api.put(`/Request/${id}?newStatus=${newStatus}`);
+    return response.data;
 };
 
 /**
@@ -82,8 +82,8 @@ export const updateRequestStatus = async (id, newStatus) => {
  * @returns {Promise} Deletion result
  */
 export const deleteRequest = async (id) => {
-  const response = await api.delete(`/Request/${id}`);
-  return response.data;
+    const response = await api.delete(`/Request/${id}`);
+    return response.data;
 };
 
 /**
@@ -92,8 +92,8 @@ export const deleteRequest = async (id) => {
  * @returns {Promise} List of departments with imageUrl
  */
 export const getRequestDepartments = async () => {
-  const response = await api.get('/Request/GetDepartments');
-  return response.data;
+    const response = await api.get('/Request/GetDepartments');
+    return response.data;
 };
 
 /**
@@ -102,6 +102,6 @@ export const getRequestDepartments = async () => {
  * @returns {Promise} List of service items for that department
  */
 export const getServicesByDepartment = async (departmentId) => {
-  const response = await api.get(`/Request/GetServicesByDepartment/${departmentId}`);
-  return response.data;
+    const response = await api.get(`/Request/GetServicesByDepartment/${departmentId}`);
+    return response.data;
 };

@@ -58,6 +58,11 @@ namespace HotelCSS.Controllers
             // 3. Ask AI to match the user's text to a menu item
             string jsonResponse = await _aiService.GetStructuredRequest(request.Question, menuJson);
 
+            if (string.IsNullOrEmpty(jsonResponse))
+            {
+                return StatusCode(500, new { success = false, message = "AI returned an empty response." });
+            }
+
             // 4. Clean up the response (sometimes AI adds ```json ... ``` wrappers)
             jsonResponse = jsonResponse.Replace("```json", "").Replace("```", "").Trim();
 

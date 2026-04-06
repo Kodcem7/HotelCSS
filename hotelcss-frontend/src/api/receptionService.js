@@ -1,24 +1,13 @@
-import api from './axios';
+﻿import api from './axios';
 
 /**
  * Create a wake-up service request for the current room user.
- * Backend route: POST /api/ReceptionService/Wake-Up Service (space must be URL-encoded)
+ * 👇 FIXED: Renamed to match ChatWidget and updated to send JSON for [FromBody]
  * @param {{ ScheduledTime: string, Notes?: string }} data
  */
-export const createWakeUpService = async (data) => {
-  const formData = new FormData();
-  formData.append('ScheduledTime', data.ScheduledTime);
-  if (data.Notes) {
-    formData.append('Notes', data.Notes);
-  }
-
-  const response = await api.post('/ReceptionService/Wake-Up%20Service', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
-
-  return response.data;
+export const createWakeUpCall = async (data) => {
+    const response = await api.post('/ReceptionService/WakeUpService', data);
+    return response.data;
 };
 
 /**
@@ -26,17 +15,17 @@ export const createWakeUpService = async (data) => {
  * Room role: only their own wake-up services.
  */
 export const getReceptionServices = async () => {
-  const response = await api.get('/ReceptionService/GetReceptionServices');
-  return response.data;
+    const response = await api.get('/ReceptionService/GetReceptionServices');
+    return response.data;
 };
 
 /**
  * Get pick-up time information for the current room, if any.
- * (Uses strange route name with spaces in backend.)
+ * 👇 FIXED: Updated the URL to match your C# [HttpGet("GetPickUpTime")] route!
  */
 export const getPickUpTime = async () => {
-  const response = await api.get('/ReceptionService/Learn%20Pick-Up%20Time');
-  return response.data;
+    const response = await api.get('/ReceptionService/GetPickUpTime');
+    return response.data;
 };
 
 /**
@@ -45,12 +34,12 @@ export const getPickUpTime = async () => {
  * @param {string} scheduledTimeIso ISO datetime string
  */
 export const updateWakeUpTime = async (id, scheduledTimeIso) => {
-  const response = await api.put(`/ReceptionService/wakeup/${id}`, scheduledTimeIso, {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-  return response.data;
+    const response = await api.put(`/ReceptionService/wakeup/${id}`, scheduledTimeIso, {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+    return response.data;
 };
 
 /**
@@ -60,23 +49,23 @@ export const updateWakeUpTime = async (id, scheduledTimeIso) => {
  * @param {{ ScheduledTime: string, Notes?: string }} data
  */
 export const setPickUpTime = async (roomNumber, data) => {
-  const formData = new FormData();
-  formData.append('ScheduledTime', data.ScheduledTime);
-  if (data.Notes) {
-    formData.append('Notes', data.Notes);
-  }
-
-  const response = await api.post(
-    `/ReceptionService/SetPickUpTime?roomNumber=${roomNumber}`,
-    formData,
-    {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+    const formData = new FormData();
+    formData.append('ScheduledTime', data.ScheduledTime);
+    if (data.Notes) {
+        formData.append('Notes', data.Notes);
     }
-  );
 
-  return response.data;
+    const response = await api.post(
+        `/ReceptionService/SetPickUpTime?roomNumber=${roomNumber}`,
+        formData,
+        {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        }
+    );
+
+    return response.data;
 };
 
 /**
@@ -85,12 +74,12 @@ export const setPickUpTime = async (roomNumber, data) => {
  * @param {string} scheduledTimeIso ISO datetime string
  */
 export const updatePickUpTime = async (id, scheduledTimeIso) => {
-  const response = await api.put(`/ReceptionService/pickup/${id}`, scheduledTimeIso, {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-  return response.data;
+    const response = await api.put(`/ReceptionService/pickup/${id}`, scheduledTimeIso, {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+    return response.data;
 };
 
 /**
@@ -99,10 +88,10 @@ export const updatePickUpTime = async (id, scheduledTimeIso) => {
  * @param {'Pending' | 'InProcess' | 'Completed'} status
  */
 export const updateWakeUpStatus = async (id, status) => {
-  const response = await api.put(
-    `/ReceptionService/wakeup/status/${id}?status=${encodeURIComponent(status)}`
-  );
-  return response.data;
+    const response = await api.put(
+        `/ReceptionService/wakeup/status/${id}?status=${encodeURIComponent(status)}`
+    );
+    return response.data;
 };
 
 /**
@@ -111,10 +100,10 @@ export const updateWakeUpStatus = async (id, status) => {
  * @param {'Pending' | 'InProcess' | 'Completed'} status
  */
 export const updatePickUpStatus = async (id, status) => {
-  const response = await api.put(
-    `/ReceptionService/pickup/status/${id}?status=${encodeURIComponent(status)}`
-  );
-  return response.data;
+    const response = await api.put(
+        `/ReceptionService/pickup/status/${id}?status=${encodeURIComponent(status)}`
+    );
+    return response.data;
 };
 
 /**
@@ -122,8 +111,8 @@ export const updatePickUpStatus = async (id, status) => {
  * @param {number} id
  */
 export const deleteWakeUpService = async (id) => {
-  const response = await api.delete(`/ReceptionService/Delete_WakeUp/${id}`);
-  return response.data;
+    const response = await api.delete(`/ReceptionService/Delete_WakeUp/${id}`);
+    return response.data;
 };
 
 /**
@@ -131,8 +120,6 @@ export const deleteWakeUpService = async (id) => {
  * @param {number} id
  */
 export const deletePickUpService = async (id) => {
-  const response = await api.delete(`/ReceptionService/Delete_PickUp/${id}`);
-  return response.data;
+    const response = await api.delete(`/ReceptionService/Delete_PickUp/${id}`);
+    return response.data;
 };
-
-

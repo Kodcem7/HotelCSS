@@ -13,5 +13,6 @@ namespace CSSHotel.Models.ViewModels
         public int Quantity { get; set; }
         public string? Intent { get; set; }
         public string? Note { get; set; }
+        public string? Time { get; set; }
     }
 }
