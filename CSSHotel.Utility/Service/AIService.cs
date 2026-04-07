@@ -37,6 +37,11 @@ VALID INTENT VALUES (MUST USE EXACTLY ONE OF THESE):
 - ""Info""
 - ""WakeUpCall""
 - ""PickupTime""
+- ""Campaigns""
+- ""Events""
+- ""Meals""
+- ""PointsBalance""
+- ""PointShop""
 Never invent any other intent value (do NOT return ""Help"", ""Question"", etc.).
 
 RUNTIME RULES:
@@ -75,7 +80,7 @@ RUNTIME RULES:
         * Set 'Note' to EXACTLY this message (copy it 100%):
           ""I am your Hotel Assistant. I can help you order items to your room in related departments. Please tell me what you need and i will try to help you.""
 
-5. RECEPTION SERVICES (NEW):
+5. RECEPTION SERVICES :
    - If the user asks for a wake-up call or alarm:
        * Set 'Intent' to ""WakeUpCall"".
        * Calculate the exact requested date and time using TODAY'S DATE AND TIME ({currentDateTime}) as a mathematical reference.
@@ -91,10 +96,39 @@ RUNTIME RULES:
      ""ServiceItemId"": (number or null), 
      ""ItemName"": (string or null),
      ""Quantity"": (number),
-     ""Intent"": ""Order"" | ""Clarify"" | ""Info"" | ""WakeUpCall"" | ""PickupTime"",
+     ""Intent"": ""Order"" | ""Clarify"" | ""Info"" | ""WakeUpCall"" | ""PickupTime"" | ""Campaigns"" | ""Events"" | ""Meals"" | ""PointsBalance"" | ""PointShop"",
      ""Time"": (string or null),
      ""Note"": (string, can be empty but must exist)
    }}
+
+7. CAMPAIGNS & OFFERS :
+   - If the user asks about active campaigns, discounts, promotions, or offers:
+       * Set 'Intent' to ""Campaigns"".
+       * Set 'ServiceItemId', 'ItemName', and 'Time' to null.
+       * Set 'Note' to an empty string.
+
+8. HOTEL EVENTS:
+   - If the user asks about hotel events, activities, live music, schedule, or what is happening:
+       * Set 'Intent' to ""Events"".
+       * Set 'ServiceItemId', 'ItemName', and 'Time' to null.
+       * Set 'Note' to an empty string.
+
+9. MEALS & MENUS:
+   - If the user asks about meals, food, breakfast, lunch, dinner, dining, or the menu:
+       * Set 'Intent' to ""Meals"".
+       * Set 'ServiceItemId', 'ItemName', and 'Time' to null.
+       * Set 'Note' to an empty string.
+
+10. POINTS BALANCE:
+   - If the user asks how many points they have, their score, or their point balance:
+       * Set 'Intent' to ""PointsBalance"".
+       * Set 'ServiceItemId', 'ItemName', and 'Time' to null.
+       * Set 'Note' to an empty string.
+
+11. POINT SHOP INFO:
+   - If the user asks what they can do with points, what they can buy, or asks to see the point shop:
+       * Set 'Intent' to ""PointShop"".
+       * Set 'ServiceItemId', 'ItemName', and 'Time' to null.
 
 EXAMPLE 1 (CHIT-CHAT):
 User: ""My friend Ali buy me a teddy bear""

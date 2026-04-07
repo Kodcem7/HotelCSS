@@ -3,13 +3,16 @@ import { analyzeRequest } from '../api/chat';
 import { createRequest } from '../api/requests';
 import { getPickUpTime, createWakeUpCall } from '../api/receptionservice';
 import { useAuth } from '../context/AuthContext';
+import { getActiveBonusEvents, getActiveEvents, getMealList } from '../api/events';
+import { getMyPoints } from '../api/rooms';
+import { getRewardsCatalog } from '../api/rewards';
 
 const ChatWidget = () => {
     const { user } = useAuth();
 
     const [open, setOpen] = useState(false);
     const [messages, setMessages] = useState([
-        { role: 'bot', text: "Hi! I am your digital concierge. I can order room service, set wake-up calls, or check your airport pick-up time.", id: 'welcome' },
+        { role: 'bot', text: "Hi! I am your digital concierge. I can order room service, set wake-up calls, check your points balance, or show you the point shop.", id: 'welcome' },
     ]);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
@@ -56,13 +59,16 @@ const ChatWidget = () => {
                 let allowConfirm = false;
                 let pending = null;
 
+                // 👇 Correctly declared at the top so React doesn't crash!
+                let actionLink = null;
+                let actionLinkText = '';
+
                 // ==========================================
                 // 🧠 AI INTENT ROUTER (Brain)
                 // ==========================================
                 if (intent === 'info') {
                     reply = note || 'I am your Hotel Assistant. Please tell me what you need for your room.';
                 }
-                // 🏨 Wake-Up Call Logic
                 else if (intent === 'wakeupcall') {
                     const finalTime = time || note;
 
@@ -70,7 +76,6 @@ const ChatWidget = () => {
                         allowConfirm = true;
                         pending = { Type: 'WakeUpCall', Time: finalTime, Note: note };
 
-                        // Make it pretty for the chat bubble
                         let prettyTime = finalTime;
                         try {
                             const dateObj = new Date(finalTime);
@@ -85,7 +90,6 @@ const ChatWidget = () => {
                         reply = "What time and date would you like me to set the wake-up call for?";
                     }
                 }
-                // 🚐 Pick-up Time Logic
                 else if (intent === 'pickuptime') {
                     try {
                         const pickupRes = await getPickUpTime();
@@ -104,7 +108,124 @@ const ChatWidget = () => {
                         reply = "I couldn't fetch your pick-up time right now. Please call reception.";
                     }
                 }
-                // 🍔 EXISTING: Menu Order Logic
+                else if (intent === 'campaigns') {
+                    try {
+                        const json = await getActiveBonusEvents();
+                        const campaigns = json.data || [];
+
+                        if (campaigns.length > 0) {
+                            let text = "Here are our current active campaigns:\n\n";
+                            campaigns.forEach(ev => {
+                                const title = ev.title || ev.Title || 'Special Offer';
+                                const desc = ev.description || ev.Description || '';
+                                const points = ev.bonusPoints || ev.BonusPoints || 0;
+
+                                text += `• **${title}**: Earn ${points} extra points!`;
+                                if (desc) text += `\n  ${desc}`;
+
+                                const rawEndDate = ev.endDate || ev.EndDate;
+                                if (rawEndDate) text += ` *(Valid until ${new Date(rawEndDate).toLocaleDateString()})*`;
+                                text += `\n\n`;
+                            });
+                            reply = text.trim();
+                        } else {
+                            reply = "At this time, we do not have any active promotional campaigns. Please check back later!";
+                        }
+                    } catch (err) {
+                        reply = "I am currently unable to retrieve the campaign information.";
+                    }
+                }
+                else if (intent === 'events') {
+                    try {
+                        const json = await getActiveEvents();
+                        const generalEvents = json.data || [];
+
+                        if (generalEvents.length > 0) {
+                            let text = "Here are our upcoming hotel events:\n\n";
+                            generalEvents.forEach(ev => {
+                                const title = ev.title || ev.Title || 'Hotel Event';
+                                const desc = ev.description || ev.Description || '';
+
+                                text += `• **${title}**`;
+                                if (desc) text += `\n  ${desc}`;
+
+                                const rawStartDate = ev.startDate || ev.StartDate;
+                                if (rawStartDate) text += `\n  *(Starts: ${new Date(rawStartDate).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })})*`;
+                                text += `\n\n`;
+                            });
+                            reply = text.trim();
+                        } else {
+                            reply = "We don't have any special events scheduled right now. Enjoy your stay!";
+                        }
+                    } catch (err) {
+                        reply = "I am currently unable to retrieve the event schedule.";
+                    }
+                }
+                else if (intent === 'meals') {
+                    try {
+                        const json = await getMealList();
+                        const meals = json.data || [];
+
+                        if (meals.length > 0) {
+                            let text = "Here is our dining information:\n\n";
+                            meals.forEach(ev => {
+                                const title = ev.title || ev.Title || 'Dining Menu';
+                                const mealInfo = ev.mealInfo || ev.MealInfo || ev.description || ev.Description || '';
+
+                                text += `• **${title}**\n`;
+                                if (mealInfo) text += `  ${mealInfo}\n`;
+                                text += `\n`;
+                            });
+                            reply = text.trim();
+                        } else {
+                            reply = "We do not have any special meal menus posted at the moment. Please check with the restaurant!";
+                        }
+                    } catch (err) {
+                        reply = "I am currently unable to retrieve the dining menus.";
+                    }
+                }
+                else if (intent === 'pointsbalance') {
+                    try {
+                        const json = await getMyPoints();
+
+                        if (json?.success) {
+                            const points = json.data || 0;
+                            reply = `You currently have **${points} points**! You can use these points to get free services from the point shop.`;
+                        } else {
+                            reply = "I couldn't find a points account for your room. Please contact reception.";
+                        }
+                    } catch (err) {
+                        reply = "I am currently unable to retrieve your points balance.";
+                    }
+                }
+                // 🛍️ 5. POINT SHOP LOGIC
+                else if (intent === 'pointshop') {
+                    try {
+                        const json = await getRewardsCatalog();
+                        const items = json?.data || json || [];
+
+                        if (items.length > 0) {
+                            let text = "You can use your points to get free services from the point shop! Here is what you can get:\n\n";
+
+                            items.forEach(item => {
+                                const name = item.name || item.Name || item.title || item.Title || 'Reward Item';
+                                const cost = item.pointsCost || item.PointsCost || 0;
+
+                                text += `• **${name}**: ${cost} points\n`;
+                            });
+
+                            reply = text.trim();
+
+                            // 👇 Assigned outside the loop!
+                            actionLink = "/room/point-shop";
+                            actionLinkText = "Go to Point Shop 🎁";
+                        } else {
+                            reply = "You can use your points to get free services, but our Point Shop is currently updating its inventory. Check back soon!";
+                        }
+                    } catch (err) {
+                        reply = "You can use your points to get free services, but I am currently unable to load the shop menu.";
+                    }
+                }
                 else if (intent === 'clarify' && hasItem) {
                     reply = note || `Before I place your order for **${itemName}**, please tell me the required options.`;
                 } else if (intent === 'order' && hasItem) {
@@ -120,16 +241,17 @@ const ChatWidget = () => {
                 setPendingOrder(pending);
                 setPendingOrderMessageId(allowConfirm ? botId : null);
 
+                // 👇 Passes link info to the chat bubbles
                 setMessages((prev) => [
                     ...prev,
-                    { role: 'bot', text: reply, id: botId, hasConfirm: allowConfirm },
+                    { role: 'bot', text: reply, id: botId, hasConfirm: allowConfirm, link: actionLink, linkText: actionLinkText },
                 ]);
             } else {
                 setPendingOrder(null);
                 setPendingOrderMessageId(null);
                 setMessages((prev) => [
                     ...prev,
-                    { role: 'bot', text: 'Sorry, I couldn\'t understand that. Try something like "2 towels" or "wake me up at 8 AM".', id: `bot-${Date.now()}` },
+                    { role: 'bot', text: 'Sorry, I couldn\'t understand that. Try something like "2 towels", "wake me up at 8 AM", or "what can I buy with points?".', id: `bot-${Date.now()}` },
                 ]);
             }
         } catch (err) {
@@ -154,15 +276,12 @@ const ChatWidget = () => {
         try {
             const currentRoomNumber = parseInt(user?.username?.replace('Room', '') || '0', 10);
 
-            // 🚦 Check what type of order we are confirming (Button Logic)
             if (pendingOrder.Type === 'WakeUpCall') {
-                // 👉 Just pass the AI's perfect time string directly to C#!
                 await createWakeUpCall({
                     ScheduledTime: pendingOrder.Time,
                     Notes: pendingOrder.Note || "Requested via AI Chatbot"
                 });
 
-                // Format it nicely for the final green success message
                 let prettySuccessTime = pendingOrder.Time;
                 try {
                     const d = new Date(pendingOrder.Time);
@@ -176,7 +295,6 @@ const ChatWidget = () => {
                     { role: 'bot', text: `Confirmed! Your wake-up call is set for ${prettySuccessTime}. Sleep well!`, id: `bot-${Date.now()}`, isSuccess: true },
                 ]);
             } else {
-                // 👉 Route to the standard Service Order Endpoint
                 await createRequest({
                     RoomNumber: currentRoomNumber,
                     Type: "Order",
@@ -214,7 +332,6 @@ const ChatWidget = () => {
 
     return (
         <>
-            {/* Floating button */}
             <button
                 type="button"
                 onClick={() => setOpen((o) => !o)}
@@ -232,7 +349,6 @@ const ChatWidget = () => {
                 )}
             </button>
 
-            {/* Chat window */}
             {open && (
                 <div className="fixed bottom-24 right-6 z-40 flex h-[420px] w-[360px] max-w-[calc(100vw-3rem)] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
                     <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-4 py-3">
@@ -266,12 +382,23 @@ const ChatWidget = () => {
                                         }`}
                                 >
                                     <p className="whitespace-pre-wrap">{m.text.replace(/\*\*(.*?)\*\*/g, '$1')}</p>
+
+                                    {/* 👇 Renders the button if actionLink is present */}
+                                    {m.link && (
+                                        <a
+                                            href={m.link}
+                                            className="mt-3 block w-full rounded-lg bg-slate-700 px-3 py-2 text-center text-xs font-medium text-white hover:bg-slate-600 transition"
+                                        >
+                                            {m.linkText}
+                                        </a>
+                                    )}
+
                                     {m.hasConfirm && pendingOrder && m.id === pendingOrderMessageId && (
                                         <button
                                             type="button"
                                             onClick={handleConfirmOrder}
                                             disabled={confirming}
-                                            className="mt-2 w-full rounded-lg bg-slate-700 px-3 py-2 text-xs font-medium text-white hover:bg-slate-600 disabled:opacity-50"
+                                            className="mt-3 w-full rounded-lg bg-slate-700 px-3 py-2 text-xs font-medium text-white hover:bg-slate-600 disabled:opacity-50"
                                         >
                                             {confirming ? 'Processing...' : 'Confirm'}
                                         </button>

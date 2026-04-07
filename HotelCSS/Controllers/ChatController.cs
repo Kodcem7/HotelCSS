@@ -43,40 +43,47 @@ namespace HotelCSS.Controllers
         [HttpPost("analyze")]
         public async Task<IActionResult> AnalyzeRequest([FromBody] ChatRequest request)
         {
-            // 1. Get all available Service Items from DB
-            var allItems = _unitOfWork.ServiceItem.GetAll();
-
-            // 2. Convert them to a simple string list (ID and Name) for the AI
-            var menuList = allItems.Select(x => new
-            {
-                x.Id,
-                x.Name,
-                Options = x.RequiredOptions ?? "None"
-            }).ToList();
-            string menuJson = System.Text.Json.JsonSerializer.Serialize(menuList);
-
-            // 3. Ask AI to match the user's text to a menu item
-            string jsonResponse = await _aiService.GetStructuredRequest(request.Question, menuJson);
-
-            if (string.IsNullOrEmpty(jsonResponse))
-            {
-                return StatusCode(500, new { success = false, message = "AI returned an empty response." });
-            }
-
-            // 4. Clean up the response (sometimes AI adds ```json ... ``` wrappers)
-            jsonResponse = jsonResponse.Replace("```json", "").Replace("```", "").Trim();
-
             try
             {
+                // 1. Get all available Service Items from DB
+                var allItems = _unitOfWork.ServiceItem.GetAll();
+
+                // 2. Convert them to a simple string list (ID and Name) for the AI
+                var menuList = allItems.Select(x => new
+                {
+                    x.Id,
+                    x.Name,
+                    Options = x.RequiredOptions ?? "None"
+                }).ToList();
+                string menuJson = System.Text.Json.JsonSerializer.Serialize(menuList);
+
+                // 3. Ask AI to match the user's text to a menu item
+                string jsonResponse = await _aiService.GetStructuredRequest(request.Question, menuJson);
+
+                if (string.IsNullOrEmpty(jsonResponse))
+                {
+                    return StatusCode(500, new { success = false, message = "AI returned an empty response." });
+                }
+
+                // 4. Clean up the response (sometimes AI adds ```json ... ``` wrappers)
+                jsonResponse = jsonResponse.Replace("```json", "").Replace("```", "").Trim();
+
                 // 5. Convert JSON string back to C# Object
                 var decision = System.Text.Json.JsonSerializer.Deserialize<AIRequestResultDTO>(jsonResponse);
 
                 // 6. Return the structured decision!
                 return Ok(new { success = true, data = decision });
             }
-            catch
+            catch (System.Text.Json.JsonException)
             {
-                return BadRequest(new { success = false, message = "AI failed to format JSON", raw = jsonResponse });
+                // This catches bad formatting from the AI
+                return BadRequest(new { success = false, message = "AI failed to format JSON correctly." });
+            }
+            catch (Exception ex)
+            {
+                // THIS IS THE MAGIC SHIELD! 
+                // If Google crashes or you hit a limit, this will print the exact reason in your React chat window!
+                return StatusCode(500, new { success = false, message = $"Backend crashed: {ex.Message}" });
             }
         }
     }

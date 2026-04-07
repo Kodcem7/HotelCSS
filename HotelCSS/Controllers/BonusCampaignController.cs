@@ -18,6 +18,12 @@ namespace HotelCSS.Controllers
         {
             _unitOfWork = unitOfWork;
         }
+        [HttpGet("GetActiveCampaigns")]
+        public IActionResult GetActiveCampaigns()
+        {
+            var activeCampaigns = _unitOfWork.BonusCampaign.GetAll(u => u.IsActive, includeProperties: "ServiceItem");
+            return Ok(activeCampaigns);
+        }
 
         [HttpGet("GetCurrentCampaigns")]
         public IActionResult GetBonusCampaigns()
@@ -51,6 +57,8 @@ namespace HotelCSS.Controllers
 
             var newCampaign = new BonusCampaign
             {
+                Title = obj.Title,
+                Description = obj.Description,
                 CampaignType = obj.CampaignType,
                 ServiceItemId = obj.CampaignType == "AllItems" ? null : obj.ServiceItemId,
                 ExtraPoints = obj.ExtraPoints,

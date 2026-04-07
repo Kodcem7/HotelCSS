@@ -10,3 +10,8 @@ export const deleteBonusCampaign = async (id) => {
   return response.data;
 };
 
+export const getActiveCampaigns = async () => {
+    const response = await api.get('/BonusCampaign/GetActiveCampaigns'); // Change URL if needed
+    return response.data;
+};
+

@@ -23,15 +23,17 @@ namespace HotelCSS.Controllers
         public IActionResult GetBonusEvents()
         {
             var activeCampaigns = _unitOfWork.BonusCampaign
-        .GetAll(b => b.IsActive)
-        .Select(b => new
-        {
-            Id = b.Id,
-            Title = b.CampaignType == "AllItems" ? "Store-Wide Bonus Points!" : "Special Item Bonus Points!",
-            BonusPoints = b.ExtraPoints,
-            StartDate = b.StartDate, // Let's pass the start date to React just in case!
-            EndDate = b.EndDate
-        });
+                .GetAll(b => b.IsActive)
+                .Select(b => new
+                {
+                    Id = b.Id,
+                    Title = b.Title,
+                    Description = b.Description,
+                    BonusPoints = b.ExtraPoints,
+                    StartDate = b.StartDate, // Let's pass the start date to React just in case!
+                    EndDate = b.EndDate
+                });
+
             return Ok(new { data = activeCampaigns });
         }
 
@@ -39,9 +41,16 @@ namespace HotelCSS.Controllers
         [HttpGet("GetActiveEvents")]
         public IActionResult GetActiveEvents()
         {
-            var events = _unitOfWork.HotelEvent.GetAll(u => u.IsActive);
-
+            var events = _unitOfWork.HotelEvent.GetAll(u => u.IsActive && u.EventType == "General");
             return Ok(new { data = events });
+        }
+
+        [AllowAnonymous]
+        [HttpGet("GetMealList")]
+        public IActionResult GetMealList()
+        {
+            var meals = _unitOfWork.HotelEvent.GetAll(u => u.IsActive && u.EventType == "Meal");
+            return Ok(new { data = meals });
         }
 
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
@@ -51,6 +60,8 @@ namespace HotelCSS.Controllers
             var events = _unitOfWork.HotelEvent.GetAll(u => u.IsActive);
             return Ok(new { data = events });
         }
+
+
 
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
         [HttpPost]
