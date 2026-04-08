@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
@@ -108,40 +108,40 @@ const AdminSurveyResultsPage = () => {
                     <div className="animation-fade-in-up">
                         <div className="flex justify-between items-end mb-6">
                             <div>
-                                <h2 className="text-3xl font-bold text-gray-900">Survey Results</h2>
-                                <p className="text-gray-600 mt-1">Select a survey to view guest feedback or manage its status.</p>
+                                <h2 className="font-headline text-4xl text-[#4A3728] font-bold leading-tight">Survey Results</h2>
+                                <p className="text-[#5D534A] mt-2 text-[14px] leading-relaxed">Select a survey to view guest feedback or manage its status.</p>
                             </div>
                         </div>
 
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div className="bg-[#FDFBF7] rounded-[24px] shadow-[0_20px_40px_rgba(15,28,44,0.04)] border border-[#E3DCD2]/40 overflow-hidden">
                             <table className="w-full text-left border-collapse">
                                 <thead>
-                                    <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 text-sm uppercase tracking-wider">
+                                    <tr className="bg-[#F2EBE1] border-b border-[#E3DCD2]/50 text-[#8E735B] text-sm uppercase tracking-wider">
                                         <th className="p-4 font-semibold">Survey Title</th>
                                         <th className="p-4 font-semibold">Status</th>
                                         <th className="p-4 font-semibold">Created</th>
                                         <th className="p-4 font-semibold text-right">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-gray-100">
+                                <tbody className="divide-y divide-[#E3DCD2]/40">
                                     {surveys.map((s) => (
-                                        <tr key={s.id} className="hover:bg-gray-50 transition-colors">
-                                            <td className="p-4 font-medium text-gray-900">{s.title}</td>
+                                        <tr key={s.id} className="hover:bg-[#F8F2EA] transition-colors">
+                                            <td className="p-4 font-medium text-[#4A3728]">{s.title}</td>
                                             <td className="p-4">
-                                                <span className={`px-3 py-1 rounded-full text-xs font-bold ${s.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                                                <span className={`px-3 py-1 rounded-full text-xs font-bold ${s.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-[#EFE7DD] text-[#8E735B]'}`}>
                                                     {s.isActive ? 'Active' : 'Inactive'}
                                                 </span>
                                             </td>
-                                            <td className="p-4 text-gray-600">
+                                            <td className="p-4 text-[#5D534A]">
                                                 {new Date(s.createdAt).toLocaleDateString()}
                                             </td>
                                             <td className="p-4 text-right space-x-2">
                                                 {/* The Toggle Button */}
                                                 <button
                                                     onClick={() => handleToggleStatus(s.id)}
-                                                    className={`font-semibold text-sm px-4 py-2 rounded-lg transition-colors ${s.isActive
-                                                            ? 'text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-800'
-                                                            : 'text-green-600 bg-green-50 hover:bg-green-100 hover:text-green-800'
+                                                    className={`font-semibold text-sm px-4 py-2 rounded-xl transition-colors ${s.isActive
+                                                            ? 'text-[#B22222] bg-[#FBEAEA] hover:bg-[#F7D9D9]'
+                                                            : 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100'
                                                         }`}
                                                 >
                                                     {s.isActive ? 'Deactivate' : 'Activate'}
@@ -150,16 +150,16 @@ const AdminSurveyResultsPage = () => {
                                                 {/* The AI Analytics Button */}
                                                 <button
                                                     onClick={() => handleAnalyzeSurvey(s.id, s.title)}
-                                                    className="text-purple-700 hover:text-purple-900 font-semibold text-sm bg-purple-50 hover:bg-purple-100 px-4 py-2 rounded-lg transition-colors inline-flex items-center gap-1 border border-purple-200"
+                                                    className="text-[#4A3728] hover:text-[#2C241E] font-semibold text-sm bg-[#F2EBE1] hover:bg-[#E8DFD1] px-4 py-2 rounded-xl transition-colors inline-flex items-center gap-1 border border-[#E3DCD2]"
                                                 >
-                                                    <span className="material-symbols-outlined text-[18px]">auto_awesome</span>
+                                                    <span className="material-symbols-outlined text-[18px] text-[#D35400]">auto_awesome</span>
                                                     Analyze with AI
                                                 </button>
 
                                                 {/* The Manual Details Button */}
                                                 <button
                                                     onClick={() => handleViewResponses(s.id)}
-                                                    className="text-blue-600 hover:text-blue-800 font-semibold text-sm bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-lg transition-colors"
+                                                    className="text-[#D35400] hover:text-[#BA4A00] font-semibold text-sm bg-[#F2EBE1] hover:bg-[#E8DFD1] px-4 py-2 rounded-xl transition-colors"
                                                 >
                                                     Details
                                                 </button>
@@ -167,7 +167,7 @@ const AdminSurveyResultsPage = () => {
                                         </tr>
                                     ))}
                                     {surveys.length === 0 && (
-                                        <tr><td colSpan="4" className="p-8 text-center text-gray-500">No surveys created yet.</td></tr>
+                                        <tr><td colSpan="4" className="p-8 text-center text-[#8E735B]">No surveys created yet.</td></tr>
                                     )}
                                 </tbody>
                             </table>
@@ -181,26 +181,26 @@ const AdminSurveyResultsPage = () => {
                         <div className="mb-6">
                             <button
                                 onClick={() => setCurrentView('surveys')}
-                                className="flex items-center text-gray-500 hover:text-gray-800 font-semibold mb-4 transition-colors"
+                                className="flex items-center text-[#8E735B] hover:text-[#4A3728] font-semibold mb-4 transition-colors"
                             >
                                 <span className="material-symbols-outlined mr-1 text-sm">arrow_back</span> Back to Surveys
                             </button>
-                            <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center gap-2">
-                                <span className="material-symbols-outlined text-4xl text-purple-600">auto_awesome</span>
+                            <h2 className="font-headline text-4xl text-[#4A3728] font-bold leading-tight flex items-center gap-2">
+                                <span className="material-symbols-outlined text-4xl text-[#D35400]">auto_awesome</span>
                                 AI Executive Analysis
                             </h2>
-                            <p className="text-gray-600 mt-1">Survey: {currentSurveyTitle}</p>
+                            <p className="text-[#5D534A] mt-2 text-[14px]">Survey: {currentSurveyTitle}</p>
                         </div>
 
-                        <div className="bg-white p-8 rounded-2xl shadow-lg border-2 border-purple-100 min-h-[300px]">
+                        <div className="bg-[#FDFBF7] p-8 rounded-[24px] shadow-[0_20px_40px_rgba(15,28,44,0.06)] border border-[#E3DCD2]/50 min-h-[300px]">
                             {isAnalyzing ? (
                                 <div className="flex flex-col items-center justify-center h-full space-y-4 py-12">
-                                    <div className="w-12 h-12 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin"></div>
-                                    <p className="text-purple-600 font-bold animate-pulse">Aggregating data and generating insights...</p>
+                                    <div className="w-12 h-12 border-4 border-[#E3DCD2] border-t-[#D35400] rounded-full animate-spin"></div>
+                                    <p className="text-[#D35400] font-bold animate-pulse">Aggregating data and generating insights...</p>
                                 </div>
                             ) : (
-                                <div className="prose prose-purple max-w-none">
-                                    <p className="whitespace-pre-wrap text-gray-800 leading-relaxed text-lg">
+                                <div className="prose max-w-none">
+                                    <p className="whitespace-pre-wrap text-[#2C241E] leading-relaxed text-lg">
                                         {aiAnalysis}
                                     </p>
                                 </div>
@@ -215,34 +215,34 @@ const AdminSurveyResultsPage = () => {
                         <div className="mb-6">
                             <button
                                 onClick={() => setCurrentView('surveys')}
-                                className="flex items-center text-gray-500 hover:text-gray-800 font-semibold mb-4 transition-colors"
+                                className="flex items-center text-[#8E735B] hover:text-[#4A3728] font-semibold mb-4 transition-colors"
                             >
                                 <span className="material-symbols-outlined mr-1 text-sm">arrow_back</span> Back to Surveys
                             </button>
-                            <h2 className="text-3xl font-bold text-gray-900">{currentSurveyTitle}</h2>
-                            <p className="text-gray-600 mt-1">Showing all submitted responses for this survey.</p>
+                            <h2 className="font-headline text-4xl text-[#4A3728] font-bold leading-tight">{currentSurveyTitle}</h2>
+                            <p className="text-[#5D534A] mt-2 text-[14px]">Showing all submitted responses for this survey.</p>
                         </div>
 
-                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div className="bg-[#FDFBF7] rounded-[24px] shadow-[0_20px_40px_rgba(15,28,44,0.04)] border border-[#E3DCD2]/40 overflow-hidden">
                             <table className="w-full text-left border-collapse">
                                 <thead>
-                                    <tr className="bg-gray-50 border-b border-gray-200 text-gray-500 text-sm uppercase tracking-wider">
+                                    <tr className="bg-[#F2EBE1] border-b border-[#E3DCD2]/50 text-[#8E735B] text-sm uppercase tracking-wider">
                                         <th className="p-4 font-semibold">Room Number</th>
                                         <th className="p-4 font-semibold">Submitted At</th>
                                         <th className="p-4 font-semibold text-right">Action</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-gray-100">
+                                <tbody className="divide-y divide-[#E3DCD2]/40">
                                     {responses.map((r) => (
-                                        <tr key={r.responseId} className="hover:bg-gray-50 transition-colors">
-                                            <td className="p-4 font-bold text-blue-700">Room {r.roomNumber}</td>
-                                            <td className="p-4 text-gray-600">
+                                        <tr key={r.responseId} className="hover:bg-[#F8F2EA] transition-colors">
+                                            <td className="p-4 font-bold text-[#D35400]">Room {r.roomNumber}</td>
+                                            <td className="p-4 text-[#5D534A]">
                                                 {new Date(r.submittedAt).toLocaleString()}
                                             </td>
                                             <td className="p-4 text-right">
                                                 <button
                                                     onClick={() => handleViewAnswers(r.responseId)}
-                                                    className="text-orange-600 hover:text-orange-800 font-semibold text-sm bg-orange-50 hover:bg-orange-100 px-4 py-2 rounded-lg transition-colors"
+                                                    className="text-[#4A3728] hover:text-[#2C241E] font-semibold text-sm bg-[#F2EBE1] hover:bg-[#E8DFD1] px-4 py-2 rounded-xl transition-colors"
                                                 >
                                                     View Answers
                                                 </button>
@@ -250,7 +250,7 @@ const AdminSurveyResultsPage = () => {
                                         </tr>
                                     ))}
                                     {responses.length === 0 && (
-                                        <tr><td colSpan="3" className="p-8 text-center text-gray-500">No responses yet for this survey.</td></tr>
+                                        <tr><td colSpan="3" className="p-8 text-center text-[#8E735B]">No responses yet for this survey.</td></tr>
                                     )}
                                 </tbody>
                             </table>
@@ -264,26 +264,26 @@ const AdminSurveyResultsPage = () => {
                         <div className="mb-6">
                             <button
                                 onClick={() => setCurrentView('responses')}
-                                className="flex items-center text-gray-500 hover:text-gray-800 font-semibold mb-4 transition-colors"
+                                className="flex items-center text-[#8E735B] hover:text-[#4A3728] font-semibold mb-4 transition-colors"
                             >
                                 <span className="material-symbols-outlined mr-1 text-sm">arrow_back</span> Back to Responses
                             </button>
-                            <h2 className="text-3xl font-bold text-gray-900">Room {answers.roomNumber} Feedback</h2>
-                            <p className="text-gray-600 mt-1">Submitted: {new Date(answers.submittedAt).toLocaleString()}</p>
+                            <h2 className="font-headline text-4xl text-[#4A3728] font-bold leading-tight">Room {answers.roomNumber} Feedback</h2>
+                            <p className="text-[#5D534A] mt-2 text-[14px]">Submitted: {new Date(answers.submittedAt).toLocaleString()}</p>
                         </div>
 
                         <div className="space-y-4">
                             {answers.answers.map((a, index) => (
-                                <div key={index} className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                                    <h4 className="font-semibold text-gray-900 mb-3">{a.questionText}</h4>
+                                <div key={index} className="bg-[#FDFBF7] p-6 rounded-[20px] shadow-[0_14px_30px_rgba(15,28,44,0.03)] border border-[#E3DCD2]/40">
+                                    <h4 className="font-semibold text-[#4A3728] mb-3">{a.questionText}</h4>
 
                                     {a.questionType === 'StarRating' ? (
                                         <div className="flex items-center text-yellow-400">
-                                            <span className="font-bold text-2xl mr-2 text-gray-800">{a.answerValue}/5</span>
+                                            <span className="font-bold text-2xl mr-2 text-[#2C241E]">{a.answerValue}/5</span>
                                             <span className="material-symbols-outlined">star</span>
                                         </div>
                                     ) : (
-                                        <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 text-gray-800 italic">
+                                        <div className="bg-[#F2EBE1]/60 p-4 rounded-xl border border-[#E3DCD2]/40 text-[#2C241E] italic">
                                             "{a.answerValue}"
                                         </div>
                                     )}

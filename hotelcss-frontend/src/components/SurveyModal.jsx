@@ -48,13 +48,13 @@ const SurveyModal = ({ survey, onComplete }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto flex flex-col animation-fade-in-up">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#2C241E]/70 backdrop-blur-sm p-4">
+            <div className="bg-[#FDFBF7] rounded-[28px] shadow-[0_35px_80px_rgba(15,28,44,0.24)] border border-[#E3DCD2]/40 w-full max-w-2xl max-h-[90vh] overflow-y-auto flex flex-col animation-fade-in-up">
 
                 {/* Header */}
-                <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-white text-center sticky top-0 z-10">
-                    <h2 className="text-2xl font-bold mb-1">{survey.title}</h2>
-                    {survey.description && <p className="text-blue-100 text-sm">{survey.description}</p>}
+                <div className="bg-[#4A3728] p-6 text-white text-center sticky top-0 z-10">
+                    <h2 className="font-headline text-3xl font-bold mb-1">{survey.title}</h2>
+                    {survey.description && <p className="text-[#E8DFD1] text-sm">{survey.description}</p>}
                 </div>
 
                 {/* Questions Body */}
@@ -62,9 +62,9 @@ const SurveyModal = ({ survey, onComplete }) => {
                     {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
 
                     {survey.questions.map((q, index) => (
-                        <div key={q.id} className="bg-slate-50 p-5 rounded-xl border border-slate-100">
-                            <label className="block text-base font-semibold text-slate-800 mb-4">
-                                <span className="text-blue-600 mr-2">{index + 1}.</span>
+                        <div key={q.id} className="bg-[#F2EBE1]/60 p-5 rounded-2xl border border-[#E3DCD2]/40">
+                            <label className="block text-base font-semibold text-[#4A3728] mb-4">
+                                <span className="text-[#D35400] mr-2">{index + 1}.</span>
                                 {q.questionText}
                             </label>
 
@@ -75,7 +75,7 @@ const SurveyModal = ({ survey, onComplete }) => {
                                         <button
                                             key={star}
                                             onClick={() => handleAnswerChange(q.id, star)}
-                                            className={`p-2 transition-transform hover:scale-110 focus:outline-none ${answers[q.id] >= star ? 'text-yellow-400' : 'text-slate-300'
+                                            className={`p-2 transition-transform hover:scale-110 focus:outline-none ${answers[q.id] >= star ? 'text-amber-400' : 'text-[#C9B8A5]'
                                                 }`}
                                         >
                                             <svg className="w-10 h-10" fill="currentColor" viewBox="0 0 20 20">
@@ -92,8 +92,8 @@ const SurveyModal = ({ survey, onComplete }) => {
                                     <button
                                         onClick={() => handleAnswerChange(q.id, 'Yes')}
                                         className={`px-8 py-3 rounded-xl font-bold transition-colors ${answers[q.id] === 'Yes'
-                                                ? 'bg-green-600 text-white shadow-md border-green-700'
-                                                : 'bg-white text-slate-600 border border-slate-300 hover:bg-slate-50'
+                                                ? 'bg-emerald-600 text-white shadow-md border-emerald-700'
+                                                : 'bg-white text-[#5D534A] border border-[#D7CCBE] hover:bg-[#FDFBF7]'
                                             }`}
                                     >
                                         Yes
@@ -101,8 +101,8 @@ const SurveyModal = ({ survey, onComplete }) => {
                                     <button
                                         onClick={() => handleAnswerChange(q.id, 'No')}
                                         className={`px-8 py-3 rounded-xl font-bold transition-colors ${answers[q.id] === 'No'
-                                                ? 'bg-red-600 text-white shadow-md border-red-700'
-                                                : 'bg-white text-slate-600 border border-slate-300 hover:bg-slate-50'
+                                                ? 'bg-[#B22222] text-white shadow-md border-[#8F1B1B]'
+                                                : 'bg-white text-[#5D534A] border border-[#D7CCBE] hover:bg-[#FDFBF7]'
                                             }`}
                                     >
                                         No
@@ -117,7 +117,7 @@ const SurveyModal = ({ survey, onComplete }) => {
                                     placeholder="Type your answer here..."
                                     value={answers[q.id] || ''}
                                     onChange={(e) => handleAnswerChange(q.id, e.target.value)}
-                                    className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                                    className="w-full px-4 py-3 border border-[#D7CCBE] rounded-xl bg-white text-[#2C241E] placeholder:text-[#8E735B] focus:ring-2 focus:ring-[#D35400]/20 focus:border-[#D35400] outline-none resize-none transition"
                                 ></textarea>
                             )}
                         </div>
@@ -125,11 +125,11 @@ const SurveyModal = ({ survey, onComplete }) => {
                 </div>
 
                 {/* Footer / Submit Button */}
-                <div className="p-6 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex justify-end">
+                <div className="p-6 border-t border-[#E3DCD2]/50 bg-[#F2EBE1]/50 rounded-b-[28px] flex justify-end">
                     <button
                         onClick={handleSubmit}
                         disabled={loading}
-                        className={`px-8 py-3 rounded-xl font-bold text-white shadow-sm transition-all ${loading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 hover:shadow-md'
+                        className={`px-8 py-3 rounded-xl font-bold text-white shadow-sm transition-all ${loading ? 'bg-[#D9A57E] cursor-not-allowed' : 'bg-[#D35400] hover:bg-[#BA4A00] hover:shadow-md'
                             }`}
                     >
                         {loading ? 'Submitting...' : 'Submit Answers'}

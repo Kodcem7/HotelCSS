@@ -80,8 +80,8 @@ const AdminSurveyPage = () => {
     return (
         <Layout>
             <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">Survey Creator</h2>
-                <p className="text-gray-600 mt-1">
+                <h2 className="font-headline text-4xl text-[#4A3728] font-bold leading-tight">Survey Creator</h2>
+                <p className="text-[#5D534A] mt-2 text-[14px] leading-relaxed">
                     Design a new survey. If you set it to Active, it will replace any currently running survey and appear on all guest dashboards.
                 </p>
             </div>
@@ -89,28 +89,28 @@ const AdminSurveyPage = () => {
             {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
             {success && <SuccessMessage message={success} onDismiss={() => setSuccess('')} />}
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="bg-[#FDFBF7] rounded-[24px] shadow-[0_20px_40px_rgba(15,28,44,0.04)] border border-[#E3DCD2]/40 p-8">
                 <form onSubmit={handleSubmit}>
                     {/* Survey Details Section */}
                     <div className="space-y-4 mb-8">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Survey Title</label>
+                            <label className="block text-sm font-semibold text-[#4A3728] mb-2">Survey Title</label>
                             <input
                                 type="text"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
                                 placeholder="e.g., Mid-Stay Satisfaction Survey"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-4 py-3 border border-[#D7CCBE] bg-white rounded-xl text-[#2C241E] placeholder:text-[#8E735B] focus:ring-2 focus:ring-[#D35400]/20 focus:border-[#D35400] outline-none transition"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Description (Optional)</label>
+                            <label className="block text-sm font-semibold text-[#4A3728] mb-2">Description (Optional)</label>
                             <input
                                 type="text"
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                                 placeholder="e.g., Please let us know how we are doing!"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-4 py-3 border border-[#D7CCBE] bg-white rounded-xl text-[#2C241E] placeholder:text-[#8E735B] focus:ring-2 focus:ring-[#D35400]/20 focus:border-[#D35400] outline-none transition"
                             />
                         </div>
                         <div className="flex items-center mt-4">
@@ -119,23 +119,23 @@ const AdminSurveyPage = () => {
                                 id="isActive"
                                 checked={isActive}
                                 onChange={(e) => setIsActive(e.target.checked)}
-                                className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                className="h-5 w-5 text-[#D35400] focus:ring-[#D35400]/20 border-[#D7CCBE] rounded"
                             />
-                            <label htmlFor="isActive" className="ml-2 block text-sm font-bold text-gray-900">
+                            <label htmlFor="isActive" className="ml-2 block text-sm font-bold text-[#4A3728]">
                                 Publish Immediately (Make Active)
                             </label>
                         </div>
                     </div>
 
-                    <hr className="my-6 border-gray-200" />
+                    <hr className="my-6 border-[#E3DCD2]/60" />
 
                     {/* Dynamic Questions Section */}
                     <div className="mb-6 flex justify-between items-center">
-                        <h3 className="text-lg font-bold text-gray-900">Questions</h3>
+                        <h3 className="text-lg font-bold text-[#4A3728]">Questions</h3>
                         <button
                             type="button"
                             onClick={handleAddQuestion}
-                            className="bg-blue-50 text-blue-700 hover:bg-blue-100 px-4 py-2 rounded-lg font-semibold text-sm transition"
+                            className="bg-[#F2EBE1] text-[#D35400] hover:bg-[#E8DFD1] px-4 py-2 rounded-xl font-semibold text-sm transition"
                         >
                             + Add Question
                         </button>
@@ -143,9 +143,9 @@ const AdminSurveyPage = () => {
 
                     <div className="space-y-4 mb-8">
                         {questions.map((q, index) => (
-                            <div key={index} className="flex gap-4 items-start p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <div key={index} className="flex gap-4 items-start p-4 bg-[#F2EBE1]/50 rounded-xl border border-[#E3DCD2]/50">
                                 <div className="flex-grow">
-                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">
+                                    <label className="block text-xs font-bold text-[#8E735B] uppercase tracking-wider mb-1">
                                         Question {index + 1} Text
                                     </label>
                                     <input
@@ -153,17 +153,17 @@ const AdminSurveyPage = () => {
                                         value={q.questionText}
                                         onChange={(e) => handleQuestionChange(index, 'questionText', e.target.value)}
                                         placeholder="e.g., How clean was your room?"
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                        className="w-full px-3 py-2 border border-[#D7CCBE] bg-white rounded-xl text-[#2C241E] placeholder:text-[#8E735B] focus:ring-2 focus:ring-[#D35400]/20 focus:border-[#D35400] outline-none transition"
                                     />
                                 </div>
                                 <div className="w-48">
-                                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">
+                                    <label className="block text-xs font-bold text-[#8E735B] uppercase tracking-wider mb-1">
                                         Answer Type
                                     </label>
                                     <select
                                         value={q.questionType}
                                         onChange={(e) => handleQuestionChange(index, 'questionType', e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white"
+                                        className="w-full px-3 py-2 border border-[#D7CCBE] rounded-xl bg-white text-[#2C241E] focus:ring-2 focus:ring-[#D35400]/20 focus:border-[#D35400] outline-none transition"
                                     >
                                         <option value="StarRating">5-Star Rating</option>
                                         <option value="Text">Text Box</option>
@@ -174,7 +174,7 @@ const AdminSurveyPage = () => {
                                     <button
                                         type="button"
                                         onClick={() => handleRemoveQuestion(index)}
-                                        className="mt-6 p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
+                                        className="mt-6 p-2 text-[#B22222] hover:bg-[#FBEAEA] rounded-lg transition"
                                         title="Remove Question"
                                     >
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -190,7 +190,7 @@ const AdminSurveyPage = () => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className={`px-6 py-3 rounded-xl font-bold text-white shadow-sm transition-all ${loading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 hover:shadow-md'
+                            className={`px-6 py-3 rounded-xl font-bold text-white shadow-sm transition-all ${loading ? 'bg-[#D9A57E] cursor-not-allowed' : 'bg-[#D35400] hover:bg-[#BA4A00] hover:shadow-md'
                                 }`}
                         >
                             {loading ? 'Publishing...' : 'Save & Publish Survey'}
