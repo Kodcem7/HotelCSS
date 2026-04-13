@@ -38,5 +38,11 @@ namespace CSSHotel.Models
 
         public bool IsActive { get; set; } = true;
 
+        public int? HotelEventId { get; set; }
+
+        [ForeignKey("HotelEventId")]
+        [ValidateNever]
+        public HotelEvent? HotelEvent { get; set; }
+
     }
 }

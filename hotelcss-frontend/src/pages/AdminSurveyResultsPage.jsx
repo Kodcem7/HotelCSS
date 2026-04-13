@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
-import { getAllSurveys, getSurveyResponses, getResponseDetails, toggleSurveyStatus, getSurveyAiAnalysis } from '../api/surveys';
+import SuccessMessage from '../components/SuccessMessage'; // 👇 1. IMPORT ADDED
+import { getAllSurveys, getSurveyResponses, getResponseDetails, toggleSurveyStatus, getSurveyAiAnalysis, deleteSurvey } from '../api/surveys';
 
 const AdminSurveyResultsPage = () => {
     // view state can be: 'surveys', 'responses', 'answers', 'analysis'
@@ -19,6 +20,7 @@ const AdminSurveyResultsPage = () => {
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [success, setSuccess] = useState(''); // 👇 2. STATE ADDED
 
     useEffect(() => {
         fetchSurveys();
@@ -45,6 +47,27 @@ const AdminSurveyResultsPage = () => {
             await fetchSurveys();
         } catch (err) {
             setError('Failed to update survey status.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDeleteSurvey = async (surveyId) => {
+        if (!window.confirm('Are you sure you want to delete this survey? This will permanently delete all guest responses attached to it.')) {
+            return;
+        }
+
+        try {
+            setLoading(true);
+            setError('');   // 👇 3. CLEARS OLD ERRORS
+            setSuccess(''); // 👇 3. CLEARS OLD SUCCESSES
+
+            await deleteSurvey(surveyId);
+            await fetchSurveys(); // Refresh the table automatically
+
+            setSuccess('Survey and all responses deleted successfully!'); // 👇 3. SETS NEW SUCCESS
+        } catch (err) {
+            setError(err.response?.data?.message || 'Failed to delete survey.');
         } finally {
             setLoading(false);
         }
@@ -102,6 +125,8 @@ const AdminSurveyResultsPage = () => {
         <Layout>
             <div className="max-w-6xl mx-auto p-6">
                 {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
+                {/* 👇 4. RENDER SUCCESS MESSAGE COMPONENT */}
+                {success && <SuccessMessage message={success} onDismiss={() => setSuccess('')} />}
 
                 {/* LEVEL 1: ALL SURVEYS */}
                 {currentView === 'surveys' && (
@@ -140,8 +165,8 @@ const AdminSurveyResultsPage = () => {
                                                 <button
                                                     onClick={() => handleToggleStatus(s.id)}
                                                     className={`font-semibold text-sm px-4 py-2 rounded-xl transition-colors ${s.isActive
-                                                            ? 'text-[#B22222] bg-[#FBEAEA] hover:bg-[#F7D9D9]'
-                                                            : 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100'
+                                                        ? 'text-[#B22222] bg-[#FBEAEA] hover:bg-[#F7D9D9]'
+                                                        : 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100'
                                                         }`}
                                                 >
                                                     {s.isActive ? 'Deactivate' : 'Activate'}
@@ -162,6 +187,14 @@ const AdminSurveyResultsPage = () => {
                                                     className="text-[#D35400] hover:text-[#BA4A00] font-semibold text-sm bg-[#F2EBE1] hover:bg-[#E8DFD1] px-4 py-2 rounded-xl transition-colors"
                                                 >
                                                     Details
+                                                </button>
+
+                                                {/* The Delete Button */}
+                                                <button
+                                                    onClick={() => handleDeleteSurvey(s.id)}
+                                                    className="text-[#B22222] hover:text-[#8B0000] font-semibold text-sm bg-[#FBEAEA] hover:bg-[#F7D9D9] px-4 py-2 rounded-xl transition-colors border border-[#F7D9D9]"
+                                                >
+                                                    Delete
                                                 </button>
                                             </td>
                                         </tr>

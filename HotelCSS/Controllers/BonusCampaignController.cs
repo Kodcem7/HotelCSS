@@ -64,7 +64,8 @@ namespace HotelCSS.Controllers
                 ExtraPoints = obj.ExtraPoints,
                 StartDate = obj.StartDate,
                 EndDate = obj.EndDate,
-                IsActive = obj.IsActive ?? false
+                IsActive = obj.IsActive ?? false,
+                HotelEventId = obj.HotelEventId
             };
 
             if (obj.CampaignType == "SpecificItem")
@@ -91,10 +92,10 @@ namespace HotelCSS.Controllers
         }
 
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
-        [HttpPost("toggle-status/{id}")]
-        public IActionResult ToggleStatus(int id)
+        [HttpPut("toggle-status/{eventId}")]
+        public IActionResult ToggleStatus(int eventId)
         {
-            var campaign = _unitOfWork.BonusCampaign.GetFirstOrDefault(u => u.Id == id);
+            var campaign = _unitOfWork.BonusCampaign.GetFirstOrDefault(u => u.HotelEventId == eventId);
             if (campaign == null)
             {
                 return NotFound(new { success = false, message = "Bonus campaign not found." });

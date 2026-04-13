@@ -22,7 +22,7 @@ namespace CSSHotel.Models
         public string QrCodeString { get; set; } = Guid.NewGuid().ToString();
         public string? CurrentGuestMail { get; set; }
         public DateTime? CurrentCheckInDate { get; set; }
-
+        public bool isSkipped { get; set; } = true;
 
     }
 }
