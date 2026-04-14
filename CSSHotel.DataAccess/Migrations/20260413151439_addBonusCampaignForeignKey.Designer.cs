@@ -4,6 +4,7 @@ using CSSHotel.DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CSSHotel.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260413151439_addBonusCampaignForeignKey")]
+    partial class addBonusCampaignForeignKey
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -117,9 +120,6 @@ namespace CSSHotel.DataAccess.Migrations
                     b.Property<int>("ExtraPoints")
                         .HasColumnType("int");
 
-                    b.Property<int?>("HotelEventId")
-                        .HasColumnType("int");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -134,8 +134,6 @@ namespace CSSHotel.DataAccess.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("HotelEventId");
 
                     b.HasIndex("ServiceItemId");
 
@@ -228,6 +226,9 @@ namespace CSSHotel.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("BonusCampaignId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
@@ -255,6 +256,8 @@ namespace CSSHotel.DataAccess.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BonusCampaignId");
 
                     b.ToTable("HotelEvents");
                 });
@@ -756,17 +759,20 @@ namespace CSSHotel.DataAccess.Migrations
 
             modelBuilder.Entity("CSSHotel.Models.BonusCampaign", b =>
                 {
-                    b.HasOne("CSSHotel.Models.HotelEvent", "HotelEvent")
-                        .WithMany()
-                        .HasForeignKey("HotelEventId");
-
                     b.HasOne("CSSHotel.Models.ServiceItem", "ServiceItem")
                         .WithMany()
                         .HasForeignKey("ServiceItemId");
 
-                    b.Navigation("HotelEvent");
-
                     b.Navigation("ServiceItem");
+                });
+
+            modelBuilder.Entity("CSSHotel.Models.HotelEvent", b =>
+                {
+                    b.HasOne("CSSHotel.Models.BonusCampaign", "BonusCampaign")
+                        .WithMany()
+                        .HasForeignKey("BonusCampaignId");
+
+                    b.Navigation("BonusCampaign");
                 });
 
             modelBuilder.Entity("CSSHotel.Models.ReceptionService", b =>

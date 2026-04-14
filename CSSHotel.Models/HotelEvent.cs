@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CSSHotel.Models
 {
@@ -23,6 +25,7 @@ namespace CSSHotel.Models
         [MaxLength(2000)]
         public string? MealInfo { get; set; }
         public bool IsActive {  get; set; } = true;
+
     }
 }
 

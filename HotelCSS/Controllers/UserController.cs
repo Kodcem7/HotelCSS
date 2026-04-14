@@ -275,7 +275,6 @@ namespace HotelCSS.Controllers
                     return BadRequest(new { success = false, message = "This email is already in use!" });
                 }
                 room.Status = "Occupied";
-                // Email may be empty/null; backend logging handles it separately.
                 room.CurrentGuestMail = string.IsNullOrWhiteSpace(obj.Email) ? null : obj.Email;
                 room.CurrentCheckInDate = DateTime.Now;
                 room.CurrentPoints = 0;
@@ -338,7 +337,7 @@ namespace HotelCSS.Controllers
             //Delete ReceptionService Requests from it's table after c/o
             var oldReceptionRequests = _unitOfWork.ReceptionService.GetAll(u => u.RoomNumber == roomNumber);
             _unitOfWork.ReceptionService.RemoveRange(oldReceptionRequests);
-            //Reset room to available
+            //Set room to available
             var oldPointsSpent = _unitOfWork.RewardVoucher.GetAll(u => u.RoomNumber == roomNumber);
             _unitOfWork.RewardVoucher.RemoveRange(oldPointsSpent);
 
@@ -346,6 +345,7 @@ namespace HotelCSS.Controllers
             room.CurrentGuestMail = null;
             room.CurrentCheckInDate = null;
             room.CurrentPoints = 0;
+            room.isSkipped = true;
             _unitOfWork.Room.Update(room);
             _unitOfWork.Save();
 

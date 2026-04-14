@@ -46,3 +46,8 @@ export const getSurveyAiAnalysis = async (surveyId) => {
     const response = await api.get(`/Survey/AnalyzeSurvey/${surveyId}`);
     return response.data;
 };
+
+export const deleteSurvey = async (id) => {
+    const response = await api.delete(`/Survey/DeleteSurvey/${id}`);
+    return response.data;
+};

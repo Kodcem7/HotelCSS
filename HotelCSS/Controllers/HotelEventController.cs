@@ -57,7 +57,7 @@ namespace HotelCSS.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            var events = _unitOfWork.HotelEvent.GetAll(u => u.IsActive);
+            var events = _unitOfWork.HotelEvent.GetAll();
             return Ok(new { data = events });
         }
 
@@ -74,15 +74,6 @@ namespace HotelCSS.Controllers
 
             if (dto.EventType == "BonusPoint")
             {
-                var bonusDTO = new BonusCampaignDTO
-                {
-                    ServiceItemId = dto.CampaignType == "AllItems" ? null : dto.ServiceItemId,
-                    ExtraPoints = dto.BonusPoints.Value,
-                    CampaignType = dto.CampaignType,
-                    StartDate = dto.StartDate.Value,
-                    EndDate = dto.EndDate.Value,
-                    IsActive = dto.IsActive
-                };
 
                 var newEvent = new HotelEvent
                 {
@@ -96,6 +87,19 @@ namespace HotelCSS.Controllers
 
                 _unitOfWork.HotelEvent.Add(newEvent);
                 _unitOfWork.Save();
+
+                var bonusDTO = new BonusCampaignDTO
+                {
+                    Title = dto.Title,
+                    ServiceItemId = dto.CampaignType == "AllItems" ? null : dto.ServiceItemId,
+                    ExtraPoints = dto.BonusPoints.Value,
+                    CampaignType = dto.CampaignType,
+                    StartDate = dto.StartDate.Value,
+                    EndDate = dto.EndDate.Value,
+                    IsActive = dto.IsActive,
+                    HotelEventId = newEvent.Id
+                };
+
                 var bonusController = new BonusCampaignController(_unitOfWork);
                 return bonusController.CreateBonusCampaign(bonusDTO);
             }
@@ -171,6 +175,15 @@ namespace HotelCSS.Controllers
             if (existing == null)
             {
                 return NotFound(new { success = false, message = "Hotel event not found" });
+            }
+
+            if (existing.EventType == "BonusPoint")
+            {
+                var bonusCampaign = _unitOfWork.BonusCampaign.GetFirstOrDefault(u => u.HotelEventId == id);
+                if (bonusCampaign != null)
+                {
+                    _unitOfWork.BonusCampaign.Remove(bonusCampaign);
+                }
             }
 
             _unitOfWork.HotelEvent.Remove(existing);

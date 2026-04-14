@@ -333,10 +333,6 @@ namespace HotelCSS.Controllers
                 return NotFound(new { success = false, message = "Order not found!" });
             }
 
-            // Enforce simple workflow:
-            // Room user creates -> Pending
-            // Reception "approves" -> InProcess
-            // Reception finishes -> Completed (or Cancelled)
             if (order.Status == SD.StatusPending)
             {
                 if (newStatus != SD.StatusInProgress && newStatus != SD.StatusCancelled)
@@ -390,7 +386,12 @@ namespace HotelCSS.Controllers
                         (u.CampaignType == "AllItems" || u.ServiceItemId == order.ServiceItemId)
 
                         );
-                    int bonusPoints = _unitOfWork.BonusCampaign.GetTotalBonusPointsToday(order.ServiceItemId.Value, today);
+
+                    int bonusPoints = 0;
+                    if (activeBonus != null)
+                    {
+                        bonusPoints = activeBonus.ExtraPoints;
+                    }
 
                     int totalPoints = basePoints + bonusPoints;
                     room.CurrentPoints += totalPoints;

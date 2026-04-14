@@ -7,6 +7,7 @@ using MailKit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using System.Security.Claims;
 
 namespace HotelCSS.Controllers
@@ -17,11 +18,12 @@ namespace HotelCSS.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly AIService _aiService;
-        public SurveyController(IUnitOfWork unitOfWork,AIService aiService)
+        public SurveyController(IUnitOfWork unitOfWork, AIService aiService)
         {
             _unitOfWork = unitOfWork;
             _aiService = aiService;
         }
+
 
         [HttpGet("GetAllSurveys")]
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
@@ -78,7 +80,8 @@ namespace HotelCSS.Controllers
                 includeProperties: "Questions"
             );
 
-            var formattedAnswers = response.Answers.Select(a => new {
+            var formattedAnswers = response.Answers.Select(a => new
+            {
                 questionId = a.SurveyQuestionId,
                 questionText = survey.Questions.FirstOrDefault(q => q.Id == a.SurveyQuestionId)?.QuestionText,
                 questionType = survey.Questions.FirstOrDefault(q => q.Id == a.SurveyQuestionId)?.QuestionType,
@@ -131,15 +134,36 @@ namespace HotelCSS.Controllers
                     OrderIndex = question.OrderIndex
                 });
             }
+
+            var rooms = _unitOfWork.Room.GetAll().ToList();
+            foreach (var room in rooms)
+            {
+                if (room.Status == SD.Status_Room_Available)
+                {
+                    room.isSkipped = true;
+                }
+                else
+                {
+                    room.isSkipped = false;
+                }
+                _unitOfWork.Room.Update(room);
+            }
+
             _unitOfWork.Survey.Add(newSurvey);
             _unitOfWork.Save();
-            return Ok(new { success = true, message = "Survey created successfully!" });
+
+            return Ok(new
+            {
+                success = true,
+                message = "Survey created successfully!",
+            });
         }
 
         [HttpGet("GetPendingSurvey")]
         [Authorize(Roles = SD.Role_Room)]
         public IActionResult GetPendingSurvey()
         {
+
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var roomUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == userId);
             if (roomUser == null)
@@ -162,6 +186,11 @@ namespace HotelCSS.Controllers
             bool alreadyAnswered = existingResponse != null;
 
             if (alreadyAnswered)
+            {
+                return Ok(new { hasPendingSurvey = false });
+            }
+            var room = _unitOfWork.Room.GetFirstOrDefault(r => r.RoomNumber == roomNumber);
+            if (room.isSkipped)
             {
                 return Ok(new { hasPendingSurvey = false });
             }
@@ -234,7 +263,7 @@ namespace HotelCSS.Controllers
 
             if (survey.IsActive)
             {
-                var activeSurveys = _unitOfWork.Survey.GetAll(u =>u.IsActive && u.Id != id).ToList();
+                var activeSurveys = _unitOfWork.Survey.GetAll(u => u.IsActive && u.Id != id).ToList();
                 foreach (var s in activeSurveys)
                 {
                     s.IsActive = false;
@@ -315,5 +344,38 @@ namespace HotelCSS.Controllers
                 return StatusCode(500, new { success = false, message = "Gemini AI Analysis failed: " + ex.Message });
             }
         }
+
+        [HttpDelete("DeleteSurvey/{id}")]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
+        public IActionResult DeleteSurvey(int id)
+        {
+            var survey = _unitOfWork.Survey.GetFirstOrDefault(u => u.Id == id);
+            if (survey == null)
+            {
+                return NotFound(new { success = false, message = "Survey not found." });
+            }
+
+
+            var surveyResponses = _unitOfWork.SurveyResponse.GetAll(u => u.SurveyId == id).ToList();
+            var surveyQuestions = _unitOfWork.SurveyQuestion.GetAll(u => u.SurveyId == id).ToList();
+
+            var questionIds = surveyQuestions.Select(q => q.Id).ToList();
+
+            var surveyAnswers = _unitOfWork.SurveyAnswer.GetAll(a => questionIds.Contains(a.SurveyQuestionId)).ToList();
+
+            if (surveyAnswers.Any())
+                _unitOfWork.SurveyAnswer.RemoveRange(surveyAnswers);
+
+            if (surveyQuestions.Any())
+                _unitOfWork.SurveyQuestion.RemoveRange(surveyQuestions);
+
+            if (surveyResponses.Any())
+                _unitOfWork.SurveyResponse.RemoveRange(surveyResponses);
+
+            _unitOfWork.Survey.Remove(survey);
+            _unitOfWork.Save();
+            return Ok(new { success = true, message = "Survey deleted successfully." });
+        }
+
     }
 }

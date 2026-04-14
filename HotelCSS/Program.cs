@@ -38,6 +38,8 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 //3. Adding AI service
 builder.Services.AddScoped<CSSHotel.Utility.Service.AIService>();
 
+builder.Services.AddMemoryCache();
+
 builder.Services.Configure<IdentityOptions>(options =>
 {
 

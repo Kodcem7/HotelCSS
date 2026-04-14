@@ -55,6 +55,7 @@ namespace HotelCSS.Controllers
                 {
                     RoomNumber = obj.RoomNumber,
                     Status = "Available",
+                    isSkipped = true,
                 };
                 _unitOfWork.Room.Add(room);
                 _unitOfWork.Save();
@@ -90,6 +91,7 @@ namespace HotelCSS.Controllers
                         {
                             RoomNumber = currentRoomNum,
                             Status = "Available",
+                            isSkipped = true,
                             //QrCodeString is already generated otomatically.
                         });
                     }
