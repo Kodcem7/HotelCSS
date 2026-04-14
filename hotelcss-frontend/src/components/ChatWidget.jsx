@@ -335,7 +335,7 @@ const ChatWidget = () => {
             <button
                 type="button"
                 onClick={() => setOpen((o) => !o)}
-                className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-slate-700 text-white shadow-lg transition hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+                className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#4A3728] text-white shadow-[0_16px_30px_rgba(74,55,40,0.28)] transition hover:bg-[#3A2B20] focus:outline-none focus:ring-2 focus:ring-[#D35400]/40 focus:ring-offset-2"
                 aria-label={open ? 'Close chat' : 'Open chat'}
             >
                 {open ? (
@@ -350,13 +350,13 @@ const ChatWidget = () => {
             </button>
 
             {open && (
-                <div className="fixed bottom-24 right-6 z-40 flex h-[420px] w-[360px] max-w-[calc(100vw-3rem)] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
-                    <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-4 py-3">
-                        <span className="font-semibold text-slate-800">Room assistant</span>
+                <div className="fixed bottom-24 right-6 z-40 flex h-[440px] w-[360px] max-w-[calc(100vw-3rem)] flex-col overflow-hidden rounded-[24px] border border-[#E3DCD2]/40 bg-[#FDFBF7] shadow-[0_30px_70px_rgba(15,28,44,0.14)]">
+                    <div className="flex items-center justify-between border-b border-[#E3DCD2]/50 bg-[#F2EBE1] px-4 py-3">
+                        <span className="font-semibold text-[#4A3728]">Room assistant</span>
                         <button
                             type="button"
                             onClick={() => setOpen(false)}
-                            className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-200 hover:text-slate-700"
+                            className="rounded-lg p-1.5 text-[#8E735B] hover:bg-[#E8DFD1] hover:text-[#4A3728]"
                             aria-label="Close"
                         >
                             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -372,13 +372,13 @@ const ChatWidget = () => {
                                 className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
                             >
                                 <div
-                                    className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${m.role === 'user'
-                                        ? 'bg-slate-700 text-white'
+                                    className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm border ${m.role === 'user'
+                                        ? 'bg-[#4A3728] text-white border-[#4A3728]'
                                         : m.isError
-                                            ? 'bg-red-50 text-red-800 border border-red-200'
+                                            ? 'bg-red-50 text-red-800 border-red-200'
                                             : m.isSuccess
-                                                ? 'bg-green-50 text-green-800 border border-green-200'
-                                                : 'bg-slate-100 text-slate-800'
+                                                ? 'bg-green-50 text-green-800 border-green-200'
+                                                : 'bg-[#F2EBE1] text-[#2C241E] border-[#E3DCD2]/50'
                                         }`}
                                 >
                                     <p className="whitespace-pre-wrap">{m.text.replace(/\*\*(.*?)\*\*/g, '$1')}</p>
@@ -387,7 +387,7 @@ const ChatWidget = () => {
                                     {m.link && (
                                         <a
                                             href={m.link}
-                                            className="mt-3 block w-full rounded-lg bg-slate-700 px-3 py-2 text-center text-xs font-medium text-white hover:bg-slate-600 transition"
+                                            className="mt-3 block w-full rounded-lg bg-[#4A3728] px-3 py-2 text-center text-xs font-medium text-white hover:bg-[#3A2B20] transition"
                                         >
                                             {m.linkText}
                                         </a>
@@ -398,7 +398,7 @@ const ChatWidget = () => {
                                             type="button"
                                             onClick={handleConfirmOrder}
                                             disabled={confirming}
-                                            className="mt-3 w-full rounded-lg bg-slate-700 px-3 py-2 text-xs font-medium text-white hover:bg-slate-600 disabled:opacity-50"
+                                            className="mt-3 w-full rounded-lg bg-[#4A3728] px-3 py-2 text-xs font-medium text-white hover:bg-[#3A2B20] disabled:opacity-50"
                                         >
                                             {confirming ? 'Processing...' : 'Confirm'}
                                         </button>
@@ -408,7 +408,7 @@ const ChatWidget = () => {
                         ))}
                         {loading && (
                             <div className="flex justify-start">
-                                <div className="rounded-2xl bg-slate-100 px-4 py-2.5 text-sm text-slate-500">
+                                <div className="rounded-2xl border border-[#E3DCD2]/40 bg-[#F2EBE1] px-4 py-2.5 text-sm text-[#8E735B]">
                                     Thinking...
                                 </div>
                             </div>
@@ -420,7 +420,7 @@ const ChatWidget = () => {
                         <div className="px-4 py-1 text-xs text-red-600">{error}</div>
                     )}
 
-                    <div className="border-t border-slate-200 p-3">
+                    <div className="border-t border-[#E3DCD2]/50 bg-[#FDFBF7] p-3">
                         <div className="flex gap-2">
                             <input
                                 type="text"
@@ -428,14 +428,14 @@ const ChatWidget = () => {
                                 onChange={(e) => setInput(e.target.value)}
                                 onKeyDown={handleKeyDown}
                                 placeholder="Type your request..."
-                                className="flex-1 rounded-xl border border-slate-300 px-4 py-2.5 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+                                className="flex-1 rounded-xl border border-[#E3DCD2]/70 bg-[#F2EBE1]/55 px-4 py-2.5 text-sm text-[#2C241E] placeholder:text-[#8E735B] focus:border-[#D35400]/40 focus:outline-none focus:ring-1 focus:ring-[#D35400]/25"
                                 disabled={loading}
                             />
                             <button
                                 type="button"
                                 onClick={handleSend}
                                 disabled={loading || !input.trim()}
-                                className="rounded-xl bg-slate-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="rounded-xl bg-[#4A3728] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#3A2B20] disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 Send
                             </button>

@@ -4,7 +4,7 @@ import Layout from '../components/Layout';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import SuccessMessage from '../components/SuccessMessage';
-import { createRequest, getRequestDepartments, getServicesByDepartment } from '../api/requests';
+import { createRequest, getServicesByDepartment } from '../api/requests';
 import { getServiceItems } from '../api/serviceItems';
 import { getRooms } from '../api/rooms';
 import { getDepartments } from '../api/departments';
@@ -33,6 +33,17 @@ const CreateRequestPage = () => {
   });
 
   const isRoomUser = user?.role === 'Room';
+  const isAllowedRequestDepartment = (dept) => {
+    const rawName = dept?.departmentName ?? dept?.DepartmentName ?? '';
+    const normalizedName = rawName.toLowerCase();
+    return !(
+      normalizedName.includes('admin') ||
+      normalizedName.includes('manager') ||
+      normalizedName.includes('administration') ||
+      normalizedName.includes('room') ||
+      normalizedName.includes('technic')
+    );
+  };
 
   useEffect(() => {
     fetchData();
@@ -43,8 +54,9 @@ const CreateRequestPage = () => {
       setLoading(true);
       setError('');
       if (isRoomUser) {
-        const deptsRes = await getRequestDepartments();
-        setDepartments(Array.isArray(deptsRes) ? deptsRes : deptsRes?.data ?? []);
+        const deptsRes = await getDepartments();
+        const allDepartments = Array.isArray(deptsRes) ? deptsRes : deptsRes?.data ?? [];
+        setDepartments(allDepartments.filter(isAllowedRequestDepartment));
         setServiceItems([]);
       } else {
         const [itemsRes, roomsRes, deptsRes] = await Promise.all([

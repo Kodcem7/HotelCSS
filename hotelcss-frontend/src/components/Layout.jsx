@@ -198,7 +198,7 @@ const Layout = ({ children }) => {
 
             {/* SideNavBar */}
             {isDashboardSuite ? (
-                <aside className="h-screen w-72 fixed left-0 top-0 bg-[#FDFBF7] flex flex-col py-8 pr-5 z-50 border-r border-[#E3DCD2]/30 overflow-hidden">
+                <aside className="w-72 fixed inset-y-0 left-0 bg-[#FDFBF7] flex flex-col py-8 pr-5 z-50 border-r border-[#E3DCD2]/30">
                     {/* Header Kısmı: flex-shrink-0 vererek sıkışmasını önlüyoruz */}
                     <div className="px-8 mb-8 flex-shrink-0">
                         <h1 className="font-headline text-lg text-[#4A3728] font-bold leading-tight">
@@ -208,7 +208,7 @@ const Layout = ({ children }) => {
                     </div>
 
                     {/* Navigasyon: flex-1 ile ortadaki tüm boş alanı kaplamasını sağlıyoruz */}
-                    <nav className="flex-1 space-y-1 overflow-y-auto overflow-x-hidden">
+                    <nav className="flex-1 min-h-0 space-y-1 overflow-y-auto overflow-x-hidden">
                         {navItems.map((item) => (
                             <Link key={item.to} to={item.to} className={getAdminLinkClass(item.to)}>
                                 <span className="material-symbols-outlined">{item.icon}</span>
@@ -218,7 +218,7 @@ const Layout = ({ children }) => {
                     </nav>
 
                     {/* Footer: mt-auto sayesinde flex-1'in itmesiyle tamamen en alta yapışır */}
-                    <footer className="mt-auto pt-4 space-y-1 flex-shrink-0">
+                    <footer className="mt-auto pt-4 border-t border-[#E3DCD2]/40 space-y-1 flex-shrink-0 bg-[#FDFBF7]">
                         <Link to="/settings" className={getAdminLinkClass('/settings')}>
                             <span className="material-symbols-outlined">settings</span>
                             <span className="font-label text-[12px] uppercase tracking-widest">Settings</span>
@@ -233,7 +233,7 @@ const Layout = ({ children }) => {
                     </footer>
                 </aside>
             ) : (
-                <aside className="h-screen w-64 fixed left-0 top-0 bg-slate-50 dark:bg-slate-950 flex flex-col py-8 pr-4 z-50 border-r border-slate-200 dark:border-slate-800 overflow-hidden">
+                <aside className="w-64 fixed inset-y-0 left-0 bg-slate-50 dark:bg-slate-950 flex flex-col py-8 pr-4 z-50 border-r border-slate-200 dark:border-slate-800">
                     <div className="px-8 mb-8 flex-shrink-0">
                         <h1 className="font-serif text-lg text-indigo-950 dark:text-white leading-tight">Parador Beach Hotel</h1>
                         <p className="font-label text-[11px] all-caps tracking-widest text-slate-500 mt-1 uppercase">
@@ -241,7 +241,7 @@ const Layout = ({ children }) => {
                         </p>
                     </div>
 
-                    <nav className="flex-1 space-y-1 overflow-y-auto overflow-x-hidden">
+                    <nav className="flex-1 min-h-0 space-y-1 overflow-y-auto overflow-x-hidden">
                         <Link to="/admin/staff" className={getStandardLinkClass('/admin/staff')}>
                             <span className="material-symbols-outlined">badge</span>
                             <span className="font-label text-[11px] uppercase tracking-widest">Staff</span>
@@ -280,7 +280,7 @@ const Layout = ({ children }) => {
                         </Link>
                     </nav>
 
-                    <footer className="mt-auto pt-4 space-y-1 flex-shrink-0">
+                    <footer className="mt-auto pt-4 border-t border-slate-200 dark:border-slate-800 space-y-1 flex-shrink-0 bg-slate-50 dark:bg-slate-950">
                         <Link to="/settings" className={getStandardLinkClass('/settings')}>
                             <span className="material-symbols-outlined">settings</span>
                             <span className="font-label text-[11px] uppercase tracking-widest">Settings</span>
