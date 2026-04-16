@@ -1,13 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import ChatWidget from './ChatWidget';
 import { getMyPoints } from '../api/rooms';
 
 const Layout = ({ children }) => {
     const { user, logout } = useAuth();
+    const { language, t, translateUiText } = useLanguage();
     const navigate = useNavigate();
     const location = useLocation();
+    const layoutRef = useRef(null);
+    const originalTextMapRef = useRef(new WeakMap());
+    const originalAttrMapRef = useRef(new WeakMap());
+    const translatingRef = useRef(false);
 
     // Suite görünümü, sadece kullanıcının ana dashboard rolüne göre belirlenmeli.
     // Böylece Admin/Manager reception services'e girse bile layout reception suite'e geçmez,
@@ -27,15 +33,15 @@ const Layout = ({ children }) => {
 
     const suiteLabel =
         suiteKey === 'admin'
-            ? 'ADMIN SUITE'
+            ? t('adminSuite', 'ADMIN SUITE')
             : suiteKey === 'manager'
-              ? 'HOTEL MANAGER SUITE'
+              ? t('hotelManagerSuite', 'HOTEL MANAGER SUITE')
               : suiteKey === 'reception'
-                ? 'RECEPTION SUITE'
+                ? t('receptionSuite', 'RECEPTION SUITE')
                 : suiteKey === 'staff'
-                  ? 'STAFF SUITE'
+                  ? t('staffSuite', 'STAFF SUITE')
                   : suiteKey === 'room'
-                    ? 'ROOM SUITE'
+                    ? t('roomSuite', 'ROOM SUITE')
                     : '';
 
     const navItemsBySuite = {
@@ -104,6 +110,103 @@ const Layout = ({ children }) => {
         fetchPoints();
     }, [user]);
 
+    useLayoutEffect(() => {
+        const root = layoutRef.current;
+        if (!root) {
+            return;
+        }
+
+        const textMap = originalTextMapRef.current;
+        const attrMap = originalAttrMapRef.current;
+        const applyTranslations = () => {
+            if (translatingRef.current) {
+                return;
+            }
+            translatingRef.current = true;
+            try {
+                const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+                let node = walker.nextNode();
+
+                while (node) {
+                    const parentTag = node.parentElement?.tagName;
+                    const isIgnoredParent = parentTag === 'SCRIPT' || parentTag === 'STYLE';
+                    if (!isIgnoredParent) {
+                        if (!textMap.has(node)) {
+                            textMap.set(node, node.nodeValue || '');
+                        }
+                        const original = textMap.get(node) || '';
+                        const translated = translateUiText(original);
+                        if (node.nodeValue !== translated) {
+                            node.nodeValue = translated;
+                        }
+                    }
+                    node = walker.nextNode();
+                }
+
+                const attrTargets = root.querySelectorAll('input[placeholder], textarea[placeholder], [title], [aria-label]');
+                attrTargets.forEach((element) => {
+                    if (!attrMap.has(element)) {
+                        attrMap.set(element, {
+                            placeholder: element.getAttribute('placeholder'),
+                            title: element.getAttribute('title'),
+                            ariaLabel: element.getAttribute('aria-label'),
+                        });
+                    }
+                    const original = attrMap.get(element);
+                    if (!original) {
+                        return;
+                    }
+                    if (original.placeholder !== null) {
+                        const translatedPlaceholder = translateUiText(original.placeholder);
+                        if (element.getAttribute('placeholder') !== translatedPlaceholder) {
+                            element.setAttribute('placeholder', translatedPlaceholder);
+                        }
+                    }
+                    if (original.title !== null) {
+                        const translatedTitle = translateUiText(original.title);
+                        if (element.getAttribute('title') !== translatedTitle) {
+                            element.setAttribute('title', translatedTitle);
+                        }
+                    }
+                    if (original.ariaLabel !== null) {
+                        const translatedAriaLabel = translateUiText(original.ariaLabel);
+                        if (element.getAttribute('aria-label') !== translatedAriaLabel) {
+                            element.setAttribute('aria-label', translatedAriaLabel);
+                        }
+                    }
+                });
+            } finally {
+                translatingRef.current = false;
+            }
+        };
+
+        applyTranslations();
+        const frame = requestAnimationFrame(applyTranslations);
+
+        const observer = new MutationObserver(() => {
+            if (translatingRef.current) {
+                return;
+            }
+            applyTranslations();
+        });
+
+        observer.observe(root, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['placeholder', 'title', 'aria-label'],
+        });
+
+        const originalConfirm = window.confirm.bind(window);
+        window.confirm = (message) => originalConfirm(translateUiText(String(message ?? '')));
+
+        return () => {
+            cancelAnimationFrame(frame);
+            observer.disconnect();
+            window.confirm = originalConfirm;
+        };
+    }, [children, language, location.pathname, translateUiText]);
+
     const handleLogout = () => {
         logout();
         navigate('/login');
@@ -111,13 +214,13 @@ const Layout = ({ children }) => {
 
     const getRoleDisplayName = (role) => {
         const roleMap = {
-            Admin: 'Administrator',
-            Manager: 'Manager',
-            Reception: 'Reception',
-            Staff: 'Staff',
-            Housekeeping: 'Housekeeping',
-            Restaurant: 'Restaurant',
-            Room: 'Room',
+            Admin: t('administrator', 'Administrator'),
+            Manager: t('manager', 'Manager'),
+            Reception: t('reception', 'Reception'),
+            Staff: t('staff', 'Staff'),
+            Housekeeping: t('housekeeping', 'Housekeeping'),
+            Restaurant: t('restaurant', 'Restaurant'),
+            Room: t('room', 'Room'),
         };
         return roleMap[role] || role;
     };
@@ -151,7 +254,8 @@ const Layout = ({ children }) => {
         if (path.startsWith('/room/vouchers')) return 'Room Vouchers';
         if (path.startsWith('/room/events')) return 'Hotel Events';
         if (path === '/room' || path === '/room/') return 'Room Dashboard';
-        return 'Dashboard';
+        if (path === '/settings' || path === '/settings/') return t('settings', 'Settings');
+        return t('dashboard', 'Dashboard');
     };
 
     const getDashboardRoot = () => {
@@ -190,6 +294,7 @@ const Layout = ({ children }) => {
 
     return (
         <div
+            ref={layoutRef}
             className={`font-body antialiased flex min-h-screen ${
                 isDashboardSuite ? 'bg-[#FDFBF7] text-[#2C241E]' : 'bg-background text-on-surface'
             }`}
@@ -221,14 +326,14 @@ const Layout = ({ children }) => {
                     <footer className="mt-auto pt-4 border-t border-[#E3DCD2]/40 space-y-1 flex-shrink-0 bg-[#FDFBF7]">
                         <Link to="/settings" className={getAdminLinkClass('/settings')}>
                             <span className="material-symbols-outlined">settings</span>
-                            <span className="font-label text-[12px] uppercase tracking-widest">Settings</span>
+                            <span className="font-label text-[12px] uppercase tracking-widest">{t('settings', 'Settings')}</span>
                         </Link>
                         <button
                             onClick={handleLogout}
                             className="flex items-center gap-4 py-3 px-8 text-[#5D534A] hover:text-[#B22222] transition-transform duration-300 w-full text-left"
                         >
                             <span className="material-symbols-outlined">logout</span>
-                            <span className="font-label text-[12px] uppercase tracking-widest">Logout</span>
+                            <span className="font-label text-[12px] uppercase tracking-widest">{t('logout', 'Logout')}</span>
                         </button>
                     </footer>
                 </aside>
@@ -283,11 +388,11 @@ const Layout = ({ children }) => {
                     <footer className="mt-auto pt-4 border-t border-slate-200 dark:border-slate-800 space-y-1 flex-shrink-0 bg-slate-50 dark:bg-slate-950">
                         <Link to="/settings" className={getStandardLinkClass('/settings')}>
                             <span className="material-symbols-outlined">settings</span>
-                            <span className="font-label text-[11px] uppercase tracking-widest">Settings</span>
+                            <span className="font-label text-[11px] uppercase tracking-widest">{t('settings', 'Settings')}</span>
                         </Link>
                         <button onClick={handleLogout} className="flex items-center gap-4 py-3 px-8 text-slate-500 hover:text-red-600 transition-transform duration-300 w-full text-left">
                             <span className="material-symbols-outlined">logout</span>
-                            <span className="font-label text-[11px] uppercase tracking-widest">Logout</span>
+                            <span className="font-label text-[11px] uppercase tracking-widest">{t('logout', 'Logout')}</span>
                         </button>
                     </footer>
                 </aside>
@@ -303,7 +408,7 @@ const Layout = ({ children }) => {
                                 <button
                                     onClick={() => navigate(getDashboardRoot())}
                                     className="flex items-center justify-center w-8 h-8 rounded-full bg-[#F2EBE1] hover:bg-[#E8DFD1] text-[#5D534A] transition-colors"
-                                    aria-label="Back to dashboard"
+                                    aria-label={t('backToDashboard', 'Back to dashboard')}
                                 >
                                     <span className="material-symbols-outlined text-sm">arrow_back</span>
                                 </button>
@@ -315,7 +420,7 @@ const Layout = ({ children }) => {
                                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#8E735B] text-sm">search</span>
                                 <input
                                     type="text"
-                                    placeholder="Search operations..."
+                                    placeholder={t('searchOperations', 'Search operations...')}
                                     className="bg-[#F2EBE1] border-none rounded-full py-2 pl-10 pr-4 text-base w-64 focus:ring-2 focus:ring-[#D35400]/20 transition-all text-[#2C241E] placeholder:text-[#8E735B]"
                                 />
                             </div>
@@ -360,7 +465,7 @@ const Layout = ({ children }) => {
                                 <button
                                     onClick={() => navigate(getDashboardRoot())}
                                     className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors"
-                                    aria-label="Back to dashboard"
+                                    aria-label={t('backToDashboard', 'Back to dashboard')}
                                 >
                                     <span className="material-symbols-outlined text-sm">arrow_back</span>
                                 </button>
@@ -373,7 +478,7 @@ const Layout = ({ children }) => {
                                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
                                 <input
                                     type="text"
-                                    placeholder="Search operations..."
+                                    placeholder={t('searchOperations', 'Search operations...')}
                                     className="bg-surface-container-high border-none rounded-full py-2 pl-10 pr-4 text-sm w-64 focus:ring-1 focus:ring-primary/20 transition-all dark:bg-slate-800 dark:text-white"
                                 />
                             </div>

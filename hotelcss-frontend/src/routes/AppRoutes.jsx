@@ -35,6 +35,7 @@ import RoomVouchersPage from '../pages/RoomVouchersPage';
 import PointShopPage from '../pages/PointShopPage';
 import AdminSurveyPage from '../pages/AdminSurveyPage';
 import AdminSurveyResultsPage from '../pages/AdminSurveyResultsPage';
+import SettingsPage from '../pages/SettingsPage';
 
 const AppRoutes = () => {
     const { isAuthenticated, user } = useAuth();
@@ -250,6 +251,14 @@ const AppRoutes = () => {
                     element={
                         <ProtectedRoute allowedRoles={['Admin', 'Manager', 'Reception', 'Staff', 'Housekeeping', 'Restaurant', 'Kitchen', 'Technic', 'Room']}>
                             <ChangePassword />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/settings"
+                    element={
+                        <ProtectedRoute allowedRoles={['Admin', 'Manager', 'Reception', 'Staff', 'Housekeeping', 'Restaurant', 'Kitchen', 'Technic', 'Room']}>
+                            <SettingsPage />
                         </ProtectedRoute>
                     }
                 />
