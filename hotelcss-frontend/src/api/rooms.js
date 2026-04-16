@@ -77,3 +77,13 @@ export const getMyPoints = async () => {
     const response = await api.get('/Room/GetMyPoints');
     return response.data;
 };
+
+export const addPoints = async (roomNumber, pointsToAdd) => {
+    const response = await api.post(`/Room/AddPoints/${roomNumber}`, { pointsToAdd });
+    return response.data;
+};
+
+export const subtractPoints = async (roomNumber, pointsToSubtract) => {
+    const response = await api.post(`/Room/SubtractPoints/${roomNumber}`, { pointsToSubtract });
+    return response.data;
+};

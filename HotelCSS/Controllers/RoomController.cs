@@ -1,4 +1,4 @@
-using CSSHotel.DataAccess.Repository.IRepository;
+﻿using CSSHotel.DataAccess.Repository.IRepository;
 using CSSHotel.Models;
 using CSSHotel.Models.ViewModels;
 using CSSHotel.Utility;
@@ -221,7 +221,54 @@ namespace HotelCSS.Controllers
             return Ok(new { success = true, data = points });
 
         }
+
+        [HttpPost("AddPoints/{roomNumber}")]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
+        public IActionResult AddPoints(int roomNumber, [FromBody] AddPointsDTO data)
+        {
+            if (data == null || data.PointsToAdd <= 0)
+            {
+                return BadRequest(new { success = false, message = $"Failed! C# received: {(data == null ? "null" : data.PointsToAdd.ToString())} points." });
+            }
+
+            var room = _unitOfWork.Room.GetFirstOrDefault(u => u.RoomNumber == roomNumber);
+            if (room == null)
+            {
+                return NotFound(new { success = false, message = "Room not found!" });
+            }
+
+            room.CurrentPoints += data.PointsToAdd;
+            _unitOfWork.Room.Update(room);
+            _unitOfWork.Save();
+
+            return Ok(new { success = true, message = "Points added successfully!" });
+        }
+
+        [HttpPost("SubtractPoints/{roomNumber}")]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
+        public IActionResult SubtractPoints(int roomNumber, [FromBody] SubtractPointDTO data)
+        {
+            if (data == null || data.pointsToSubtract <= 0)
+            {
+                return BadRequest(new { success = false, message = $"Invalid amount: {(data == null ? "null" : data.pointsToSubtract.ToString())}" });
+            }
+
+            var room = _unitOfWork.Room.GetFirstOrDefault(u => u.RoomNumber == roomNumber);
+            if (room == null)
+            {
+                return NotFound(new { success = false, message = "Room not found!" });
+            }
+
+            if (room.CurrentPoints < data.pointsToSubtract)
+            {
+                return BadRequest(new { success = false, message = $"Cannot subtract {data.pointsToSubtract}. The room only has {room.CurrentPoints} points!" });
+            }
+
+            room.CurrentPoints -= data.pointsToSubtract;
+
+            _unitOfWork.Room.Update(room);
+            _unitOfWork.Save();
+            return Ok(new { success = true, message = "Points subtracted successfully!" });
+        }
     }
-
-
 }

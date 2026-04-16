@@ -137,10 +137,11 @@ namespace HotelCSS.Controllers
             }
 
             var obj = _unitOfWork.Department.GetFirstOrDefault(d => d.Id == id);
-            if (obj == null)
+            if (obj == null || obj.DepartmentName == "Technic")
             {
-                return NotFound(new { success = false, message = "Department is not found" });
+                return NotFound(new { success = false, message = "Department is not found or technic department can't be deleted!" });
             }
+
 
             if (!string.IsNullOrEmpty(obj.ImageUrl))
             {
