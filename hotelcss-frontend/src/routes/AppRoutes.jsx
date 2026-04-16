@@ -36,12 +36,16 @@ import PointShopPage from '../pages/PointShopPage';
 import AdminSurveyPage from '../pages/AdminSurveyPage';
 import AdminSurveyResultsPage from '../pages/AdminSurveyResultsPage';
 import SettingsPage from '../pages/SettingsPage';
+import GlobalTranslator from '../components/GlobalTranslator';
+import MissingTranslationReporter from '../components/MissingTranslationReporter';
 
 const AppRoutes = () => {
     const { isAuthenticated, user } = useAuth();
 
     return (
         <BrowserRouter>
+            <GlobalTranslator />
+            <MissingTranslationReporter />
             <Routes>
                 {/* Public Routes */}
                 <Route

@@ -52,7 +52,7 @@ const RoomCampaignDashboardPage = () => {
 
         {campaigns.length === 0 ? (
           <div className="bg-[#FDFBF7] p-8 rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] text-center text-[#5D534A] max-w-3xl mx-auto">
-            Şu anda aktif bonus kampanya bulunmuyor.
+            There are no active bonus campaigns right now.
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -71,14 +71,14 @@ const RoomCampaignDashboardPage = () => {
                 <p className="text-xs text-[#8E735B] mt-3">
                   {c.startDate && (
                     <>
-                      <span className="font-medium">Başlangıç:</span>{' '}
+                      <span className="font-medium">Start:</span>{' '}
                       {new Date(c.startDate).toLocaleString()}
                     </>
                   )}
                   {c.endDate && (
                     <>
                       {' '}
-                      • <span className="font-medium">Bitiş:</span>{' '}
+                      • <span className="font-medium">End:</span>{' '}
                       {new Date(c.endDate).toLocaleString()}
                     </>
                   )}

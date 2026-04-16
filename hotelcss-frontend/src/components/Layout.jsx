@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
@@ -7,13 +7,9 @@ import { getMyPoints } from '../api/rooms';
 
 const Layout = ({ children }) => {
     const { user, logout } = useAuth();
-    const { language, t, translateUiText } = useLanguage();
+    const { t } = useLanguage();
     const navigate = useNavigate();
     const location = useLocation();
-    const layoutRef = useRef(null);
-    const originalTextMapRef = useRef(new WeakMap());
-    const originalAttrMapRef = useRef(new WeakMap());
-    const translatingRef = useRef(false);
 
     // Suite görünümü, sadece kullanıcının ana dashboard rolüne göre belirlenmeli.
     // Böylece Admin/Manager reception services'e girse bile layout reception suite'e geçmez,
@@ -110,103 +106,6 @@ const Layout = ({ children }) => {
         fetchPoints();
     }, [user]);
 
-    useLayoutEffect(() => {
-        const root = layoutRef.current;
-        if (!root) {
-            return;
-        }
-
-        const textMap = originalTextMapRef.current;
-        const attrMap = originalAttrMapRef.current;
-        const applyTranslations = () => {
-            if (translatingRef.current) {
-                return;
-            }
-            translatingRef.current = true;
-            try {
-                const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-                let node = walker.nextNode();
-
-                while (node) {
-                    const parentTag = node.parentElement?.tagName;
-                    const isIgnoredParent = parentTag === 'SCRIPT' || parentTag === 'STYLE';
-                    if (!isIgnoredParent) {
-                        if (!textMap.has(node)) {
-                            textMap.set(node, node.nodeValue || '');
-                        }
-                        const original = textMap.get(node) || '';
-                        const translated = translateUiText(original);
-                        if (node.nodeValue !== translated) {
-                            node.nodeValue = translated;
-                        }
-                    }
-                    node = walker.nextNode();
-                }
-
-                const attrTargets = root.querySelectorAll('input[placeholder], textarea[placeholder], [title], [aria-label]');
-                attrTargets.forEach((element) => {
-                    if (!attrMap.has(element)) {
-                        attrMap.set(element, {
-                            placeholder: element.getAttribute('placeholder'),
-                            title: element.getAttribute('title'),
-                            ariaLabel: element.getAttribute('aria-label'),
-                        });
-                    }
-                    const original = attrMap.get(element);
-                    if (!original) {
-                        return;
-                    }
-                    if (original.placeholder !== null) {
-                        const translatedPlaceholder = translateUiText(original.placeholder);
-                        if (element.getAttribute('placeholder') !== translatedPlaceholder) {
-                            element.setAttribute('placeholder', translatedPlaceholder);
-                        }
-                    }
-                    if (original.title !== null) {
-                        const translatedTitle = translateUiText(original.title);
-                        if (element.getAttribute('title') !== translatedTitle) {
-                            element.setAttribute('title', translatedTitle);
-                        }
-                    }
-                    if (original.ariaLabel !== null) {
-                        const translatedAriaLabel = translateUiText(original.ariaLabel);
-                        if (element.getAttribute('aria-label') !== translatedAriaLabel) {
-                            element.setAttribute('aria-label', translatedAriaLabel);
-                        }
-                    }
-                });
-            } finally {
-                translatingRef.current = false;
-            }
-        };
-
-        applyTranslations();
-        const frame = requestAnimationFrame(applyTranslations);
-
-        const observer = new MutationObserver(() => {
-            if (translatingRef.current) {
-                return;
-            }
-            applyTranslations();
-        });
-
-        observer.observe(root, {
-            childList: true,
-            subtree: true,
-            attributes: true,
-            attributeFilter: ['placeholder', 'title', 'aria-label'],
-        });
-
-        const originalConfirm = window.confirm.bind(window);
-        window.confirm = (message) => originalConfirm(translateUiText(String(message ?? '')));
-
-        return () => {
-            cancelAnimationFrame(frame);
-            observer.disconnect();
-            window.confirm = originalConfirm;
-        };
-    }, [children, language, location.pathname, translateUiText]);
-
     const handleLogout = () => {
         logout();
         navigate('/login');
@@ -294,7 +193,6 @@ const Layout = ({ children }) => {
 
     return (
         <div
-            ref={layoutRef}
             className={`font-body antialiased flex min-h-screen ${
                 isDashboardSuite ? 'bg-[#FDFBF7] text-[#2C241E]' : 'bg-background text-on-surface'
             }`}

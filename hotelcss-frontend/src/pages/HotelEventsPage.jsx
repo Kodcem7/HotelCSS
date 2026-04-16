@@ -2,10 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import Layout from '../components/Layout';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
+import { useLanguage } from '../context/LanguageContext';
 // 👇 Import getMealList alongside getActiveEvents!
 import { getActiveEvents, getMealList } from '../api/events';
 
 const HotelEventsPage = () => {
+    const { translateUiText } = useLanguage();
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -107,7 +109,7 @@ const HotelEventsPage = () => {
                                 <span className="material-symbols-outlined text-[#D35400] text-3xl">restaurant</span>
                             </div>
                             <div>
-                                <h3 className="font-headline text-xl text-[#4A3728] font-bold">Günlük Menüler</h3>
+                                <h3 className="font-headline text-xl text-[#4A3728] font-bold">Daily Menus</h3>
                                 <p className="text-[14px] text-[#5D534A] mt-1">Breakfast / lunch / dinner details</p>
                             </div>
                         </div>
@@ -117,7 +119,7 @@ const HotelEventsPage = () => {
                 <div className="mt-2">
                     {displayedEvents.length === 0 ? (
                         <div className="bg-[#FDFBF7] p-8 rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] text-center text-[#5D534A] max-w-3xl mx-auto">
-                            Şu anda aktif içerik bulunmuyor.
+                            No active content is available right now.
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -129,10 +131,10 @@ const HotelEventsPage = () => {
                                     <div>
                                         <div className="flex items-start justify-between mb-2">
                                             <div>
-                                                <h3 className="font-headline text-xl text-[#4A3728] font-bold">{ev.title}</h3>
+                                                <h3 className="font-headline text-xl text-[#4A3728] font-bold">{translateUiText(ev.title || '')}</h3>
                                                 {ev.eventType && (
                                                     <span className="mt-2 inline-flex items-center px-3 py-1 rounded-full text-[11px] font-bold bg-[#F2EBE1] text-[#4A3728] border border-[#E3DCD2]/40">
-                                                        {ev.eventType}
+                                                        {translateUiText(ev.eventType)}
                                                     </span>
                                                 )}
                                             </div>
@@ -140,13 +142,13 @@ const HotelEventsPage = () => {
 
                                         {ev.description && (
                                             <p className="text-[14px] text-[#5D534A] mt-3 whitespace-pre-wrap leading-relaxed">
-                                                {ev.description}
+                                                {translateUiText(ev.description)}
                                             </p>
                                         )}
 
                                         {ev.eventType === 'Meal' && ev.mealInfo && (
                                             <div className="mt-4 text-[12px] text-[#4A3728] bg-[#F2EBE1]/60 border border-[#E3DCD2]/40 rounded-2xl px-4 py-3 whitespace-pre-wrap">
-                                                {ev.mealInfo}
+                                                {translateUiText(ev.mealInfo)}
                                             </div>
                                         )}
 
@@ -154,14 +156,14 @@ const HotelEventsPage = () => {
                                             <p className="text-xs text-[#8E735B] mt-4">
                                                 {ev.startDate && (
                                                     <>
-                                                        <span className="font-medium">Başlangıç:</span>{' '}
+                                                        <span className="font-medium">Start:</span>{' '}
                                                         {new Date(ev.startDate).toLocaleString()}
                                                     </>
                                                 )}
                                                 {ev.endDate && (
                                                     <>
                                                         {' '}
-                                                        • <span className="font-medium">Bitiş:</span>{' '}
+                                                        • <span className="font-medium">End:</span>{' '}
                                                         {new Date(ev.endDate).toLocaleString()}
                                                     </>
                                                 )}
