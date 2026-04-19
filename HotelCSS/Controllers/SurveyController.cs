@@ -377,5 +377,66 @@ namespace HotelCSS.Controllers
             return Ok(new { success = true, message = "Survey deleted successfully." });
         }
 
+        [HttpGet("AverageStars/{surveyId}")]
+        public IActionResult AverageStars(int surveyId)
+        {
+            // 1. FIXED: We MUST include "Questions" or the server will crash later!
+            var survey = _unitOfWork.Survey.GetFirstOrDefault(
+                u => u.Id == surveyId,
+                includeProperties: "Questions"
+            );
+
+            if (survey == null)
+            {
+                return NotFound(new { success = false, message = "Survey not found." });
+            }
+
+            // 2. FIXED: Grab the IDs of ALL StarRating questions, just in case there are multiple!
+            var starQuestionIds = survey.Questions
+                .Where(q => q.QuestionType == "StarRating")
+                .Select(q => q.Id)
+                .ToList();
+
+            if (!starQuestionIds.Any())
+            {
+                return BadRequest(new { success = false, message = "This survey does not have any Star Rating questions." });
+            }
+
+            var surveyResponses = _unitOfWork.SurveyResponse.GetAll(
+                u => u.SurveyId == surveyId,
+                includeProperties: "Answers"
+            ).ToList();
+
+            // FIXED: GetAll() returns an empty list, not null. So we check .Any()
+            if (!surveyResponses.Any())
+            {
+                return Ok(new { success = true, average = 0, message = "No one has taken this survey yet." });
+            }
+
+            // 3. FIXED: Safely grab the answers and parse them without crashing
+            var starRatings = surveyResponses
+                .SelectMany(r => r.Answers)
+                // Only look at answers that belong to one of our Star Questions
+                .Where(a => starQuestionIds.Contains(a.SurveyQuestionId))
+                .Select(a => {
+                    // SAFE PARSING: If it's a valid number, grab it. If not, ignore it.
+                    bool isNumber = double.TryParse(a.AnswerValue, out double rating);
+                    return new { isNumber, rating };
+                })
+                .Where(x => x.isNumber)
+                .Select(x => x.rating)
+                .ToList();
+
+            if (!starRatings.Any())
+            {
+                return Ok(new { success = true, average = 0, message = "No star ratings found in the responses." });
+            }
+
+            // 4. Calculate the average and round it to 1 decimal place (e.g., 4.2 instead of 4.238491)
+            var average = Math.Round(starRatings.Average(), 1);
+
+            return Ok(new { success = true, average = average });
+        }
+
     }
 }

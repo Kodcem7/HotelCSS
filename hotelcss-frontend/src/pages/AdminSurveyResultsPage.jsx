@@ -2,8 +2,8 @@
 import Layout from '../components/Layout';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
-import SuccessMessage from '../components/SuccessMessage'; // 👇 1. IMPORT ADDED
-import { getAllSurveys, getSurveyResponses, getResponseDetails, toggleSurveyStatus, getSurveyAiAnalysis, deleteSurvey } from '../api/surveys';
+import SuccessMessage from '../components/SuccessMessage';
+import { getAllSurveys, getSurveyResponses, getResponseDetails, toggleSurveyStatus, getSurveyAiAnalysis, deleteSurvey, averageStars } from '../api/surveys';
 
 const AdminSurveyResultsPage = () => {
     // view state can be: 'surveys', 'responses', 'answers', 'analysis'
@@ -14,13 +14,16 @@ const AdminSurveyResultsPage = () => {
     const [answers, setAnswers] = useState(null);
     const [currentSurveyTitle, setCurrentSurveyTitle] = useState('');
 
+    // 👇 NEW STATE: Hold the average rating for the survey being viewed
+    const [currentSurveyAverage, setCurrentSurveyAverage] = useState(null);
+
     // AI States
     const [aiAnalysis, setAiAnalysis] = useState('');
     const [isAnalyzing, setIsAnalyzing] = useState(false);
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [success, setSuccess] = useState(''); // 👇 2. STATE ADDED
+    const [success, setSuccess] = useState('');
 
     useEffect(() => {
         fetchSurveys();
@@ -59,13 +62,13 @@ const AdminSurveyResultsPage = () => {
 
         try {
             setLoading(true);
-            setError('');   // 👇 3. CLEARS OLD ERRORS
-            setSuccess(''); // 👇 3. CLEARS OLD SUCCESSES
+            setError('');
+            setSuccess('');
 
             await deleteSurvey(surveyId);
-            await fetchSurveys(); // Refresh the table automatically
+            await fetchSurveys();
 
-            setSuccess('Survey and all responses deleted successfully!'); // 👇 3. SETS NEW SUCCESS
+            setSuccess('Survey and all responses deleted successfully!');
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to delete survey.');
         } finally {
@@ -73,12 +76,31 @@ const AdminSurveyResultsPage = () => {
         }
     };
 
+    // 👇 UPGRADED: Now fetches the responses AND the average score dynamically!
     const handleViewResponses = async (surveyId) => {
         try {
             setLoading(true);
+            setError('');
+            setCurrentSurveyAverage(null); // Reset from previous views
+
+            // 1. Fetch the responses
             const res = await getSurveyResponses(surveyId);
             setResponses(res.responses || []);
             setCurrentSurveyTitle(res.surveyTitle);
+
+            // 2. Fetch the average silently in the background
+            try {
+                const avgRes = await averageStars(surveyId);
+                // Only set it if it's greater than 0
+                if (avgRes && avgRes.average > 0) {
+                    setCurrentSurveyAverage(avgRes.average);
+                }
+            } catch (avgErr) {
+                // If it fails (e.g. no star questions on this survey), just ignore it and don't break the page
+                console.log("No star ratings to average for this survey.");
+            }
+
+            // 3. Switch the view
             setCurrentView('responses');
         } catch (err) {
             setError('Failed to load responses.');
@@ -100,12 +122,11 @@ const AdminSurveyResultsPage = () => {
         }
     };
 
-    // The AI Action Trigger
     const handleAnalyzeSurvey = async (surveyId, title) => {
         try {
             setIsAnalyzing(true);
             setCurrentSurveyTitle(title);
-            setCurrentView('analysis'); // Switch to the AI view instantly
+            setCurrentView('analysis');
             setError('');
 
             const res = await getSurveyAiAnalysis(surveyId);
@@ -113,7 +134,7 @@ const AdminSurveyResultsPage = () => {
 
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to analyze survey.');
-            setCurrentView('surveys'); // Kick them back if it fails
+            setCurrentView('surveys');
         } finally {
             setIsAnalyzing(false);
         }
@@ -125,7 +146,6 @@ const AdminSurveyResultsPage = () => {
         <Layout>
             <div className="max-w-6xl mx-auto p-6">
                 {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
-                {/* 👇 4. RENDER SUCCESS MESSAGE COMPONENT */}
                 {success && <SuccessMessage message={success} onDismiss={() => setSuccess('')} />}
 
                 {/* LEVEL 1: ALL SURVEYS */}
@@ -138,7 +158,7 @@ const AdminSurveyResultsPage = () => {
                             </div>
                         </div>
 
-                        <div className="bg-[#FDFBF7] rounded-[24px] shadow-[0_20px_40px_rgba(15,28,44,0.04)] border border-[#E3DCD2]/40 overflow-hidden">
+                        <div className="bg-[#FDFBF7] rounded-[24px] shadow-[0_20px_40px_rgba(15,28,44,0.04)] border border-[#E3DCD2]/40 overflow-hidden mb-8">
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="bg-[#F2EBE1] border-b border-[#E3DCD2]/50 text-[#8E735B] text-sm uppercase tracking-wider">
@@ -245,15 +265,30 @@ const AdminSurveyResultsPage = () => {
                 {/* LEVEL 2: ROOM RESPONSES */}
                 {currentView === 'responses' && (
                     <div className="animation-fade-in-up">
-                        <div className="mb-6">
-                            <button
-                                onClick={() => setCurrentView('surveys')}
-                                className="flex items-center text-[#8E735B] hover:text-[#4A3728] font-semibold mb-4 transition-colors"
-                            >
-                                <span className="material-symbols-outlined mr-1 text-sm">arrow_back</span> Back to Surveys
-                            </button>
-                            <h2 className="font-headline text-4xl text-[#4A3728] font-bold leading-tight">{currentSurveyTitle}</h2>
-                            <p className="text-[#5D534A] mt-2 text-[14px]">Showing all submitted responses for this survey.</p>
+                        <div className="mb-6 flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                            <div>
+                                <button
+                                    onClick={() => setCurrentView('surveys')}
+                                    className="flex items-center text-[#8E735B] hover:text-[#4A3728] font-semibold mb-4 transition-colors"
+                                >
+                                    <span className="material-symbols-outlined mr-1 text-sm">arrow_back</span> Back to Surveys
+                                </button>
+                                <h2 className="font-headline text-4xl text-[#4A3728] font-bold leading-tight">{currentSurveyTitle}</h2>
+                                <p className="text-[#5D534A] mt-2 text-[14px]">Showing all submitted responses for this survey.</p>
+                            </div>
+
+                            {/* 👇 NEW: Automatic Average Stars Display */}
+                            {currentSurveyAverage !== null && (
+                                <div className="bg-white px-6 py-4 rounded-[20px] border border-amber-200 shadow-sm flex items-center gap-4 animate-fade-in-up">
+                                    <div>
+                                        <p className="text-[10px] font-bold text-[#8E735B] uppercase tracking-widest mb-1">Average Score</p>
+                                        <p className="text-3xl font-black text-[#4A3728]">{currentSurveyAverage} <span className="text-sm font-bold text-[#8E735B]">/ 5</span></p>
+                                    </div>
+                                    <div className="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center border border-amber-100">
+                                        <span className="material-symbols-outlined text-amber-500 text-3xl pb-1">star</span>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         <div className="bg-[#FDFBF7] rounded-[24px] shadow-[0_20px_40px_rgba(15,28,44,0.04)] border border-[#E3DCD2]/40 overflow-hidden">
