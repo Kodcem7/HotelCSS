@@ -1,3 +1,7 @@
+// 👇 1. THESE TWO NEW IMPORTS MUST BE AT THE VERY TOP
+import 'regenerator-runtime/runtime';
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+
 import { useState, useRef, useEffect } from 'react';
 import { analyzeRequest } from '../api/chat';
 import { createRequest } from '../api/requests';
@@ -22,6 +26,19 @@ const ChatWidget = () => {
     const [confirming, setConfirming] = useState(false);
     const messagesEndRef = useRef(null);
 
+    // 👇 2. THE NEW SPEECH RECOGNITION HOOK
+    const {
+        transcript,
+        listening,
+        resetTranscript,
+        browserSupportsSpeechRecognition
+    } = useSpeechRecognition();
+
+    // Dynamically combines what you typed with what the AI is currently hearing!
+    const currentInput = listening
+        ? input + (input && transcript ? ' ' : '') + transcript
+        : input;
+
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
@@ -31,10 +48,13 @@ const ChatWidget = () => {
     }, [messages]);
 
     const handleSend = async () => {
-        const text = input.trim();
+        const text = currentInput.trim();
         if (!text || loading) return;
 
+        // Reset the input and the mic transcript
         setInput('');
+        resetTranscript();
+
         setError('');
         setMessages((prev) => [...prev, { role: 'user', text, id: Date.now().toString() }]);
         setLoading(true);
@@ -59,7 +79,6 @@ const ChatWidget = () => {
                 let allowConfirm = false;
                 let pending = null;
 
-                // 👇 Correctly declared at the top so React doesn't crash!
                 let actionLink = null;
                 let actionLinkText = '';
 
@@ -198,7 +217,6 @@ const ChatWidget = () => {
                         reply = "I am currently unable to retrieve your points balance.";
                     }
                 }
-                // 🛍️ 5. POINT SHOP LOGIC
                 else if (intent === 'pointshop') {
                     try {
                         const json = await getRewardsCatalog();
@@ -216,7 +234,6 @@ const ChatWidget = () => {
 
                             reply = text.trim();
 
-                            // 👇 Assigned outside the loop!
                             actionLink = "/room/point-shop";
                             actionLinkText = "Go to Point Shop 🎁";
                         } else {
@@ -241,7 +258,6 @@ const ChatWidget = () => {
                 setPendingOrder(pending);
                 setPendingOrderMessageId(allowConfirm ? botId : null);
 
-                // 👇 Passes link info to the chat bubbles
                 setMessages((prev) => [
                     ...prev,
                     { role: 'bot', text: reply, id: botId, hasConfirm: allowConfirm, link: actionLink, linkText: actionLinkText },
@@ -330,6 +346,38 @@ const ChatWidget = () => {
         }
     };
 
+    // 👇 3. NEW: The Library Microphone Handler
+    const handleMicClick = () => {
+        if (!browserSupportsSpeechRecognition) {
+            alert("Your browser does not support voice input.");
+            return;
+        }
+
+        if (listening) {
+            // Stop listening, save the combined text, and reset the transcript memory
+            SpeechRecognition.stopListening();
+            setInput(currentInput);
+            resetTranscript();
+        } else {
+            // 👇 THE MAGIC FIX: Detect the device's language automatically!
+            const deviceLanguage = navigator.language || 'en-US';
+
+            // Start listening in whatever language their phone/browser is set to
+            SpeechRecognition.startListening({ continuous: true, language: deviceLanguage });
+        }
+    };
+
+    // Allows the user to manually type while the mic is off, or overwrite while the mic is on
+    const handleInputChange = (e) => {
+        if (listening) {
+            SpeechRecognition.stopListening();
+            setInput(e.target.value);
+            resetTranscript();
+        } else {
+            setInput(e.target.value);
+        }
+    };
+
     return (
         <>
             <button
@@ -383,7 +431,6 @@ const ChatWidget = () => {
                                 >
                                     <p className="whitespace-pre-wrap">{m.text.replace(/\*\*(.*?)\*\*/g, '$1')}</p>
 
-                                    {/* 👇 Renders the button if actionLink is present */}
                                     {m.link && (
                                         <a
                                             href={m.link}
@@ -422,19 +469,41 @@ const ChatWidget = () => {
 
                     <div className="border-t border-[#E3DCD2]/50 bg-[#FDFBF7] p-3">
                         <div className="flex gap-2">
-                            <input
-                                type="text"
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                onKeyDown={handleKeyDown}
-                                placeholder="Type your request..."
-                                className="flex-1 rounded-xl border border-[#E3DCD2]/70 bg-[#F2EBE1]/55 px-4 py-2.5 text-sm text-[#2C241E] placeholder:text-[#8E735B] focus:border-[#D35400]/40 focus:outline-none focus:ring-1 focus:ring-[#D35400]/25"
-                                disabled={loading}
-                            />
+
+                            <div className="relative flex-1 flex items-center">
+                                {/* 👇 4. BOUND TO currentInput SO YOU CAN SEE LIVE TYPING */}
+                                <input
+                                    type="text"
+                                    value={currentInput}
+                                    onChange={handleInputChange}
+                                    onKeyDown={handleKeyDown}
+                                    placeholder={listening ? "Listening..." : "Type your request..."}
+                                    className={`w-full rounded-xl border px-4 py-2.5 pr-10 text-sm outline-none transition-all ${listening
+                                        ? 'border-red-400 bg-red-50 text-red-900 placeholder:text-red-400 focus:border-red-500 focus:ring-1 focus:ring-red-500'
+                                        : 'border-[#E3DCD2]/70 bg-[#F2EBE1]/55 text-[#2C241E] placeholder:text-[#8E735B] focus:border-[#D35400]/40 focus:ring-1 focus:ring-[#D35400]/25'
+                                        }`}
+                                    disabled={loading}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={handleMicClick}
+                                    disabled={loading}
+                                    className={`absolute right-1 p-1.5 rounded-lg flex items-center justify-center transition-all ${listening
+                                        ? 'text-red-600 bg-red-100 animate-pulse'
+                                        : 'text-[#8E735B] hover:bg-[#E3DCD2] hover:text-[#D35400]'
+                                        }`}
+                                    title="Click to speak"
+                                >
+                                    <span className="material-symbols-outlined text-[18px]">
+                                        {listening ? 'mic' : 'mic_none'}
+                                    </span>
+                                </button>
+                            </div>
+
                             <button
                                 type="button"
                                 onClick={handleSend}
-                                disabled={loading || !input.trim()}
+                                disabled={loading || (!currentInput.trim() && !listening)}
                                 className="rounded-xl bg-[#4A3728] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#3A2B20] disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 Send
