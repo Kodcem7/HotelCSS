@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-// import Layout from '../components/Layout'; // ❌ REMOVED
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import SuccessMessage from '../components/SuccessMessage';
 import { getRooms, updateRoom, addPoints, subtractPoints } from '../api/rooms';
 import { checkOutRoom } from '../api/users';
+import GuestQRCodeCard from '../components/GuestQRCodeCard';
 
 const RoomsPage = () => {
     const [rooms, setRooms] = useState([]);
@@ -13,6 +13,9 @@ const RoomsPage = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [filterStatus, setFilterStatus] = useState('All');
+
+    // State for the QR Modal
+    const [qrModalRoom, setQrModalRoom] = useState(null);
 
     useEffect(() => {
         fetchRooms();
@@ -137,12 +140,11 @@ const RoomsPage = () => {
     };
 
     if (loading) {
-        // ✅ Removed Layout from loading state
         return <LoadingSpinner text="Loading rooms..." />;
     }
 
     return (
-        <> {/* ✅ Replaced <Layout> with Fragment */}
+        <>
             <div className="p-4 sm:p-10 space-y-6 sm:space-y-8 max-w-7xl mx-auto">
                 <section className="text-center max-w-3xl mx-auto">
                     <h2 className="font-headline text-[clamp(30px,6vw,52px)] text-[#4A3728] mb-2 font-bold leading-tight">
@@ -193,76 +195,89 @@ const RoomsPage = () => {
                                 key={room.roomNumber}
                                 className="bg-[#FDFBF7] rounded-[22px] sm:rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] p-5 sm:p-6 flex flex-col justify-between"
                             >
-                                <div className="text-center mb-4">
-                                    <h3 className="font-headline text-2xl font-bold text-[#4A3728]">
-                                        Room {room.roomNumber}
-                                    </h3>
-                                    <span
-                                        className={`mt-2 inline-block px-3 py-1 text-[11px] font-bold rounded-full ${getStatusColor(
-                                            room.status
-                                        )}`}
-                                    >
-                                        {room.status}
-                                    </span>
-                                </div>
-
-                                <div className="space-y-3">
-                                    <select
-                                        value={room.status}
-                                        onChange={(e) => handleStatusUpdate(room.roomNumber, e.target.value)}
-                                        className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] text-sm"
-                                    >
-                                        <option value="Available">Available</option>
-                                        <option value="Occupied">Occupied</option>
-                                    </select>
-
-                                    <div className="text-xs text-[#5D534A] bg-[#F2EBE1]/45 border border-[#E3DCD2]/40 rounded-2xl px-4 py-3 text-center">
-                                        <p className="font-bold text-[#4A3728] mb-1 uppercase tracking-widest text-[10px]">
-                                            Current guest email
-                                        </p>
-                                        <p className="font-mono break-all text-[12px]">
-                                            {room.currentGuestMail || '—'}
-                                        </p>
+                                <div>
+                                    <div className="text-center mb-4">
+                                        <h3 className="font-headline text-2xl font-bold text-[#4A3728]">
+                                            Room {room.roomNumber}
+                                        </h3>
+                                        <span
+                                            className={`mt-2 inline-block px-3 py-1 text-[11px] font-bold rounded-full ${getStatusColor(
+                                                room.status
+                                            )}`}
+                                        >
+                                            {room.status}
+                                        </span>
                                     </div>
 
-                                    <div className="flex items-center justify-between text-xs text-[#5D534A] bg-amber-50/50 border border-amber-200/60 rounded-2xl px-4 py-3">
-                                        <div className="text-left">
-                                            <p className="font-bold text-[#4A3728] uppercase tracking-widest text-[10px] mb-1">
-                                                Points
+                                    <div className="space-y-3">
+                                        <select
+                                            value={room.status}
+                                            onChange={(e) => handleStatusUpdate(room.roomNumber, e.target.value)}
+                                            className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] text-sm"
+                                        >
+                                            <option value="Available">Available</option>
+                                            <option value="Occupied">Occupied</option>
+                                        </select>
+
+                                        <div className="text-xs text-[#5D534A] bg-[#F2EBE1]/45 border border-[#E3DCD2]/40 rounded-2xl px-4 py-3 text-center">
+                                            <p className="font-bold text-[#4A3728] mb-1 uppercase tracking-widest text-[10px]">
+                                                Current guest email
                                             </p>
-                                            <p className="font-mono font-bold text-[14px] text-amber-700">
-                                                {room.currentPoints ?? 0}
+                                            <p className="font-mono break-all text-[12px]">
+                                                {room.currentGuestMail || '—'}
                                             </p>
                                         </div>
 
-                                        {room.status === 'Occupied' && (
-                                            <div className="flex gap-2">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleSubtractPoints(room.roomNumber)}
-                                                    className="px-3 py-2 bg-red-500/10 text-red-700 border border-red-500/30 hover:bg-red-500 hover:text-white font-bold uppercase tracking-widest text-[10px] rounded-xl transition shadow-sm"
-                                                >
-                                                    - Sub
-                                                </button>
-
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleAddPoints(room.roomNumber)}
-                                                    className="px-3 py-2 bg-amber-500 text-white hover:bg-amber-600 font-bold uppercase tracking-widest text-[10px] rounded-xl transition shadow-sm"
-                                                >
-                                                    + Add
-                                                </button>
+                                        <div className="flex items-center justify-between text-xs text-[#5D534A] bg-amber-50/50 border border-amber-200/60 rounded-2xl px-4 py-3">
+                                            <div className="text-left">
+                                                <p className="font-bold text-[#4A3728] uppercase tracking-widest text-[10px] mb-1">
+                                                    Points
+                                                </p>
+                                                <p className="font-mono font-bold text-[14px] text-amber-700">
+                                                    {room.currentPoints ?? 0}
+                                                </p>
                                             </div>
-                                        )}
+
+                                            {room.status === 'Occupied' && (
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleSubtractPoints(room.roomNumber)}
+                                                        className="px-3 py-2 bg-red-500/10 text-red-700 border border-red-500/30 hover:bg-red-500 hover:text-white font-bold uppercase tracking-widest text-[10px] rounded-xl transition shadow-sm"
+                                                    >
+                                                        - Sub
+                                                    </button>
+
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleAddPoints(room.roomNumber)}
+                                                        className="px-3 py-2 bg-amber-500 text-white hover:bg-amber-600 font-bold uppercase tracking-widest text-[10px] rounded-xl transition shadow-sm"
+                                                    >
+                                                        + Add
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
+                                </div>
+
+                                {/* 👇 SMART ACTION BUTTONS AT THE BOTTOM */}
+                                <div className="flex gap-2 mt-4 pt-4 border-t border-[#E3DCD2]/40">
+                                    <button
+                                        type="button"
+                                        onClick={() => setQrModalRoom(room)}
+                                        className={`px-4 py-3 text-xs font-bold uppercase tracking-widest rounded-2xl bg-[#4A3728] text-white hover:bg-[#3a2b20] transition ${room.status === 'Available' ? 'w-full' : 'flex-1'}`}
+                                    >
+                                        Show QR
+                                    </button>
 
                                     {room.status === 'Occupied' && (
                                         <button
                                             type="button"
                                             onClick={() => handleCheckOut(room.roomNumber)}
-                                            className="w-full px-4 py-3 mt-2 text-xs font-bold uppercase tracking-widest rounded-2xl bg-[#B22222] text-white hover:bg-[#8f1b1b] transition"
+                                            className="flex-1 px-4 py-3 text-xs font-bold uppercase tracking-widest rounded-2xl bg-[#B22222] text-white hover:bg-[#8f1b1b] transition"
                                         >
-                                            Check-out room
+                                            Check-out
                                         </button>
                                     )}
                                 </div>
@@ -271,6 +286,26 @@ const RoomsPage = () => {
                     </div>
                 )}
             </div>
+
+            {/* QR CODE MODAL OVERLAY */}
+            {qrModalRoom && (
+                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+                    <div className="relative">
+                        <button
+                            onClick={() => setQrModalRoom(null)}
+                            className="absolute -top-4 -right-4 bg-white text-red-600 rounded-full p-2 shadow-lg hover:bg-red-50 flex items-center justify-center"
+                        >
+                            <span className="material-symbols-outlined">close</span>
+                        </button>
+
+                        <GuestQRCodeCard
+                            roomNumber={qrModalRoom.roomNumber}
+                            // 👇 Mapped directly to your Room.cs property name!
+                            currentToken={qrModalRoom.qrCodeString || "NO-TOKEN-FOUND"}
+                        />
+                    </div>
+                </div>
+            )}
         </>
     );
 };
