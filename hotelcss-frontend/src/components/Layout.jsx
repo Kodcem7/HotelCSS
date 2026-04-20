@@ -256,8 +256,7 @@ const Layout = ({ children }) => {
     return (
         <div
             className={`font-body antialiased flex min-h-screen relative overflow-hidden ${isDashboardSuite ? 'bg-[#FDFBF7] text-[#2C241E]' : 'bg-background text-on-surface'
-                }`}
-            style={isDashboardSuite ? { zoom: 0.8 } : undefined}
+                } ${isDashboardSuite ? 'text-[14px] sm:text-[16px]' : ''}`}
         >
 
             {/* 👇 2. NEW: The Dark Overlay when sidebar is open on mobile */}
