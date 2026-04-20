@@ -103,9 +103,9 @@ const RequestHistoryPage = () => {
 
     return (
         <> {/* ✅ Replaced <Layout> with Fragment */}
-            <div className="p-10 space-y-8 max-w-7xl mx-auto">
+            <div className="p-4 sm:p-10 space-y-6 sm:space-y-8 max-w-7xl mx-auto">
                 <section>
-                    <h2 className="font-headline text-[52px] text-[#4A3728] mb-2 font-bold leading-tight">
+                    <h2 className="font-headline text-[clamp(30px,6vw,52px)] text-[#4A3728] mb-2 font-bold leading-tight">
                         My Request History
                     </h2>
                     <p className="text-[14px] text-[#5D534A] leading-relaxed">
@@ -162,7 +162,7 @@ const RequestHistoryPage = () => {
                 {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
 
                 {filteredRequests.length === 0 ? (
-                    <div className="bg-[#FDFBF7] p-8 rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] text-center">
+                    <div className="bg-[#FDFBF7] p-6 sm:p-8 rounded-[22px] sm:rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] text-center">
                         <p className="text-[#5D534A]">
                             {searchTerm || filterStatus !== 'All'
                                 ? 'No requests match your filters'
@@ -172,7 +172,7 @@ const RequestHistoryPage = () => {
                 ) : (
                     <div className="space-y-4">
                         {filteredRequests.map((request) => (
-                            <div key={request.id} className="bg-[#FDFBF7] p-8 rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)]">
+                            <div key={request.id} className="bg-[#FDFBF7] p-5 sm:p-8 rounded-[22px] sm:rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)]">
                                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                                     <div className="flex-1">
                                         <div className="flex items-center space-x-4 mb-2">

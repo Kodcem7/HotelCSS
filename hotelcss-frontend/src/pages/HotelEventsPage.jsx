@@ -61,9 +61,9 @@ const HotelEventsPage = () => {
 
     return (
         <> {/* ✅ Replaced <Layout> with Fragment */}
-            <div className="p-10 space-y-10 max-w-7xl mx-auto">
+            <div className="p-4 sm:p-10 space-y-8 sm:space-y-10 max-w-7xl mx-auto">
                 <section>
-                    <h2 className="font-headline text-[52px] text-[#4A3728] mb-2 font-bold leading-tight">
+                    <h2 className="font-headline text-[clamp(30px,6vw,52px)] text-[#4A3728] mb-2 font-bold leading-tight">
                         Hotel Events & Information
                     </h2>
                     <p className="text-[14px] text-[#5D534A] leading-relaxed">
@@ -77,11 +77,11 @@ const HotelEventsPage = () => {
                     <button
                         type="button"
                         onClick={() => setActiveTab('general')}
-                        className={`bg-[#F2EBE1] rounded-[28px] p-8 hover:bg-white transition border ${activeTab === 'general' ? 'border-[#D35400]/30' : 'border-[#E3DCD2]/20'
+                        className={`bg-[#F2EBE1] rounded-[22px] sm:rounded-[28px] p-5 sm:p-8 hover:bg-white transition border ${activeTab === 'general' ? 'border-[#D35400]/30' : 'border-[#E3DCD2]/20'
                             } hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)] text-left`}
                     >
                         <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center flex-shrink-0">
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center flex-shrink-0">
                                 <span className="material-symbols-outlined text-[#D35400] text-3xl">campaign</span>
                             </div>
                             <div>
@@ -94,11 +94,11 @@ const HotelEventsPage = () => {
                     <button
                         type="button"
                         onClick={() => setActiveTab('menu')}
-                        className={`bg-[#F2EBE1] rounded-[28px] p-8 hover:bg-white transition border ${activeTab === 'menu' ? 'border-[#D35400]/30' : 'border-[#E3DCD2]/20'
+                        className={`bg-[#F2EBE1] rounded-[22px] sm:rounded-[28px] p-5 sm:p-8 hover:bg-white transition border ${activeTab === 'menu' ? 'border-[#D35400]/30' : 'border-[#E3DCD2]/20'
                             } hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)] text-left`}
                     >
                         <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center flex-shrink-0">
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center flex-shrink-0">
                                 <span className="material-symbols-outlined text-[#D35400] text-3xl">restaurant</span>
                             </div>
                             <div>
@@ -111,7 +111,7 @@ const HotelEventsPage = () => {
 
                 <div className="mt-2">
                     {displayedEvents.length === 0 ? (
-                        <div className="bg-[#FDFBF7] p-8 rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] text-center text-[#5D534A] max-w-3xl mx-auto">
+                        <div className="bg-[#FDFBF7] p-6 sm:p-8 rounded-[22px] sm:rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] text-center text-[#5D534A] max-w-3xl mx-auto">
                             No active content is available right now.
                         </div>
                     ) : (
@@ -119,7 +119,7 @@ const HotelEventsPage = () => {
                             {displayedEvents.map((ev) => (
                                 <div
                                     key={ev.id}
-                                    className="bg-[#FDFBF7] p-8 rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] hover:shadow-[0_25px_55px_rgba(15,28,44,0.07)] transition-shadow duration-300 flex flex-col justify-between"
+                                    className="bg-[#FDFBF7] p-5 sm:p-8 rounded-[22px] sm:rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] hover:shadow-[0_25px_55px_rgba(15,28,44,0.07)] transition-shadow duration-300 flex flex-col justify-between"
                                 >
                                     <div>
                                         <div className="flex items-start justify-between mb-2">

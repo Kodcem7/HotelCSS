@@ -283,7 +283,7 @@ const ReceptionServicesPage = () => {
                     </div>
 
                     {services.length === 0 ? (
-                        <div className="bg-concierge-surface-container-lowest/80 rounded-[2rem] p-10 text-center text-concierge-on-surface-variant border border-concierge-outline-variant/10">
+                        <div className="bg-concierge-surface-container-lowest/80 rounded-[2rem] p-6 sm:p-10 text-center text-concierge-on-surface-variant border border-concierge-outline-variant/10">
                             No reception services found.
                         </div>
                     ) : (

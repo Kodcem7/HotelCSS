@@ -80,9 +80,9 @@ const RoomCreationPage = () => {
 
     return (
         <> {/* ✅ Replaced <Layout> with Fragment */}
-            <div className="p-10 space-y-8 max-w-7xl mx-auto">
+            <div className="p-4 sm:p-10 space-y-6 sm:space-y-8 max-w-7xl mx-auto">
                 <section className="text-center max-w-3xl mx-auto">
-                    <h2 className="font-headline text-[52px] text-[#4A3728] mb-2 font-bold leading-tight">
+                    <h2 className="font-headline text-[clamp(30px,6vw,52px)] text-[#4A3728] mb-2 font-bold leading-tight">
                         Room Creation
                     </h2>
                     <p className="text-[14px] text-[#5D534A] leading-relaxed">
@@ -91,7 +91,7 @@ const RoomCreationPage = () => {
                 </section>
 
                 {/* Mode Toggle */}
-                <div className="max-w-4xl mx-auto bg-[#FDFBF7] rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] p-4">
+                <div className="max-w-4xl mx-auto bg-[#FDFBF7] rounded-[22px] sm:rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] p-4">
                     <div className="flex flex-col sm:flex-row gap-3">
                         <button
                             type="button"

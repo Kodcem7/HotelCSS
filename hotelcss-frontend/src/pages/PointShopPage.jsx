@@ -58,9 +58,9 @@ const PointShopPage = () => {
 
     return (
         <> {/* ✅ Replaced <Layout> with Fragment */}
-            <div className="p-10 space-y-10 max-w-7xl mx-auto">
+            <div className="p-4 sm:p-10 space-y-8 sm:space-y-10 max-w-7xl mx-auto">
                 <section className="text-center max-w-3xl mx-auto">
-                    <h2 className="font-headline text-[52px] text-[#4A3728] mb-2 font-bold leading-tight">
+                    <h2 className="font-headline text-[clamp(30px,6vw,52px)] text-[#4A3728] mb-2 font-bold leading-tight">
                         Point Shop
                     </h2>
                     <p className="text-[14px] text-[#5D534A] leading-relaxed">
@@ -72,19 +72,19 @@ const PointShopPage = () => {
                 {success && <SuccessMessage message={success} onDismiss={() => setSuccess('')} />}
 
                 {rewards.length === 0 ? (
-                    <div className="bg-[#FDFBF7] p-8 rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] text-center text-[#5D534A] max-w-3xl mx-auto">
+                    <div className="bg-[#FDFBF7] p-6 sm:p-8 rounded-[22px] sm:rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] text-center text-[#5D534A] max-w-3xl mx-auto">
                         No rewards are currently available in the catalog. Check back later!
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-8">
                         {rewards.map((reward) => (
                             <div
                                 key={reward.id}
-                                className="bg-[#FDFBF7] rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] hover:shadow-[0_25px_55px_rgba(15,28,44,0.07)] transition-shadow flex flex-col overflow-hidden"
+                                className="bg-[#FDFBF7] rounded-[22px] sm:rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] hover:shadow-[0_25px_55px_rgba(15,28,44,0.07)] transition-shadow flex flex-col overflow-hidden"
                             >
                                 <div className="h-1 bg-gradient-to-r from-[#4A3728] via-[#8E735B] to-[#D35400]" />
 
-                                <div className="p-8 flex-grow flex flex-col">
+                                <div className="p-5 sm:p-8 flex-grow flex flex-col">
                                     <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">{reward.name}</h3>
                                     <p className="text-[14px] text-[#5D534A] mb-6 flex-grow leading-relaxed">
                                         {reward.description || 'Special hotel reward.'}

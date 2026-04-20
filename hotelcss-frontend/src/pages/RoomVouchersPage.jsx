@@ -35,9 +35,9 @@ const RoomVouchersPage = () => {
 
     return (
         <> {/* ✅ Replaced <Layout> with Fragment */}
-            <div className="p-10 space-y-10 max-w-7xl mx-auto">
+            <div className="p-4 sm:p-10 space-y-8 sm:space-y-10 max-w-7xl mx-auto">
                 <section className="max-w-4xl mx-auto">
-                    <h2 className="font-headline text-[52px] text-[#4A3728] mb-2 font-bold leading-tight">
+                    <h2 className="font-headline text-[clamp(30px,6vw,52px)] text-[#4A3728] mb-2 font-bold leading-tight">
                         My Reward Vouchers
                     </h2>
                     <p className="text-[14px] text-[#5D534A] leading-relaxed">
@@ -47,9 +47,9 @@ const RoomVouchersPage = () => {
 
                 {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
 
-                <div className="max-w-4xl mx-auto bg-[#FDFBF7] rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] overflow-hidden">
+                <div className="max-w-4xl mx-auto bg-[#FDFBF7] rounded-[22px] sm:rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] overflow-hidden">
                     {vouchers.length === 0 ? (
-                        <div className="p-10 text-center text-[#5D534A]">
+                        <div className="p-6 sm:p-10 text-center text-[#5D534A]">
                             You don&apos;t have any vouchers yet. Visit Point Shop to spend your points.
                         </div>
                     ) : (

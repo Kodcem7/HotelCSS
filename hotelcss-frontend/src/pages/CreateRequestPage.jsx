@@ -178,9 +178,9 @@ const CreateRequestPage = () => {
 
     return (
         <> {/* ✅ Replaced <Layout> with Fragment */}
-            <div className="p-10 space-y-10 max-w-7xl mx-auto">
+            <div className="p-4 sm:p-10 space-y-8 sm:space-y-10 max-w-7xl mx-auto">
                 <section>
-                    <h2 className="font-headline text-[52px] text-[#4A3728] mb-2 font-bold leading-tight">
+                    <h2 className="font-headline text-[clamp(30px,6vw,52px)] text-[#4A3728] mb-2 font-bold leading-tight">
                         Create Service Request
                     </h2>
                     <p className="text-[14px] text-[#5D534A] leading-relaxed">
@@ -196,7 +196,7 @@ const CreateRequestPage = () => {
                 {showDepartmentPicker && (
                     <section className="space-y-4">
                         <p className="text-[#5D534A]">Choose a department to see available services.</p>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8">
                             {departments.map((dept) => {
                                 const name = dept.departmentName ?? dept.DepartmentName ?? 'Department';
                                 const imgUrl = dept.imageUrl ?? dept.ImageUrl;
@@ -205,7 +205,7 @@ const CreateRequestPage = () => {
                                         key={dept.id}
                                         type="button"
                                         onClick={() => handleSelectDepartment(dept)}
-                                        className="bg-[#F2EBE1] rounded-[28px] hover:bg-white transition overflow-hidden text-left border border-[#E3DCD2]/20 hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)] focus:outline-none"
+                                        className="bg-[#F2EBE1] rounded-[22px] sm:rounded-[28px] hover:bg-white transition overflow-hidden text-left border border-[#E3DCD2]/20 hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)] focus:outline-none"
                                     >
                                         <div className="aspect-video bg-[#FDFBF7] relative">
                                             {imgUrl ? (

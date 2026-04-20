@@ -64,9 +64,9 @@ const ReportIssuePage = () => {
 
     return (
         <> {/* ✅ Replaced <Layout> with Fragment */}
-            <div className="p-10 space-y-10 max-w-7xl mx-auto">
+            <div className="p-4 sm:p-10 space-y-8 sm:space-y-10 max-w-7xl mx-auto">
                 <section>
-                    <h2 className="font-headline text-[52px] text-[#4A3728] mb-2 font-bold leading-tight">
+                    <h2 className="font-headline text-[clamp(30px,6vw,52px)] text-[#4A3728] mb-2 font-bold leading-tight">
                         Report an Issue
                     </h2>
                     <p className="text-[14px] text-[#5D534A] leading-relaxed">
@@ -77,7 +77,7 @@ const ReportIssuePage = () => {
                 {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
                 {success && <SuccessMessage message={success} onDismiss={() => setSuccess('')} />}
 
-                <form onSubmit={handleSubmit} className="bg-[#FDFBF7] rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] p-8 space-y-6 max-w-3xl mx-auto">
+                <form onSubmit={handleSubmit} className="bg-[#FDFBF7] rounded-[22px] sm:rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] p-5 sm:p-8 space-y-6 max-w-3xl mx-auto">
                     <div>
                         <label className="block text-sm font-semibold text-[#4A3728] mb-1">
                             Room

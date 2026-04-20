@@ -66,9 +66,9 @@ const RoomDashboard = () => {
 
     return (
         <> {/* ✅ Using Fragment to sit inside the AppRoutes Layout */}
-            <div className="p-10 space-y-12 max-w-7xl mx-auto">
+            <div className="p-4 sm:p-10 space-y-8 sm:space-y-12 max-w-7xl mx-auto">
                 <section>
-                    <h2 className="font-headline text-[52px] text-[#4A3728] mb-2 font-bold leading-tight">
+                    <h2 className="font-headline text-[clamp(30px,6vw,52px)] text-[#4A3728] mb-2 font-bold leading-tight">
                         Room Overview
                     </h2>
                     <p className="text-[14px] text-[#5D534A] leading-relaxed">
@@ -97,10 +97,10 @@ const RoomDashboard = () => {
 
                 {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
 
-                <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8">
                     {isRoomAvailable ? (
-                        <div className="bg-[#F2EBE1] p-8 rounded-[28px] opacity-60 cursor-not-allowed border border-[#E3DCD2]/20">
-                            <div className="w-12 h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-6">
+                        <div className="bg-[#F2EBE1] p-5 sm:p-8 rounded-[22px] sm:rounded-[28px] opacity-60 cursor-not-allowed border border-[#E3DCD2]/20">
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-5 sm:mb-6">
                                 <span className="material-symbols-outlined text-[#D35400] text-3xl">add</span>
                             </div>
                             <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">Create Service Request</h3>
@@ -111,10 +111,10 @@ const RoomDashboard = () => {
                     ) : (
                         <Link
                             to="/room/create-request"
-                            className="bg-[#F2EBE1] p-8 rounded-[28px] flex flex-col justify-between hover:bg-white transition-all group border border-[#E3DCD2]/20 hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)]"
+                            className="bg-[#F2EBE1] p-5 sm:p-8 rounded-[22px] sm:rounded-[28px] flex flex-col justify-between hover:bg-white transition-all group border border-[#E3DCD2]/20 hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)]"
                         >
                             <div>
-                                <div className="w-12 h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-6">
+                                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-5 sm:mb-6">
                                     <span className="material-symbols-outlined text-[#D35400] text-3xl">add</span>
                                 </div>
                                 <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">Create Service Request</h3>
@@ -128,11 +128,11 @@ const RoomDashboard = () => {
 
                     <Link
                         to="/room/report-issue"
-                        className={`bg-[#F2EBE1] p-8 rounded-[28px] flex flex-col justify-between hover:bg-white transition-all group border border-[#E3DCD2]/20 hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)] ${isRoomAvailable ? 'opacity-60 cursor-not-allowed' : ''}`}
+                        className={`bg-[#F2EBE1] p-5 sm:p-8 rounded-[22px] sm:rounded-[28px] flex flex-col justify-between hover:bg-white transition-all group border border-[#E3DCD2]/20 hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)] ${isRoomAvailable ? 'opacity-60 cursor-not-allowed' : ''}`}
                         onClick={(e) => isRoomAvailable && e.preventDefault()}
                     >
                         <div>
-                            <div className="w-12 h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-6">
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-5 sm:mb-6">
                                 <span className="material-symbols-outlined text-[#D35400] text-3xl">report</span>
                             </div>
                             <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">Report an Issue</h3>
@@ -145,11 +145,11 @@ const RoomDashboard = () => {
 
                     <Link
                         to="/room/reception-request"
-                        className={`bg-[#F2EBE1] p-8 rounded-[28px] flex flex-col justify-between hover:bg-white transition-all group border border-[#E3DCD2]/20 hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)] ${isRoomAvailable ? 'opacity-60 cursor-not-allowed' : ''}`}
+                        className={`bg-[#F2EBE1] p-5 sm:p-8 rounded-[22px] sm:rounded-[28px] flex flex-col justify-between hover:bg-white transition-all group border border-[#E3DCD2]/20 hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)] ${isRoomAvailable ? 'opacity-60 cursor-not-allowed' : ''}`}
                         onClick={(e) => isRoomAvailable && e.preventDefault()}
                     >
                         <div>
-                            <div className="w-12 h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-6">
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-5 sm:mb-6">
                                 <span className="material-symbols-outlined text-[#D35400] text-3xl">concierge</span>
                             </div>
                             <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">Reception Request</h3>
@@ -162,10 +162,10 @@ const RoomDashboard = () => {
 
                     <Link
                         to="/room/history"
-                        className="bg-[#F2EBE1] p-8 rounded-[28px] flex flex-col justify-between hover:bg-white transition-all group border border-[#E3DCD2]/20 hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)]"
+                        className="bg-[#F2EBE1] p-5 sm:p-8 rounded-[22px] sm:rounded-[28px] flex flex-col justify-between hover:bg-white transition-all group border border-[#E3DCD2]/20 hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)]"
                     >
                         <div>
-                            <div className="w-12 h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-6">
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-5 sm:mb-6">
                                 <span className="material-symbols-outlined text-[#D35400] text-3xl">history</span>
                             </div>
                             <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">My Requests</h3>
@@ -178,10 +178,10 @@ const RoomDashboard = () => {
 
                     <Link
                         to="/room/point-shop"
-                        className="bg-[#F2EBE1] p-8 rounded-[28px] flex flex-col justify-between hover:bg-white transition-all group border border-[#E3DCD2]/20 hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)]"
+                        className="bg-[#F2EBE1] p-5 sm:p-8 rounded-[22px] sm:rounded-[28px] flex flex-col justify-between hover:bg-white transition-all group border border-[#E3DCD2]/20 hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)]"
                     >
                         <div>
-                            <div className="w-12 h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-6">
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-5 sm:mb-6">
                                 <span className="material-symbols-outlined text-[#D35400] text-3xl">stars</span>
                             </div>
                             <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">Point Shop</h3>
@@ -194,10 +194,10 @@ const RoomDashboard = () => {
 
                     <Link
                         to="/room/vouchers"
-                        className="bg-[#F2EBE1] p-8 rounded-[28px] flex flex-col justify-between hover:bg-white transition-all group border border-[#E3DCD2]/20 hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)]"
+                        className="bg-[#F2EBE1] p-5 sm:p-8 rounded-[22px] sm:rounded-[28px] flex flex-col justify-between hover:bg-white transition-all group border border-[#E3DCD2]/20 hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)]"
                     >
                         <div>
-                            <div className="w-12 h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-6">
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-5 sm:mb-6">
                                 <span className="material-symbols-outlined text-[#D35400] text-3xl">confirmation_number</span>
                             </div>
                             <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">My Vouchers</h3>
@@ -209,7 +209,7 @@ const RoomDashboard = () => {
                     </Link>
                 </section>
 
-                <section className="bg-[#FDFBF7] p-8 rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)]">
+                <section className="bg-[#FDFBF7] p-5 sm:p-8 rounded-[22px] sm:rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)]">
                     <h3 className="font-headline text-2xl text-[#4A3728] font-bold mb-2">Room Information</h3>
                     <p className="text-[14px] text-[#5D534A] leading-relaxed">
                         This dashboard is for room-based access. Guests can scan QR codes to access room-specific features.
