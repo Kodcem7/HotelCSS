@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import Layout from '../components/Layout';
+// import Layout from '../components/Layout'; // ❌ REMOVED
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import SuccessMessage from '../components/SuccessMessage';
@@ -10,7 +10,6 @@ import {
     deleteHotelEvent,
 } from '../api/events';
 import { getServiceItems } from '../api/serviceItems';
-// 👇 1. Added your special toggle function import!
 import { toggleStatus } from '../api/bonusCampaigns';
 
 const EVENT_TYPES = [
@@ -121,14 +120,12 @@ const HotelEventsManagementPage = () => {
         resetForm();
     };
 
-    // 👇 2. BRAND NEW: Clickable Badge Quick Toggle!
     const handleQuickToggle = async (ev) => {
         try {
             setLoading(true);
             setError('');
             setSuccess('');
 
-            // A. Build the payload to flip the HotelEvent table status
             const payload = {
                 Title: ev.title,
                 Description: ev.description,
@@ -139,13 +136,11 @@ const HotelEventsManagementPage = () => {
                 BonusPoints: ev.bonusPoints || 0,
                 CampaignType: ev.campaignType || null,
                 ServiceItemId: ev.serviceItemId || null,
-                IsActive: !ev.isActive, // FLIP IT!
+                IsActive: !ev.isActive,
             };
 
-            // B. Update the HotelEvent database
             await updateHotelEvent(ev.id, payload);
 
-            // C. If it's a Bonus Campaign, ALSO hit your special Toggle API!
             if (ev.eventType === 'BonusPoint') {
                 await toggleStatus(ev.id);
             }
@@ -217,10 +212,8 @@ const HotelEventsManagementPage = () => {
                 };
 
                 if (editingEvent) {
-                    // 3. 👇 Update Hotel Event Database
                     await updateHotelEvent(editingEvent.id, payload);
 
-                    // 4. 👇 If checkbox changed on a Bonus Campaign, trigger the special API!
                     if (editingEvent.eventType === 'BonusPoint' && formData.IsActive !== editingEvent.isActive) {
                         await toggleStatus(editingEvent.id);
                     }
@@ -245,11 +238,7 @@ const HotelEventsManagementPage = () => {
     };
 
     const handleDelete = async (ev) => {
-        if (
-            !window.confirm(
-                `Are you sure you want to delete the event "${ev.title}"?`,
-            )
-        ) {
+        if (!window.confirm(`Are you sure you want to delete the event "${ev.title}"?`)) {
             return;
         }
 
@@ -268,25 +257,19 @@ const HotelEventsManagementPage = () => {
 
     const renderTypeBadge = (type) => {
         switch (type) {
-            case 'Meal':
-                return 'bg-blue-100 text-blue-800';
-            case 'BonusPoint':
-                return 'bg-amber-100 text-amber-800';
-            default:
-                return 'bg-gray-100 text-gray-800';
+            case 'Meal': return 'bg-blue-100 text-blue-800';
+            case 'BonusPoint': return 'bg-amber-100 text-amber-800';
+            default: return 'bg-gray-100 text-gray-800';
         }
     };
 
     if (loading) {
-        return (
-            <Layout>
-                <LoadingSpinner text="Loading hotel events..." />
-            </Layout>
-        );
+        // ✅ No Layout here
+        return <LoadingSpinner text="Loading hotel events..." />;
     }
 
     return (
-        <Layout>
+        <> {/* ✅ Replaced <Layout> with Fragment */}
             <div className="p-10 space-y-8 max-w-7xl mx-auto">
                 <section className="text-center max-w-3xl mx-auto">
                     <h2 className="font-headline text-[52px] text-[#4A3728] mb-2 font-bold leading-tight">
@@ -329,23 +312,18 @@ const HotelEventsManagementPage = () => {
                                                 {ev.title}
                                             </h3>
                                             {ev.eventType && (
-                                                <span
-                                                    className={`mt-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${renderTypeBadge(
-                                                        ev.eventType,
-                                                    )}`}
-                                                >
+                                                <span className={`mt-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${renderTypeBadge(ev.eventType)}`}>
                                                     {ev.eventType}
                                                 </span>
                                             )}
                                         </div>
-                                        {/* 👇 5. UPGRADED: Clickable Quick Toggle Badge! */}
                                         <button
                                             type="button"
                                             onClick={() => handleQuickToggle(ev)}
                                             title="Click to toggle active status"
                                             className={`text-xs font-semibold px-3 py-1 rounded-full transition-colors border shadow-sm ${ev.isActive
-                                                    ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200'
-                                                    : 'bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-200'
+                                                ? 'bg-green-100 text-green-800 border-green-200 hover:bg-green-200'
+                                                : 'bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-200'
                                                 }`}
                                         >
                                             {ev.isActive ? 'Active' : 'Inactive'}
@@ -366,8 +344,7 @@ const HotelEventsManagementPage = () => {
                                             )}
                                             {ev.endDate && (
                                                 <>
-                                                    {' '}
-                                                    • <span className="font-medium">End:</span>{' '}
+                                                    {' '}• <span className="font-medium">End:</span>{' '}
                                                     {new Date(ev.endDate).toLocaleString()}
                                                 </>
                                             )}
@@ -417,9 +394,7 @@ const HotelEventsManagementPage = () => {
 
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div>
-                                    <label className="block text-sm font-semibold text-[#4A3728] mb-1">
-                                        Title *
-                                    </label>
+                                    <label className="block text-sm font-semibold text-[#4A3728] mb-1">Title *</label>
                                     <input
                                         type="text"
                                         value={formData.Title}
@@ -430,14 +405,10 @@ const HotelEventsManagementPage = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-semibold text-[#4A3728] mb-1">
-                                        Description
-                                    </label>
+                                    <label className="block text-sm font-semibold text-[#4A3728] mb-1">Description</label>
                                     <textarea
                                         value={formData.Description}
-                                        onChange={(e) =>
-                                            setFormData({ ...formData, Description: e.target.value })
-                                        }
+                                        onChange={(e) => setFormData({ ...formData, Description: e.target.value })}
                                         rows={3}
                                         className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] text-sm"
                                     />
@@ -445,20 +416,14 @@ const HotelEventsManagementPage = () => {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-semibold text-[#4A3728] mb-1">
-                                            Event Type
-                                        </label>
+                                        <label className="block text-sm font-semibold text-[#4A3728] mb-1">Event Type</label>
                                         <select
                                             value={formData.EventType}
-                                            onChange={(e) =>
-                                                setFormData({ ...formData, EventType: e.target.value })
-                                            }
+                                            onChange={(e) => setFormData({ ...formData, EventType: e.target.value })}
                                             className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] text-sm"
                                         >
                                             {EVENT_TYPES.map((t) => (
-                                                <option key={t.value} value={t.value}>
-                                                    {t.label}
-                                                </option>
+                                                <option key={t.value} value={t.value}>{t.label}</option>
                                             ))}
                                         </select>
                                     </div>
@@ -468,9 +433,7 @@ const HotelEventsManagementPage = () => {
                                             <input
                                                 type="checkbox"
                                                 checked={formData.IsActive}
-                                                onChange={(e) =>
-                                                    setFormData({ ...formData, IsActive: e.target.checked })
-                                                }
+                                                onChange={(e) => setFormData({ ...formData, IsActive: e.target.checked })}
                                                 className="mr-2"
                                             />
                                             Active
@@ -480,28 +443,20 @@ const HotelEventsManagementPage = () => {
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-semibold text-[#4A3728] mb-1">
-                                            Start Date/Time
-                                        </label>
+                                        <label className="block text-sm font-semibold text-[#4A3728] mb-1">Start Date/Time</label>
                                         <input
                                             type="datetime-local"
                                             value={formData.StartDate}
-                                            onChange={(e) =>
-                                                setFormData({ ...formData, StartDate: e.target.value })
-                                            }
+                                            onChange={(e) => setFormData({ ...formData, StartDate: e.target.value })}
                                             className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] text-sm"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-[#4A3728] mb-1">
-                                            End Date/Time
-                                        </label>
+                                        <label className="block text-sm font-semibold text-[#4A3728] mb-1">End Date/Time</label>
                                         <input
                                             type="datetime-local"
                                             value={formData.EndDate}
-                                            onChange={(e) =>
-                                                setFormData({ ...formData, EndDate: e.target.value })
-                                            }
+                                            onChange={(e) => setFormData({ ...formData, EndDate: e.target.value })}
                                             className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] text-sm"
                                         />
                                     </div>
@@ -509,24 +464,14 @@ const HotelEventsManagementPage = () => {
 
                                 {formData.EventType === 'BonusPoint' && editingEvent && (
                                     <div>
-                                        <label className="block text-sm font-semibold text-[#4A3728] mb-1">
-                                            Extra Points
-                                        </label>
+                                        <label className="block text-sm font-semibold text-[#4A3728] mb-1">Extra Points</label>
                                         <input
                                             type="number"
                                             min="0"
                                             value={formData.BonusPoints}
-                                            onChange={(e) =>
-                                                setFormData({
-                                                    ...formData,
-                                                    BonusPoints: e.target.value,
-                                                })
-                                            }
+                                            onChange={(e) => setFormData({ ...formData, BonusPoints: e.target.value })}
                                             className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] text-sm"
                                         />
-                                        <p className="text-xs text-[#8E735B] mt-1">
-                                            Editing an existing BonusPoint event updates its bonus points (single rule).
-                                        </p>
                                     </div>
                                 )}
 
@@ -534,24 +479,15 @@ const HotelEventsManagementPage = () => {
                                     <div className="border border-amber-200 bg-amber-50/40 rounded-xl p-4 space-y-3">
                                         <div className="flex items-start justify-between gap-3">
                                             <div>
-                                                <h4 className="text-sm font-semibold text-amber-900">
-                                                    Bonus rules (input array)
-                                                </h4>
-                                                <p className="text-xs text-amber-900/70 mt-0.5">
-                                                    Each rule becomes a separate BonusPoint event+campaign in backend.
-                                                </p>
+                                                <h4 className="text-sm font-semibold text-amber-900">Bonus rules (input array)</h4>
+                                                <p className="text-xs text-amber-900/70 mt-0.5">Each rule becomes a separate BonusPoint event.</p>
                                             </div>
                                             <button
                                                 type="button"
-                                                onClick={() =>
-                                                    setFormData({
-                                                        ...formData,
-                                                        BonusRules: [
-                                                            ...(formData.BonusRules || []),
-                                                            { ServiceItemId: '', BonusPoints: 0, CampaignType: 'AllItems' },
-                                                        ],
-                                                    })
-                                                }
+                                                onClick={() => setFormData({
+                                                    ...formData,
+                                                    BonusRules: [...(formData.BonusRules || []), { ServiceItemId: '', BonusPoints: 0, CampaignType: 'AllItems' }],
+                                                })}
                                                 className="px-4 py-3 text-xs font-bold uppercase tracking-widest rounded-2xl bg-[#D35400] text-white hover:bg-[#b94702] transition"
                                             >
                                                 + Add rule
@@ -560,38 +496,25 @@ const HotelEventsManagementPage = () => {
 
                                         <div className="space-y-3">
                                             {(formData.BonusRules || []).map((rule, idx) => (
-                                                <div
-                                                    key={idx}
-                                                    className="bg-white rounded-lg border border-amber-200 p-3"
-                                                >
+                                                <div key={idx} className="bg-white rounded-lg border border-amber-200 p-3">
                                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                                                         <div>
-                                                            <label className="block text-xs font-semibold text-gray-700 mb-1">
-                                                                Campaign Type
-                                                            </label>
+                                                            <label className="block text-xs font-semibold text-gray-700 mb-1">Type</label>
                                                             <select
                                                                 value={rule.CampaignType || 'AllItems'}
                                                                 onChange={(e) => {
                                                                     const next = [...(formData.BonusRules || [])];
-                                                                    next[idx] = {
-                                                                        ...next[idx],
-                                                                        CampaignType: e.target.value,
-                                                                        ServiceItemId:
-                                                                            e.target.value === 'AllItems' ? '' : next[idx].ServiceItemId,
-                                                                    };
+                                                                    next[idx] = { ...next[idx], CampaignType: e.target.value, ServiceItemId: e.target.value === 'AllItems' ? '' : next[idx].ServiceItemId };
                                                                     setFormData({ ...formData, BonusRules: next });
                                                                 }}
-                                                                className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-white/70 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] text-sm"
+                                                                className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-white focus:outline-none text-[#2C241E] text-sm"
                                                             >
                                                                 <option value="AllItems">All Items</option>
                                                                 <option value="SpecificItem">Specific Item</option>
                                                             </select>
                                                         </div>
-
                                                         <div>
-                                                            <label className="block text-xs font-semibold text-gray-700 mb-1">
-                                                                Service Item (SpecificItem)
-                                                            </label>
+                                                            <label className="block text-xs font-semibold text-gray-700 mb-1">Item</label>
                                                             <select
                                                                 value={rule.ServiceItemId || ''}
                                                                 onChange={(e) => {
@@ -600,50 +523,37 @@ const HotelEventsManagementPage = () => {
                                                                     setFormData({ ...formData, BonusRules: next });
                                                                 }}
                                                                 disabled={(rule.CampaignType || 'AllItems') !== 'SpecificItem'}
-                                                                className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-white/70 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] text-sm disabled:bg-gray-100"
+                                                                className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-white focus:outline-none text-[#2C241E] text-sm disabled:bg-gray-100"
                                                             >
-                                                                <option value="">Select service item...</option>
+                                                                <option value="">Select item...</option>
                                                                 {serviceItems.map((it) => (
-                                                                    <option key={it.id} value={it.id}>
-                                                                        {it.name}
-                                                                    </option>
+                                                                    <option key={it.id} value={it.id}>{it.name}</option>
                                                                 ))}
                                                             </select>
                                                         </div>
-
                                                         <div>
-                                                            <label className="block text-xs font-semibold text-gray-700 mb-1">
-                                                                Extra Points
-                                                            </label>
+                                                            <label className="block text-xs font-semibold text-gray-700 mb-1">Points</label>
                                                             <input
                                                                 type="number"
-                                                                min="0"
                                                                 value={rule.BonusPoints ?? 0}
                                                                 onChange={(e) => {
                                                                     const next = [...(formData.BonusRules || [])];
                                                                     next[idx] = { ...next[idx], BonusPoints: e.target.value };
                                                                     setFormData({ ...formData, BonusRules: next });
                                                                 }}
-                                                                className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-white/70 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] text-sm"
+                                                                className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-white focus:outline-none text-[#2C241E] text-sm"
                                                             />
                                                         </div>
                                                     </div>
-
                                                     <div className="flex justify-end mt-3">
                                                         <button
                                                             type="button"
                                                             onClick={() => {
                                                                 const next = [...(formData.BonusRules || [])];
                                                                 next.splice(idx, 1);
-                                                                setFormData({
-                                                                    ...formData,
-                                                                    BonusRules:
-                                                                        next.length > 0
-                                                                            ? next
-                                                                            : [{ ServiceItemId: '', BonusPoints: 0, CampaignType: 'AllItems' }],
-                                                                });
+                                                                setFormData({ ...formData, BonusRules: next.length > 0 ? next : [{ ServiceItemId: '', BonusPoints: 0, CampaignType: 'AllItems' }] });
                                                             }}
-                                                            className="px-4 py-3 text-xs font-bold uppercase tracking-widest rounded-2xl bg-[#F2EBE1] text-[#4A3728] hover:bg-[#E8DFD1] transition border border-[#E3DCD2]/40"
+                                                            className="px-4 py-3 text-xs font-bold uppercase tracking-widest rounded-2xl bg-[#F2EBE1] text-[#4A3728] border border-[#E3DCD2]/40"
                                                         >
                                                             Remove
                                                         </button>
@@ -656,17 +566,13 @@ const HotelEventsManagementPage = () => {
 
                                 {formData.EventType === 'Meal' && (
                                     <div>
-                                        <label className="block text-sm font-semibold text-[#4A3728] mb-1">
-                                            Meal Info (breakfast / lunch / dinner details)
-                                        </label>
+                                        <label className="block text-sm font-semibold text-[#4A3728] mb-1">Meal Info</label>
                                         <textarea
                                             value={formData.MealInfo}
-                                            onChange={(e) =>
-                                                setFormData({ ...formData, MealInfo: e.target.value })
-                                            }
+                                            onChange={(e) => setFormData({ ...formData, MealInfo: e.target.value })}
                                             rows={3}
                                             className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] text-sm"
-                                            placeholder="e.g. Breakfast: ...&#10;Lunch: ...&#10;Dinner: ..."
+                                            placeholder="e.g. Breakfast: ... Lunch: ... Dinner: ..."
                                             required
                                         />
                                     </div>
@@ -692,7 +598,7 @@ const HotelEventsManagementPage = () => {
                     </div>
                 )}
             </div>
-        </Layout>
+        </>
     );
 };
 

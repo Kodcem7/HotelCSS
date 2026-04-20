@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
-import Layout from '../components/Layout';
+// import Layout from '../components/Layout'; // ❌ REMOVED
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import SuccessMessage from '../components/SuccessMessage';
-// 👇 Make sure the import path perfectly matches your setup!
-import { getRewardsCatalog, claimReward } from '../api/rewards'; 
+import { getRewardsCatalog, claimReward } from '../api/rewards';
 
 const PointShopPage = () => {
     const [rewards, setRewards] = useState([]);
@@ -18,8 +17,7 @@ const PointShopPage = () => {
             try {
                 setLoading(true);
                 const res = await getRewardsCatalog();
-                
-                // Since C# returns Ok(rewards) directly, the array is likely right inside res (or res.data)
+
                 const catalogData = res?.data || res || [];
                 setRewards(Array.isArray(catalogData) ? catalogData : []);
             } catch (err) {
@@ -41,15 +39,11 @@ const PointShopPage = () => {
             setClaimingId(reward.id);
             setError('');
             setSuccess('');
-            
-            // Call your backend to spend the points and generate the voucher!
+
             await claimReward(reward.id);
-            
+
             setSuccess(`Successfully claimed ${reward.name}! You can view your code in "My Reward Vouchers".`);
-            
-            // Note: If you want to update their points in the Header immediately, 
-            // you might need to trigger a global state update or refresh the page.
-            
+
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to claim reward. Do you have enough points?');
         } finally {
@@ -58,15 +52,12 @@ const PointShopPage = () => {
     };
 
     if (loading) {
-        return (
-            <Layout>
-                <LoadingSpinner text="Loading PointShop..." />
-            </Layout>
-        );
+        // ✅ No Layout here
+        return <LoadingSpinner text="Loading PointShop..." />;
     }
 
     return (
-        <Layout>
+        <> {/* ✅ Replaced <Layout> with Fragment */}
             <div className="p-10 space-y-10 max-w-7xl mx-auto">
                 <section className="text-center max-w-3xl mx-auto">
                     <h2 className="font-headline text-[52px] text-[#4A3728] mb-2 font-bold leading-tight">
@@ -108,11 +99,10 @@ const PointShopPage = () => {
                                         <button
                                             onClick={() => handleClaim(reward)}
                                             disabled={claimingId === reward.id}
-                                            className={`px-4 py-2 rounded-2xl font-bold text-[12px] uppercase tracking-widest transition-colors border ${
-                                                claimingId === reward.id
+                                            className={`px-4 py-2 rounded-2xl font-bold text-[12px] uppercase tracking-widest transition-colors border ${claimingId === reward.id
                                                     ? 'bg-[#F2EBE1] text-[#8E735B] border-[#E3DCD2]/50 cursor-not-allowed'
                                                     : 'bg-[#4A3728] text-white border-[#4A3728] hover:bg-[#3a2b20]'
-                                            }`}
+                                                }`}
                                         >
                                             {claimingId === reward.id ? 'Claiming...' : 'Claim'}
                                         </button>
@@ -123,7 +113,7 @@ const PointShopPage = () => {
                     </div>
                 )}
             </div>
-        </Layout>
+        </>
     );
 };
 

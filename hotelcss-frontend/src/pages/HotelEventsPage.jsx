@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import Layout from '../components/Layout';
+// import Layout from '../components/Layout'; // ❌ REMOVED
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import { useLanguage } from '../context/LanguageContext';
-// 👇 Import getMealList alongside getActiveEvents!
 import { getActiveEvents, getMealList } from '../api/events';
 
 const HotelEventsPage = () => {
@@ -12,17 +11,14 @@ const HotelEventsPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    // "cardbox" seçimleri: Event General veya Günlük Menüler
     const [activeTab, setActiveTab] = useState('general');
 
     const fetchEvents = async () => {
-        // 👇 Fetch BOTH General Events and Meals at the same time!
         const [generalRes, mealRes] = await Promise.all([
             getActiveEvents(),
             getMealList()
         ]);
 
-        // Combine them into one big array for the page to use
         const combinedEvents = [
             ...(generalRes?.data || []),
             ...(mealRes?.data || [])
@@ -59,15 +55,12 @@ const HotelEventsPage = () => {
     const displayedEvents = activeTab === 'menu' ? menuEvents : generalEvents;
 
     if (loading) {
-        return (
-            <Layout>
-                <LoadingSpinner text="Loading hotel events..." />
-            </Layout>
-        );
+        // ✅ Layout removed from loading state
+        return <LoadingSpinner text="Loading hotel events..." />;
     }
 
     return (
-        <Layout>
+        <> {/* ✅ Replaced <Layout> with Fragment */}
             <div className="p-10 space-y-10 max-w-7xl mx-auto">
                 <section>
                     <h2 className="font-headline text-[52px] text-[#4A3728] mb-2 font-bold leading-tight">
@@ -162,8 +155,7 @@ const HotelEventsPage = () => {
                                                 )}
                                                 {ev.endDate && (
                                                     <>
-                                                        {' '}
-                                                        • <span className="font-medium">End:</span>{' '}
+                                                        {' '}• <span className="font-medium">End:</span>{' '}
                                                         {new Date(ev.endDate).toLocaleString()}
                                                     </>
                                                 )}
@@ -176,7 +168,7 @@ const HotelEventsPage = () => {
                     )}
                 </div>
             </div>
-        </Layout>
+        </>
     );
 };
 

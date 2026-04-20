@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import Layout from '../components/Layout';
+// import Layout from '../components/Layout'; // ❌ REMOVED
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import { getVouchersForReception, updateRewardVoucherStatus } from '../api/rewards';
@@ -16,6 +16,7 @@ const RewardVouchersPage = () => {
         const fetchVouchers = async () => {
             try {
                 setLoading(true);
+                setError('');
                 const res = await getVouchersForReception();
                 const voucherData = res?.data?.data || res?.data || res || [];
                 setVouchers(Array.isArray(voucherData) ? voucherData : []);
@@ -52,15 +53,12 @@ const RewardVouchersPage = () => {
     });
 
     if (loading) {
-        return (
-            <Layout>
-                <LoadingSpinner text="Loading reward vouchers..." />
-            </Layout>
-        );
+        // ✅ Layout removed from loading state
+        return <LoadingSpinner text="Loading reward vouchers..." />;
     }
 
     return (
-        <Layout>
+        <> {/* ✅ Replaced <Layout> with Fragment */}
             <div className="p-10 space-y-8 max-w-7xl mx-auto">
                 <section className="text-center max-w-3xl mx-auto">
                     <h2 className="font-headline text-[52px] text-[#4A3728] mb-2 font-bold leading-tight">
@@ -164,7 +162,7 @@ const RewardVouchersPage = () => {
                     )}
                 </div>
             </div>
-        </Layout>
+        </>
     );
 };
 

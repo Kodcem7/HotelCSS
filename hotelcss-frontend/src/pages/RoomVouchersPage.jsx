@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import Layout from '../components/Layout';
+// import Layout from '../components/Layout'; // ❌ REMOVED
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
-import { getVouchersForRoom } from '../api/rewards'; // 👈 Using our new function!
+import { getVouchersForRoom } from '../api/rewards';
 
 const RoomVouchersPage = () => {
     const [vouchers, setVouchers] = useState([]);
@@ -13,6 +13,7 @@ const RoomVouchersPage = () => {
         const fetchVouchers = async () => {
             try {
                 setLoading(true);
+                setError('');
                 const res = await getVouchersForRoom();
                 const voucherData = res?.data?.data || res?.data || res || [];
                 setVouchers(Array.isArray(voucherData) ? voucherData : []);
@@ -28,15 +29,12 @@ const RoomVouchersPage = () => {
     }, []);
 
     if (loading) {
-        return (
-            <Layout>
-                <LoadingSpinner text="Loading your vouchers..." />
-            </Layout>
-        );
+        // ✅ No Layout here
+        return <LoadingSpinner text="Loading your vouchers..." />;
     }
 
     return (
-        <Layout>
+        <> {/* ✅ Replaced <Layout> with Fragment */}
             <div className="p-10 space-y-10 max-w-7xl mx-auto">
                 <section className="max-w-4xl mx-auto">
                     <h2 className="font-headline text-[52px] text-[#4A3728] mb-2 font-bold leading-tight">
@@ -82,13 +80,12 @@ const RoomVouchersPage = () => {
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span
-                                                    className={`px-3 py-1 inline-flex text-[11px] leading-5 font-bold rounded-full border ${
-                                                        v.status === 'Pending'
+                                                    className={`px-3 py-1 inline-flex text-[11px] leading-5 font-bold rounded-full border ${v.status === 'Pending'
                                                             ? 'bg-yellow-100 text-yellow-800 border-yellow-200'
                                                             : v.status === 'Completed' || v.status === 'Redeemed'
-                                                              ? 'bg-green-100 text-green-800 border-green-200'
-                                                              : 'bg-[#F2EBE1] text-[#4A3728] border-[#E3DCD2]/40'
-                                                    }`}
+                                                                ? 'bg-green-100 text-green-800 border-green-200'
+                                                                : 'bg-[#F2EBE1] text-[#4A3728] border-[#E3DCD2]/40'
+                                                        }`}
                                                 >
                                                     {v.status}
                                                 </span>
@@ -101,7 +98,7 @@ const RoomVouchersPage = () => {
                     )}
                 </div>
             </div>
-        </Layout>
+        </>
     );
 };
 

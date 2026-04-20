@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect } from 'react';
-import Layout from '../components/Layout';
+// import Layout from '../components/Layout'; // ❌ REMOVED
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import SuccessMessage from '../components/SuccessMessage';
@@ -140,10 +140,10 @@ const AdminSurveyResultsPage = () => {
         }
     };
 
-    if (loading) return <Layout><LoadingSpinner text="Loading data..." /></Layout>;
+    if (loading) return <LoadingSpinner text="Loading data..." />; // ✅ Layout removed
 
     return (
-        <Layout>
+        <> {/* ✅ Using Fragment */}
             <div className="max-w-6xl mx-auto p-6">
                 {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
                 {success && <SuccessMessage message={success} onDismiss={() => setSuccess('')} />}
@@ -181,7 +181,6 @@ const AdminSurveyResultsPage = () => {
                                                 {new Date(s.createdAt).toLocaleDateString()}
                                             </td>
                                             <td className="p-4 text-right space-x-2">
-                                                {/* The Toggle Button */}
                                                 <button
                                                     onClick={() => handleToggleStatus(s.id)}
                                                     className={`font-semibold text-sm px-4 py-2 rounded-xl transition-colors ${s.isActive
@@ -192,7 +191,6 @@ const AdminSurveyResultsPage = () => {
                                                     {s.isActive ? 'Deactivate' : 'Activate'}
                                                 </button>
 
-                                                {/* The AI Analytics Button */}
                                                 <button
                                                     onClick={() => handleAnalyzeSurvey(s.id, s.title)}
                                                     className="text-[#4A3728] hover:text-[#2C241E] font-semibold text-sm bg-[#F2EBE1] hover:bg-[#E8DFD1] px-4 py-2 rounded-xl transition-colors inline-flex items-center gap-1 border border-[#E3DCD2]"
@@ -201,7 +199,6 @@ const AdminSurveyResultsPage = () => {
                                                     Analyze with AI
                                                 </button>
 
-                                                {/* The Manual Details Button */}
                                                 <button
                                                     onClick={() => handleViewResponses(s.id)}
                                                     className="text-[#D35400] hover:text-[#BA4A00] font-semibold text-sm bg-[#F2EBE1] hover:bg-[#E8DFD1] px-4 py-2 rounded-xl transition-colors"
@@ -209,7 +206,6 @@ const AdminSurveyResultsPage = () => {
                                                     Details
                                                 </button>
 
-                                                {/* The Delete Button */}
                                                 <button
                                                     onClick={() => handleDeleteSurvey(s.id)}
                                                     className="text-[#B22222] hover:text-[#8B0000] font-semibold text-sm bg-[#FBEAEA] hover:bg-[#F7D9D9] px-4 py-2 rounded-xl transition-colors border border-[#F7D9D9]"
@@ -277,7 +273,6 @@ const AdminSurveyResultsPage = () => {
                                 <p className="text-[#5D534A] mt-2 text-[14px]">Showing all submitted responses for this survey.</p>
                             </div>
 
-                            {/* 👇 NEW: Automatic Average Stars Display */}
                             {currentSurveyAverage !== null && (
                                 <div className="bg-white px-6 py-4 rounded-[20px] border border-amber-200 shadow-sm flex items-center gap-4 animate-fade-in-up">
                                     <div>
@@ -361,7 +356,7 @@ const AdminSurveyResultsPage = () => {
                     </div>
                 )}
             </div>
-        </Layout>
+        </>
     );
 };
 

@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect } from 'react';
-import Layout from '../components/Layout';
+// import Layout from '../components/Layout'; // ❌ REMOVED
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import SuccessMessage from '../components/SuccessMessage';
@@ -16,7 +16,6 @@ const ServiceItemsPage = () => {
     const [showModal, setShowModal] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
 
-    // 👇 1. Added PointsEarned and PointsCost to initial state
     const [formData, setFormData] = useState({
         Name: '',
         Description: '',
@@ -61,8 +60,8 @@ const ServiceItemsPage = () => {
                 Name: item.name || '',
                 Description: item.description || '',
                 Price: item.price || '',
-                PointsEarned: item.pointsEarned || '', // 👇 Added
-                PointsCost: item.pointsCost || '',     // 👇 Added
+                PointsEarned: item.pointsEarned || '',
+                PointsCost: item.pointsCost || '',
                 DepartmentId: item.departmentId || '',
                 IsAvailable: item.isAvailable !== undefined ? item.isAvailable : true,
                 RequiredOptions: item.requiredOptions || '',
@@ -74,8 +73,8 @@ const ServiceItemsPage = () => {
                 Name: '',
                 Description: '',
                 Price: '',
-                PointsEarned: '', // 👇 Added
-                PointsCost: '',   // 👇 Added
+                PointsEarned: '',
+                PointsCost: '',
                 DepartmentId: '',
                 IsAvailable: true,
                 RequiredOptions: '',
@@ -93,8 +92,8 @@ const ServiceItemsPage = () => {
             Name: '',
             Description: '',
             Price: '',
-            PointsEarned: '', // 👇 Added
-            PointsCost: '',   // 👇 Added
+            PointsEarned: '',
+            PointsCost: '',
             DepartmentId: '',
             IsAvailable: true,
             RequiredOptions: '',
@@ -125,7 +124,6 @@ const ServiceItemsPage = () => {
             formDataToSend.append('Name', formData.Name);
             formDataToSend.append('Description', formData.Description || '');
             formDataToSend.append('Price', formData.Price || '0');
-            // 👇 2. Appending Points data for C# Backend
             formDataToSend.append('PointsEarned', formData.PointsEarned || '0');
             formDataToSend.append('PointsCost', formData.PointsCost || '0');
             formDataToSend.append('DepartmentId', formData.DepartmentId);
@@ -184,15 +182,12 @@ const ServiceItemsPage = () => {
             : serviceItems.filter((item) => item.departmentId === parseInt(filterDept));
 
     if (loading) {
-        return (
-            <Layout>
-                <LoadingSpinner text="Loading service items..." />
-            </Layout>
-        );
+        // ✅ No Layout here
+        return <LoadingSpinner text="Loading service items..." />;
     }
 
     return (
-        <Layout>
+        <> {/* ✅ Using Fragment */}
             <div className="p-10 space-y-8 max-w-7xl mx-auto">
                 <section className="text-center max-w-3xl mx-auto">
                     <h2 className="font-headline text-[52px] text-[#4A3728] mb-2 font-bold leading-tight">
@@ -213,7 +208,6 @@ const ServiceItemsPage = () => {
                 </section>
 
                 <div className="max-w-5xl mx-auto w-full space-y-4">
-                    {/* Filter */}
                     <div className="flex justify-center">
                         <select
                             value={filterDept}
@@ -261,8 +255,8 @@ const ServiceItemsPage = () => {
                                         </h3>
                                         <span
                                             className={`px-3 py-1 text-[11px] font-bold rounded-full ${item.isAvailable
-                                                    ? 'bg-green-100 text-green-800'
-                                                    : 'bg-red-100 text-red-800'
+                                                ? 'bg-green-100 text-green-800'
+                                                : 'bg-red-100 text-red-800'
                                                 }`}
                                         >
                                             {item.isAvailable ? 'Available' : 'Unavailable'}
@@ -283,7 +277,6 @@ const ServiceItemsPage = () => {
                                         <p className="text-sm text-[#5D534A] mb-4 flex-grow">{item.description}</p>
                                     )}
 
-                                    {/* 👇 Beautiful Badges for Price and Points! */}
                                     <div className="flex flex-wrap gap-2 justify-center mb-5 mt-auto">
                                         {item.price > 0 && (
                                             <span className="px-3 py-1 bg-[#F2EBE1] text-[#4A3728] font-bold rounded-xl border border-[#E3DCD2]">
@@ -334,9 +327,7 @@ const ServiceItemsPage = () => {
 
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div>
-                                    <label className="block text-sm font-semibold text-[#4A3728] mb-1">
-                                        Name *
-                                    </label>
+                                    <label className="block text-sm font-semibold text-[#4A3728] mb-1">Name *</label>
                                     <input
                                         type="text"
                                         value={formData.Name}
@@ -347,9 +338,7 @@ const ServiceItemsPage = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-semibold text-[#4A3728] mb-1">
-                                        Department *
-                                    </label>
+                                    <label className="block text-sm font-semibold text-[#4A3728] mb-1">Department *</label>
                                     <select
                                         value={formData.DepartmentId}
                                         onChange={(e) => setFormData({ ...formData, DepartmentId: e.target.value })}
@@ -366,9 +355,7 @@ const ServiceItemsPage = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-semibold text-[#4A3728] mb-1">
-                                        Description
-                                    </label>
+                                    <label className="block text-sm font-semibold text-[#4A3728] mb-1">Description</label>
                                     <textarea
                                         value={formData.Description}
                                         onChange={(e) => setFormData({ ...formData, Description: e.target.value })}
@@ -378,62 +365,43 @@ const ServiceItemsPage = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-semibold text-[#4A3728] mb-1">
-                                        Required Options (comma separated)
-                                    </label>
+                                    <label className="block text-sm font-semibold text-[#4A3728] mb-1">Required Options</label>
                                     <input
                                         type="text"
                                         value={formData.RequiredOptions}
-                                        onChange={(e) =>
-                                            setFormData({ ...formData, RequiredOptions: e.target.value })
-                                        }
+                                        onChange={(e) => setFormData({ ...formData, RequiredOptions: e.target.value })}
                                         className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E]"
                                         placeholder="e.g. Ice, Lemon"
                                     />
-                                    <p className="text-xs text-[#8E735B] mt-1">
-                                        These options will be used by the chatbot to ask for missing details.
-                                    </p>
                                 </div>
 
-                                {/* 👇 3. NEW SIDE-BY-SIDE POINT FIELDS! */}
                                 <div className="flex gap-4">
                                     <div className="flex-1">
-                                        <label className="block text-sm font-semibold text-[#4A3728] mb-1">
-                                            Price ($)
-                                        </label>
+                                        <label className="block text-sm font-semibold text-[#4A3728] mb-1">Price ($)</label>
                                         <input
                                             type="number"
                                             step="0.01"
-                                            min="0"
                                             value={formData.Price}
                                             onChange={(e) => setFormData({ ...formData, Price: e.target.value })}
                                             className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E]"
                                         />
                                     </div>
                                     <div className="flex-1">
-                                        <label className="block text-sm font-semibold text-[#4A3728] mb-1 text-emerald-700">
-                                            Points Earned
-                                        </label>
+                                        <label className="block text-sm font-semibold text-[#4A3728] mb-1 text-emerald-700">Earned</label>
                                         <input
                                             type="number"
-                                            min="0"
                                             value={formData.PointsEarned}
                                             onChange={(e) => setFormData({ ...formData, PointsEarned: e.target.value })}
                                             className="w-full px-4 py-3 border-2 border-emerald-200 rounded-2xl bg-emerald-50 focus:border-emerald-500 focus:outline-none text-emerald-900"
-                                            placeholder="0"
                                         />
                                     </div>
                                     <div className="flex-1">
-                                        <label className="block text-sm font-semibold text-[#4A3728] mb-1 text-[#B22222]">
-                                            Points Cost
-                                        </label>
+                                        <label className="block text-sm font-semibold text-[#4A3728] mb-1 text-[#B22222]">Cost</label>
                                         <input
                                             type="number"
-                                            min="0"
                                             value={formData.PointsCost}
                                             onChange={(e) => setFormData({ ...formData, PointsCost: e.target.value })}
                                             className="w-full px-4 py-3 border-2 border-[#F7D9D9] rounded-2xl bg-[#FBEAEA] focus:border-[#B22222] focus:outline-none text-[#B22222]"
-                                            placeholder="0"
                                         />
                                     </div>
                                 </div>
@@ -451,9 +419,7 @@ const ServiceItemsPage = () => {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-semibold text-[#4A3728] mb-1">
-                                        Image
-                                    </label>
+                                    <label className="block text-sm font-semibold text-[#4A3728] mb-1">Image</label>
                                     <input
                                         type="file"
                                         accept="image/*"
@@ -489,7 +455,7 @@ const ServiceItemsPage = () => {
                     </div>
                 )}
             </div>
-        </Layout>
+        </>
     );
 };
 

@@ -1,4 +1,4 @@
-import Layout from '../components/Layout';
+// import Layout from '../components/Layout'; // ❌ REMOVED
 import { useLanguage } from '../context/LanguageContext';
 
 const languageOptions = [
@@ -36,7 +36,7 @@ const SettingsPage = () => {
     const text = labels[language] || labels.en;
 
     return (
-        <Layout>
+        <> {/* ✅ Replaced <Layout> with Fragment */}
             <div className="max-w-3xl mx-auto bg-white border border-slate-200 rounded-2xl shadow-sm p-8 space-y-8">
                 <div>
                     <h2 className="text-3xl font-semibold text-slate-900">{text.title}</h2>
@@ -57,11 +57,10 @@ const SettingsPage = () => {
                                     key={option.code}
                                     type="button"
                                     onClick={() => setLanguage(option.code)}
-                                    className={`rounded-xl border px-4 py-3 text-left transition ${
-                                        isActive
+                                    className={`rounded-xl border px-4 py-3 text-left transition ${isActive
                                             ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
                                             : 'border-slate-200 hover:border-indigo-300 hover:bg-slate-50 text-slate-700'
-                                    }`}
+                                        }`}
                                 >
                                     <div className="font-medium">{option.name}</div>
                                     {isActive && <div className="text-xs mt-1">{text.active}</div>}
@@ -71,7 +70,7 @@ const SettingsPage = () => {
                     </div>
                 </section>
             </div>
-        </Layout>
+        </>
     );
 };
 

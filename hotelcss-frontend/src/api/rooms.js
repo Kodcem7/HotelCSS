@@ -1,4 +1,4 @@
-import api from './axios';
+ï»¿import api from './axios';
 
 /**
  * Get all rooms
@@ -10,8 +10,8 @@ export const getRooms = async () => {
 };
 
 export const getRoom = async (roomNumber) => {
-    // axios yerine senin tokenlý 'api' aracýný kullanýyoruz
-    // ve path'i getRooms'daki gibi '/Room' formatýna uyduruyoruz
+    // axios yerine senin tokenlÄ± 'api' aracÄ±nÄ± kullanÄ±yoruz
+    // ve path'i getRooms'daki gibi '/Room' formatÄ±na uyduruyoruz
     const response = await api.get(`/Room/${roomNumber}`);
     return response.data;
 };
@@ -73,8 +73,7 @@ export const deleteAllRooms = async () => {
 };
 
 export const getMyPoints = async () => {
-    // Make sure this matches the controller name you put the C# action inside!
-    const response = await api.get('/Room/GetMyPoints');
+    const response = await api.get(`/Room/GetMyPoints?t=${new Date().getTime()}`);
     return response.data;
 };
 

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import Layout from '../components/Layout';
+﻿import { useState } from 'react';
+// import Layout from '../components/Layout'; // ❌ REMOVED
 import ErrorMessage from '../components/ErrorMessage';
 import SuccessMessage from '../components/SuccessMessage';
 import { createSurvey } from '../api/surveys';
@@ -78,7 +78,7 @@ const AdminSurveyPage = () => {
     };
 
     return (
-        <Layout>
+        <> {/* ✅ Replaced <Layout> with Fragment */}
             <div className="mb-6">
                 <h2 className="font-headline text-4xl text-[#4A3728] font-bold leading-tight">Survey Creator</h2>
                 <p className="text-[#5D534A] mt-2 text-[14px] leading-relaxed">
@@ -198,7 +198,7 @@ const AdminSurveyPage = () => {
                     </div>
                 </form>
             </div>
-        </Layout>
+        </>
     );
 };
 

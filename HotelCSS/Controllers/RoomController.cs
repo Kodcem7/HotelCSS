@@ -218,7 +218,7 @@ namespace HotelCSS.Controllers
             }
 
             var points = room.CurrentPoints;
-            return Ok(new { success = true, data = points });
+            return Ok(points);
 
         }
 

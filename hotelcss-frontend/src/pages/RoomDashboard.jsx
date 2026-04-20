@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import Layout from '../components/Layout';
+// import Layout from '../components/Layout'; // ❌ REMOVED
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import { useAuth } from '../context/AuthContext';
 import { getRoom } from '../api/rooms';
-
-// 👇 NEW: Import the Survey API and the Modal component
 import { getPendingSurvey } from '../api/surveys';
 import SurveyModal from '../components/SurveyModal';
 
@@ -16,7 +14,6 @@ const RoomDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    // 👇 NEW: State variables to hold the trap data
     const [pendingSurvey, setPendingSurvey] = useState(null);
     const [checkingSurvey, setCheckingSurvey] = useState(true);
 
@@ -26,17 +23,12 @@ const RoomDashboard = () => {
                 setLoading(true);
                 setError('');
 
-                // 2. Önce oda numarasını bul
                 const username = user?.username || '';
                 const roomNumber = parseInt(username.replace('Room', ''), 10);
 
-                // 3. SADECE bu odanın bilgilerini çek! (Tüm oteli değil)
                 const res = await getRoom(roomNumber);
-
-                // 4. Gelen datayı state'e kaydet
                 setRoom(res?.data || null);
 
-                // 👇 NEW: Check if there is an active survey they need to take!
                 try {
                     const surveyRes = await getPendingSurvey();
                     if (surveyRes?.hasPendingSurvey) {
@@ -51,7 +43,7 @@ const RoomDashboard = () => {
             } catch (err) {
                 setError('Failed to load room information');
                 console.error(err);
-                setCheckingSurvey(false); // Make sure to stop checking if main load fails
+                setCheckingSurvey(false);
             } finally {
                 setLoading(false);
             }
@@ -68,15 +60,12 @@ const RoomDashboard = () => {
     const isRoomAvailable = room && room.status === 'Available';
 
     if (loading) {
-        return (
-            <Layout>
-                <LoadingSpinner text="Loading room dashboard..." />
-            </Layout>
-        );
+        // ✅ No Layout here!
+        return <LoadingSpinner text="Loading room dashboard..." />;
     }
 
     return (
-        <Layout>
+        <> {/* ✅ Using Fragment to sit inside the AppRoutes Layout */}
             <div className="p-10 space-y-12 max-w-7xl mx-auto">
                 <section>
                     <h2 className="font-headline text-[52px] text-[#4A3728] mb-2 font-bold leading-tight">
@@ -137,63 +126,39 @@ const RoomDashboard = () => {
                         </Link>
                     )}
 
-                    {isRoomAvailable ? (
-                        <div className="bg-[#F2EBE1] p-8 rounded-[28px] opacity-60 cursor-not-allowed border border-[#E3DCD2]/20">
+                    <Link
+                        to="/room/report-issue"
+                        className={`bg-[#F2EBE1] p-8 rounded-[28px] flex flex-col justify-between hover:bg-white transition-all group border border-[#E3DCD2]/20 hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)] ${isRoomAvailable ? 'opacity-60 cursor-not-allowed' : ''}`}
+                        onClick={(e) => isRoomAvailable && e.preventDefault()}
+                    >
+                        <div>
                             <div className="w-12 h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-6">
                                 <span className="material-symbols-outlined text-[#D35400] text-3xl">report</span>
                             </div>
                             <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">Report an Issue</h3>
-                            <p className="text-[14px] text-[#5D534A] leading-relaxed">
-                                Not available while the room status is Available.
-                            </p>
+                            <p className="text-[14px] text-[#5D534A] leading-relaxed mb-6">Report problems in your room.</p>
                         </div>
-                    ) : (
-                        <Link
-                            to="/room/report-issue"
-                            className="bg-[#F2EBE1] p-8 rounded-[28px] flex flex-col justify-between hover:bg-white transition-all group border border-[#E3DCD2]/20 hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)]"
-                        >
-                            <div>
-                                <div className="w-12 h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-6">
-                                    <span className="material-symbols-outlined text-[#D35400] text-3xl">report</span>
-                                </div>
-                                <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">Report an Issue</h3>
-                                <p className="text-[14px] text-[#5D534A] leading-relaxed mb-6">Report problems in your room.</p>
-                            </div>
-                            <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#D35400] group-hover:gap-4 transition-all">
-                                Open <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                            </span>
-                        </Link>
-                    )}
+                        <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#D35400] group-hover:gap-4 transition-all">
+                            Open <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                        </span>
+                    </Link>
 
-                    {isRoomAvailable ? (
-                        <div className="bg-[#F2EBE1] p-8 rounded-[28px] opacity-60 cursor-not-allowed border border-[#E3DCD2]/20">
+                    <Link
+                        to="/room/reception-request"
+                        className={`bg-[#F2EBE1] p-8 rounded-[28px] flex flex-col justify-between hover:bg-white transition-all group border border-[#E3DCD2]/20 hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)] ${isRoomAvailable ? 'opacity-60 cursor-not-allowed' : ''}`}
+                        onClick={(e) => isRoomAvailable && e.preventDefault()}
+                    >
+                        <div>
                             <div className="w-12 h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-6">
                                 <span className="material-symbols-outlined text-[#D35400] text-3xl">concierge</span>
                             </div>
                             <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">Reception Request</h3>
-                            <p className="text-[14px] text-[#5D534A] leading-relaxed">
-                                Not available while the room status is Available.
-                            </p>
+                            <p className="text-[14px] text-[#5D534A] leading-relaxed mb-6">Wake-up calls or other services.</p>
                         </div>
-                    ) : (
-                        <Link
-                            to="/room/reception-request"
-                            className="bg-[#F2EBE1] p-8 rounded-[28px] flex flex-col justify-between hover:bg-white transition-all group border border-[#E3DCD2]/20 hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)]"
-                        >
-                            <div>
-                                <div className="w-12 h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-6">
-                                    <span className="material-symbols-outlined text-[#D35400] text-3xl">concierge</span>
-                                </div>
-                                <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">Reception Request</h3>
-                                <p className="text-[14px] text-[#5D534A] leading-relaxed mb-6">
-                                    Request wake-up calls or other reception services.
-                                </p>
-                            </div>
-                            <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#D35400] group-hover:gap-4 transition-all">
-                                Open <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                            </span>
-                        </Link>
-                    )}
+                        <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#D35400] group-hover:gap-4 transition-all">
+                            Open <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                        </span>
+                    </Link>
 
                     <Link
                         to="/room/history"
@@ -212,42 +177,6 @@ const RoomDashboard = () => {
                     </Link>
 
                     <Link
-                        to="/room/events"
-                        className="bg-[#F2EBE1] p-8 rounded-[28px] flex flex-col justify-between hover:bg-white transition-all group border border-[#E3DCD2]/20 hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)]"
-                    >
-                        <div>
-                            <div className="w-12 h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-6">
-                                <span className="material-symbols-outlined text-[#D35400] text-3xl">event</span>
-                            </div>
-                            <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">Hotel Events</h3>
-                            <p className="text-[14px] text-[#5D534A] leading-relaxed mb-6">
-                                See today&apos;s events, announcements and meal info.
-                            </p>
-                        </div>
-                        <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#D35400] group-hover:gap-4 transition-all">
-                            Open <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                        </span>
-                    </Link>
-
-                    <Link
-                        to="/room/campaigns"
-                        className="bg-[#F2EBE1] p-8 rounded-[28px] flex flex-col justify-between hover:bg-white transition-all group border border-[#E3DCD2]/20 hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)]"
-                    >
-                        <div>
-                            <div className="w-12 h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-6">
-                                <span className="material-symbols-outlined text-[#D35400] text-3xl">campaign</span>
-                            </div>
-                            <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">Campaigns</h3>
-                            <p className="text-[14px] text-[#5D534A] leading-relaxed mb-6">
-                                View active bonus campaigns.
-                            </p>
-                        </div>
-                        <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#D35400] group-hover:gap-4 transition-all">
-                            Open <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                        </span>
-                    </Link>
-
-                    <Link
                         to="/room/point-shop"
                         className="bg-[#F2EBE1] p-8 rounded-[28px] flex flex-col justify-between hover:bg-white transition-all group border border-[#E3DCD2]/20 hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)]"
                     >
@@ -256,9 +185,7 @@ const RoomDashboard = () => {
                                 <span className="material-symbols-outlined text-[#D35400] text-3xl">stars</span>
                             </div>
                             <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">Point Shop</h3>
-                            <p className="text-[14px] text-[#5D534A] leading-relaxed mb-6">
-                                Spend points on exclusive rewards.
-                            </p>
+                            <p className="text-[14px] text-[#5D534A] leading-relaxed mb-6">Spend points on rewards.</p>
                         </div>
                         <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#D35400] group-hover:gap-4 transition-all">
                             Open <span className="material-symbols-outlined text-sm">arrow_forward</span>
@@ -273,10 +200,8 @@ const RoomDashboard = () => {
                             <div className="w-12 h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-6">
                                 <span className="material-symbols-outlined text-[#D35400] text-3xl">confirmation_number</span>
                             </div>
-                            <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">My Reward Vouchers</h3>
-                            <p className="text-[14px] text-[#5D534A] leading-relaxed mb-6">
-                                View earned reward codes.
-                            </p>
+                            <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">My Vouchers</h3>
+                            <p className="text-[14px] text-[#5D534A] leading-relaxed mb-6">View your earned reward codes.</p>
                         </div>
                         <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#D35400] group-hover:gap-4 transition-all">
                             Open <span className="material-symbols-outlined text-sm">arrow_forward</span>
@@ -292,14 +217,13 @@ const RoomDashboard = () => {
                 </section>
             </div>
 
-            {/* 👇 NEW: The Survey Screen Trap! */}
             {pendingSurvey && !checkingSurvey && (
                 <SurveyModal
                     survey={pendingSurvey}
                     onComplete={() => setPendingSurvey(null)}
                 />
             )}
-        </Layout>
+        </>
     );
 };
 

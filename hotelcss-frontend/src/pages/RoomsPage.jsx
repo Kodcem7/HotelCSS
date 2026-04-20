@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import Layout from '../components/Layout';
+// import Layout from '../components/Layout'; // ❌ REMOVED
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import SuccessMessage from '../components/SuccessMessage';
-// 👇 Added subtractPoints to the imports
 import { getRooms, updateRoom, addPoints, subtractPoints } from '../api/rooms';
 import { checkOutRoom } from '../api/users';
 
@@ -74,12 +73,9 @@ const RoomsPage = () => {
         }
     };
 
-    // Handle adding points
     const handleAddPoints = async (roomNumber) => {
         const amountStr = window.prompt(`How many points would you like to add to Room ${roomNumber}?`);
-
         if (!amountStr) return;
-
         const pointsToAdd = parseInt(amountStr);
 
         if (isNaN(pointsToAdd) || pointsToAdd <= 0) {
@@ -90,9 +86,7 @@ const RoomsPage = () => {
         try {
             setError('');
             setSuccess('');
-
-            const res = await addPoints(roomNumber, pointsToAdd);
-
+            await addPoints(roomNumber, pointsToAdd);
             setSuccess(`Successfully added ${pointsToAdd} points to Room ${roomNumber}!`);
             await fetchRooms();
         } catch (err) {
@@ -101,12 +95,9 @@ const RoomsPage = () => {
         }
     };
 
-    // 👇 BRAND NEW: Handle subtracting points
     const handleSubtractPoints = async (roomNumber) => {
         const amountStr = window.prompt(`How many points would you like to SUBTRACT from Room ${roomNumber}?`);
-
         if (!amountStr) return;
-
         const pointsToSubtract = parseInt(amountStr);
 
         if (isNaN(pointsToSubtract) || pointsToSubtract <= 0) {
@@ -117,9 +108,7 @@ const RoomsPage = () => {
         try {
             setError('');
             setSuccess('');
-
             await subtractPoints(roomNumber, pointsToSubtract);
-
             setSuccess(`Successfully subtracted ${pointsToSubtract} points from Room ${roomNumber}!`);
             await fetchRooms();
         } catch (err) {
@@ -130,12 +119,9 @@ const RoomsPage = () => {
 
     const getStatusColor = (status) => {
         switch (status) {
-            case 'Available':
-                return 'bg-green-100 text-green-800';
-            case 'Occupied':
-                return 'bg-blue-100 text-blue-800';
-            default:
-                return 'bg-gray-100 text-gray-800';
+            case 'Available': return 'bg-green-100 text-green-800';
+            case 'Occupied': return 'bg-blue-100 text-blue-800';
+            default: return 'bg-gray-100 text-gray-800';
         }
     };
 
@@ -151,15 +137,12 @@ const RoomsPage = () => {
     };
 
     if (loading) {
-        return (
-            <Layout>
-                <LoadingSpinner text="Loading rooms..." />
-            </Layout>
-        );
+        // ✅ Removed Layout from loading state
+        return <LoadingSpinner text="Loading rooms..." />;
     }
 
     return (
-        <Layout>
+        <> {/* ✅ Replaced <Layout> with Fragment */}
             <div className="p-10 space-y-8 max-w-7xl mx-auto">
                 <section className="text-center max-w-3xl mx-auto">
                     <h2 className="font-headline text-[52px] text-[#4A3728] mb-2 font-bold leading-tight">
@@ -242,7 +225,6 @@ const RoomsPage = () => {
                                         </p>
                                     </div>
 
-                                    {/* 👇 UPGRADED POINTS UI: Balance, Subtract, and Add Buttons */}
                                     <div className="flex items-center justify-between text-xs text-[#5D534A] bg-amber-50/50 border border-amber-200/60 rounded-2xl px-4 py-3">
                                         <div className="text-left">
                                             <p className="font-bold text-[#4A3728] uppercase tracking-widest text-[10px] mb-1">
@@ -253,7 +235,6 @@ const RoomsPage = () => {
                                             </p>
                                         </div>
 
-                                        {/* Only show buttons if the room is Occupied */}
                                         {room.status === 'Occupied' && (
                                             <div className="flex gap-2">
                                                 <button
@@ -290,7 +271,7 @@ const RoomsPage = () => {
                     </div>
                 )}
             </div>
-        </Layout>
+        </>
     );
 };
 

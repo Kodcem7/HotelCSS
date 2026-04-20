@@ -1,4 +1,4 @@
-using CSSHotel.DataAccess.Data;
+﻿using CSSHotel.DataAccess.Data;
 using CSSHotel.DataAccess.DbInitializer;
 using CSSHotel.DataAccess.Repository;
 using CSSHotel.DataAccess.Repository.IRepository;
@@ -17,6 +17,17 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// 👇 1. ONLY ONE CORS POLICY DEFINED HERE
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 // Add services to the container.
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -24,17 +35,21 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddControllers();
 builder.Services.AddControllers().AddJsonOptions(x =>
     x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 var key = Encoding.ASCII.GetBytes(builder.Configuration.GetValue<string>("JwtSettings:SecretKey"));
+
 // 1. Add Identity Services
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
+
 // 2. Configure Token Lifespan for Password Reset and Email Confirmation
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
    options.TokenLifespan = TimeSpan.FromHours(2));
+
 //3. Adding AI service
 builder.Services.AddScoped<CSSHotel.Utility.Service.AIService>();
 
@@ -42,13 +57,13 @@ builder.Services.AddMemoryCache();
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
-
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = true;
     options.Password.RequireNonAlphanumeric = true;
     options.Password.RequireUppercase = true;
     options.Password.RequiredLength = 6;
 });
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -97,20 +112,10 @@ builder.Services.AddAuthentication(x =>
         ValidateAudience = false
     };
 });
+
 builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 //Adding Email Service
-builder.Services.AddScoped<IEmailService,EmailService>();
-// Add CORS
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowReactApp", policy =>
-    {
-        policy.WithOrigins("http://localhost:5173", "http://localhost:3000", "https://localhost:5173")
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
-    });
-});
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddSignalR();
 
@@ -126,8 +131,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-// Use CORS before authentication
-app.UseCors("AllowReactApp");
+// 👇 2. ONLY ONE CORS POLICY USED HERE (Right before Authentication)
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -137,6 +142,7 @@ SeedDatabase();
 app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
 app.MapControllers();
 app.MapHub<HotelCSS.Hubs.NotificationHub>("/hubs/notifications");
+
 app.Run();
 
 
