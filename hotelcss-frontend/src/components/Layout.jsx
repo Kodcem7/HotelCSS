@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import ChatWidget from './ChatWidget';
-import { getMyPoints } from '../api/rooms';
+import { getMyPoints, getRoom } from '../api/rooms';
 
 const Layout = ({ children }) => {
     const { user, logout } = useAuth();
@@ -89,27 +89,78 @@ const Layout = ({ children }) => {
 
     const navItems = navItemsBySuite[suiteKey] ?? [];
 
-    const [myPoints, setMyPoints] = useState(0);
+    const [myPoints, setMyPoints] = useState(() => {
+        try {
+            const cached = localStorage.getItem('roomPoints');
+            const parsed = cached == null ? NaN : parseInt(cached, 10);
+            return Number.isNaN(parsed) ? 0 : parsed;
+        } catch {
+            return 0;
+        }
+    });
+    const latestPointsRequestRef = useRef(0);
+
+    const parsePointsValue = (payload) => {
+        if (payload == null) return null;
+        if (typeof payload === 'number') return Number.isNaN(payload) ? null : payload;
+        if (typeof payload === 'string') {
+            const parsed = parseInt(payload, 10);
+            return Number.isNaN(parsed) ? null : parsed;
+        }
+
+        if (typeof payload === 'object') {
+            const candidate =
+                payload.data ??
+                payload.points ??
+                payload.currentPoints ??
+                payload.CurrentPoints ??
+                payload.value;
+            return parsePointsValue(candidate);
+        }
+
+        return null;
+    };
+
+    // Keep a cache so transient remounts don't flash 0.
+    useEffect(() => {
+        if (user?.role !== 'Room') return;
+        try {
+            localStorage.setItem('roomPoints', String(myPoints));
+        } catch { }
+    }, [myPoints, user?.role]);
 
     // 👇 UPDATED EFFECT: Safe points polling!
     useEffect(() => {
+        // Important: don't aggressively reset points to 0 if role/user
+        // is temporarily undefined during auth hydration.
+        if (!user || user?.role !== 'Room') return;
+
+        let isActive = true;
         const syncPoints = async () => {
-            if (user?.role !== 'Room') return;
+            const requestId = ++latestPointsRequestRef.current;
 
             try {
-                const response = await getMyPoints();
+                const expectedRoomNumber = parseInt((user?.username || '').replace(/\D/g, ''), 10);
+                if (Number.isNaN(expectedRoomNumber)) return;
 
-                // The absolute most aggressive way to grab the number.
-                // If Axios wraps it, it's in response.data. Otherwise, it's just response.
-                const rawValue = response?.data !== undefined ? response.data : response;
-
-                // Force whatever we got into a clean integer
-                const finalPoints = parseInt(rawValue, 10);
-
-                // As long as it didn't turn into NaN (Not a Number), slam it into the UI state
-                if (!isNaN(finalPoints)) {
-                    setMyPoints(finalPoints);
+                // Source of truth: room record (same value admin sees in manage rooms).
+                // Keep GetMyPoints as a fallback for compatibility.
+                let finalPoints = null;
+                try {
+                    const roomResponse = await getRoom(expectedRoomNumber);
+                    if (!isActive || requestId !== latestPointsRequestRef.current) return;
+                    finalPoints = parsePointsValue(roomResponse);
+                } catch (roomErr) {
+                    console.error("Failed to fetch points from room endpoint:", roomErr);
                 }
+
+                if (finalPoints === null) {
+                    const pointsResponse = await getMyPoints();
+                    if (!isActive || requestId !== latestPointsRequestRef.current) return;
+                    finalPoints = parsePointsValue(pointsResponse);
+                }
+
+                if (finalPoints !== null) setMyPoints(finalPoints);
             } catch (err) {
                 console.error("Failed to fetch points:", err);
             }
@@ -121,8 +172,11 @@ const Layout = ({ children }) => {
         // Then poll every 3 seconds
         const interval = setInterval(syncPoints, 3000);
 
-        return () => clearInterval(interval);
-    }, [user?.role]); // 👈 Simple dependency array
+        return () => {
+            isActive = false;
+            clearInterval(interval);
+        };
+    }, [user?.role, user?.username, user?.id]);
 
     const handleLogout = () => {
         logout();

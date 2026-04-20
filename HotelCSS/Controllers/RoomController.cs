@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 
 namespace HotelCSS.Controllers
 {
@@ -189,15 +190,11 @@ namespace HotelCSS.Controllers
         [Authorize(Roles = SD.Role_Room)]
         public IActionResult GetMyPoints()
         {
-            var claimsIdentity = (ClaimsIdentity)User.Identity;
-            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
-
-            if (claim == null)
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userId))
             {
                 return BadRequest(new { success = false, message = "User identity not found." });
             }
-
-            string userId = claim.Value;
 
             var roomUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == userId);
             if (roomUser == null)
@@ -205,8 +202,9 @@ namespace HotelCSS.Controllers
                 return BadRequest(new { success = false, message = "User not found" });
             }
 
-            string roomNumString = roomUser.UserName.Replace("Room", "");
-            if (!int.TryParse(roomNumString, out int roomNumber))
+            // Supports usernames like "Room101", "room101", "Room 101"
+            var roomMatch = Regex.Match(roomUser.UserName ?? string.Empty, @"(\d+)$");
+            if (!roomMatch.Success || !int.TryParse(roomMatch.Groups[1].Value, out int roomNumber))
             {
                 return BadRequest(new { success = false, message = "Invalid Room User Format" });
             }
@@ -218,7 +216,7 @@ namespace HotelCSS.Controllers
             }
 
             var points = room.CurrentPoints;
-            return Ok(points);
+            return Ok(new { success = true, roomNumber, data = points });
 
         }
 
