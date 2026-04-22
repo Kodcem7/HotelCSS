@@ -41,6 +41,7 @@ import AdminSurveyResultsPage from '../pages/AdminSurveyResultsPage';
 import SettingsPage from '../pages/SettingsPage';
 import GlobalTranslator from '../components/GlobalTranslator';
 import MissingTranslationReporter from '../components/MissingTranslationReporter';
+import UsersLogsPage from '../pages/UsersLogsPage';
 
 const AppRoutes = () => {
     const { isAuthenticated, user } = useAuth();
@@ -74,6 +75,7 @@ const AppRoutes = () => {
                     <Route path="/admin/surveys" element={<AdminSurveyPage />} />
                     <Route path="/admin/surveys/results" element={<AdminSurveyResultsPage />} />
                     <Route path="/admin/reception/services" element={<ReceptionServicesPage />} />
+                    <Route path="/admin/users-logs" element={<UsersLogsPage />} />
 
                     {/* Manager Specific */}
                     <Route path="/manager" element={<ManagerDashboard />} />

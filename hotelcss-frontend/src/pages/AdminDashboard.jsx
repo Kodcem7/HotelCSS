@@ -1,12 +1,12 @@
 ﻿import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-// import Layout from '../components/Layout'; // ❌ REMOVED
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import { getStaffList } from '../api/users';
 import { getDepartments } from '../api/departments';
 import { getRequests } from '../api/requests';
 
+// 👇 Fixed the User Logs card right here!
 const quickLinks = [
     {
         to: '/admin/staff',
@@ -70,6 +70,14 @@ const quickLinks = [
         desc: 'View and manage guest reward vouchers and redemptions',
         cta: 'Loyalty Suite',
         icon: 'confirmation_number',
+    },
+    // 🚀 HERE IS YOUR FIXED USER LOGS CARD!
+    {
+        to: '/admin/users-logs', // 👈 Perfectly matches your AppRoutes now!
+        title: 'User Logs',      // 👈 Fixed the title!
+        desc: 'Monitor user actions, room history, and account events.',
+        cta: 'View Logs',
+        icon: 'manage_history',
     },
     {
         to: '/admin/surveys',
@@ -138,12 +146,11 @@ const AdminDashboard = () => {
     }, []);
 
     if (loading) {
-        // ✅ No Layout here
         return <LoadingSpinner text="Loading dashboard..." />;
     }
 
     return (
-        <> {/* ✅ Replaced <Layout> with a fragment */}
+        <>
             {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
 
             {isAdminDashboardSuite ? (

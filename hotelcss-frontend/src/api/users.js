@@ -80,4 +80,11 @@ export const checkOutRoom = async (roomNumber) => {
   return response.data;
 };
 
+export const updateGuestEmail = async (email) => { 
+    const response = await api.post('/User/UpdateGuestEmail', {
+        email: email
+    });
+    return response.data;
+};
+
 

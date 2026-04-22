@@ -23,6 +23,7 @@ namespace CSSHotel.Models
         public string? CurrentGuestMail { get; set; }
         public DateTime? CurrentCheckInDate { get; set; }
         public bool isSkipped { get; set; } = true;
+        public bool mailSent { get; set; } = false;
 
     }
 }

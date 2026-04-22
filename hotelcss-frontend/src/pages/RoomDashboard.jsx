@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-// import Layout from '../components/Layout'; // ❌ REMOVED
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import { useAuth } from '../context/AuthContext';
 import { getRoom } from '../api/rooms';
 import { getPendingSurvey } from '../api/surveys';
 import SurveyModal from '../components/SurveyModal';
+import GuestEmailBanner from '../components/GuestEmailBanner'; // 👈 1. ADDED IMPORT
 
 const RoomDashboard = () => {
     const { user } = useAuth();
@@ -57,16 +57,31 @@ const RoomDashboard = () => {
         }
     }, [user?.role, user?.username]);
 
+    // 👇 2. ADDED HIDE FUNCTION
+    const handleEmailSaved = () => {
+        if (room) {
+            setRoom({ ...room, mailSent: true });
+        }
+    };
+
     const isRoomAvailable = room && room.status === 'Available';
 
     if (loading) {
-        // ✅ No Layout here!
         return <LoadingSpinner text="Loading room dashboard..." />;
     }
 
     return (
-        <> {/* ✅ Using Fragment to sit inside the AppRoutes Layout */}
+        <>
             <div className="p-4 sm:p-10 space-y-8 sm:space-y-12 max-w-7xl mx-auto">
+
+                {/* 👇 3. ADDED BANNER RIGHT AT THE TOP */}
+                {room && (
+                    <GuestEmailBanner
+                        isMailSent={room.mailSent}
+                        onEmailSaved={handleEmailSaved}
+                    />
+                )}
+
                 <section>
                     <h2 className="font-headline text-[clamp(30px,6vw,52px)] text-[#4A3728] mb-2 font-bold leading-tight">
                         Room Overview

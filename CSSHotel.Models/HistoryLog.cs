@@ -17,5 +17,6 @@ namespace CSSHotel.Models
         public string GuestMail { get; set; }
         public DateTime CheckInDate { get; set; }
         public DateTime CheckOutDate { get; set; }
+        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
     }
 }

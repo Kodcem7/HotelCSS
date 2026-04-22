@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Build.Tasks;
 using System.Net;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 using IEmailService = CSSHotel.Utility.Service.IEmailService;
 
 namespace HotelCSS.Controllers
@@ -269,13 +270,7 @@ namespace HotelCSS.Controllers
 
             if (room.Status == "Available")
             {
-                var existingMail = _unitOfWork.Room.GetFirstOrDefault(u => u.CurrentGuestMail == obj.Email);
-                if (existingMail != null)
-                {
-                    return BadRequest(new { success = false, message = "This email is already in use!" });
-                }
                 room.Status = "Occupied";
-                room.CurrentGuestMail = string.IsNullOrWhiteSpace(obj.Email) ? null : obj.Email;
                 room.CurrentCheckInDate = DateTime.Now;
                 room.CurrentPoints = 0;
 
@@ -313,6 +308,47 @@ namespace HotelCSS.Controllers
                 message = "Login Successful! You are now authenticated as " + user.UserName
             });
         }
+        [HttpPost("UpdateGuestEmail")]
+        public IActionResult UpdateGuestEmail([FromBody] UpdateEmailDTO obj)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return BadRequest(new { success = false, message = "User identity not found." });
+            }
+
+            var roomUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == userId);
+            if (roomUser == null)
+            {
+                return BadRequest(new { success = false, message = "User not found" });
+            }
+
+            // Supports usernames like "Room101", "room101", "Room 101"
+            var roomMatch = Regex.Match(roomUser.UserName ?? string.Empty, @"(\d+)$");
+            if (!roomMatch.Success || !int.TryParse(roomMatch.Groups[1].Value, out int roomNumber))
+            {
+                return BadRequest(new { success = false, message = "Invalid Room User Format" });
+            }
+
+            var room = _unitOfWork.Room.GetFirstOrDefault(u => u.RoomNumber == roomNumber);
+            if (room == null)
+            {
+                return BadRequest(new { success = false, message = "Room not found!" });
+            }
+
+            if (string.IsNullOrEmpty(obj.Email))
+            {
+                return BadRequest(new { success = false, message = "Invalid Email" });
+            }
+
+            room.CurrentGuestMail = obj.Email;
+            room.mailSent = true; 
+
+            _unitOfWork.Room.Update(room);
+            _unitOfWork.Save();
+            return Ok(new { success = true, message = "Email saved successfully!" });
+
+        }
 
         [HttpPost("Check-Out")]
         public IActionResult CheckOut(int roomNumber)
@@ -346,6 +382,7 @@ namespace HotelCSS.Controllers
             room.CurrentCheckInDate = null;
             room.CurrentPoints = 0;
             room.isSkipped = true;
+            room.mailSent = false;
             _unitOfWork.Room.Update(room);
             _unitOfWork.Save();
 
