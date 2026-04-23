@@ -11,10 +11,8 @@ const Layout = ({ children }) => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // 👇 1. NEW: Mobile Sidebar State
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-    // Suite görünümü, sadece kullanıcının ana dashboard rolüne göre belirlenmeli.
     const role = user?.role;
     const isStaffLike =
         role === 'Staff' ||
@@ -121,7 +119,6 @@ const Layout = ({ children }) => {
         return null;
     };
 
-    // Keep a cache so transient remounts don't flash 0.
     useEffect(() => {
         if (user?.role !== 'Room') return;
         try {
@@ -129,10 +126,7 @@ const Layout = ({ children }) => {
         } catch { }
     }, [myPoints, user?.role]);
 
-    // 👇 UPDATED EFFECT: Safe points polling!
     useEffect(() => {
-        // Important: don't aggressively reset points to 0 if role/user
-        // is temporarily undefined during auth hydration.
         if (!user || user?.role !== 'Room') return;
 
         let isActive = true;
@@ -143,8 +137,6 @@ const Layout = ({ children }) => {
                 const expectedRoomNumber = parseInt((user?.username || '').replace(/\D/g, ''), 10);
                 if (Number.isNaN(expectedRoomNumber)) return;
 
-                // Source of truth: room record (same value admin sees in manage rooms).
-                // Keep GetMyPoints as a fallback for compatibility.
                 let finalPoints = null;
                 try {
                     const roomResponse = await getRoom(expectedRoomNumber);
@@ -166,10 +158,7 @@ const Layout = ({ children }) => {
             }
         };
 
-        // Run immediately
         syncPoints();
-
-        // Then poll every 3 seconds
         const interval = setInterval(syncPoints, 3000);
 
         return () => {
@@ -259,7 +248,6 @@ const Layout = ({ children }) => {
                 } ${isDashboardSuite ? 'text-[14px] sm:text-[16px]' : ''}`}
         >
 
-            {/* 👇 2. NEW: The Dark Overlay when sidebar is open on mobile */}
             {isSidebarOpen && (
                 <div
                     className="fixed inset-0 bg-black/60 z-40 md:hidden transition-opacity backdrop-blur-sm"
@@ -269,10 +257,8 @@ const Layout = ({ children }) => {
 
             {/* SideNavBar */}
             {isDashboardSuite ? (
-                // 👇 3. NEW: Added transform classes so it slides off screen on mobile, stays fixed on desktop
                 <aside className={`w-72 fixed inset-y-0 left-0 bg-[#FDFBF7] flex flex-col py-8 pr-5 z-50 border-r border-[#E3DCD2]/30 transition-transform duration-300 ease-in-out md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
 
-                    {/* Mobile Close Button */}
                     <button
                         onClick={() => setIsSidebarOpen(false)}
                         className="absolute top-8 right-4 md:hidden p-2 text-[#8E735B] hover:bg-[#E8DFD1] rounded-full transition-colors"
@@ -280,11 +266,18 @@ const Layout = ({ children }) => {
                         <span className="material-symbols-outlined text-sm">close</span>
                     </button>
 
-                    <div className="px-8 mb-8 flex-shrink-0">
-                        <h1 className="font-headline text-lg text-[#4A3728] font-bold leading-tight pr-6">
-                            Parador Beach Hotel
-                        </h1>
-                        <p className="font-label text-[11px] uppercase tracking-widest text-[#8E735B] mt-1">{suiteLabel}</p>
+                    <div className="px-8 mb-8 flex-shrink-0 flex flex-col gap-1">
+                        <img
+                            src="/logo1.png"
+                            alt="Parador Beach Hotel Logo"
+                            className="h-20 w-auto object-contain object-left -ml-2"
+                        />
+                        <div>
+                            {/* 👇 ITALIC ONLY, original color and weight maintained */}
+                            <p className="font-label italic text-[11px] uppercase tracking-widest text-[#8E735B] mt-1">
+                                {suiteLabel}
+                            </p>
+                        </div>
                     </div>
 
                     <nav className="flex-1 min-h-0 space-y-1 overflow-y-auto overflow-x-hidden">
@@ -293,7 +286,7 @@ const Layout = ({ children }) => {
                                 key={item.to}
                                 to={item.to}
                                 className={getAdminLinkClass(item.to)}
-                                onClick={() => setIsSidebarOpen(false)} // Closes menu when link is clicked
+                                onClick={() => setIsSidebarOpen(false)}
                             >
                                 <span className="material-symbols-outlined">{item.icon}</span>
                                 <span className="font-label text-[11px] uppercase tracking-widest">{item.label}</span>
@@ -316,7 +309,6 @@ const Layout = ({ children }) => {
                     </footer>
                 </aside>
             ) : (
-                // Standard Suite Sidebar (Same Mobile Fixes)
                 <aside className={`w-64 fixed inset-y-0 left-0 bg-slate-50 dark:bg-slate-950 flex flex-col py-8 pr-4 z-50 border-r border-slate-200 dark:border-slate-800 transition-transform duration-300 ease-in-out md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
 
                     <button
@@ -326,11 +318,18 @@ const Layout = ({ children }) => {
                         <span className="material-symbols-outlined text-sm">close</span>
                     </button>
 
-                    <div className="px-8 mb-8 flex-shrink-0">
-                        <h1 className="font-serif text-lg text-indigo-950 dark:text-white leading-tight pr-6">Parador Beach Hotel</h1>
-                        <p className="font-label text-[11px] all-caps tracking-widest text-slate-500 mt-1 uppercase">
-                            {getRoleDisplayName(user?.role)} Suite
-                        </p>
+                    <div className="px-8 mb-8 flex-shrink-0 flex flex-col gap-1">
+                        <img
+                            src="/logo1.png"
+                            alt="Parador Beach Hotel Logo"
+                            className="h-20 w-auto object-contain object-left -ml-2"
+                        />
+                        <div>
+                            {/* 👇 ITALIC ONLY, original color and weight maintained */}
+                            <p className="font-label italic text-[11px] all-caps tracking-widest text-slate-500 mt-1 uppercase">
+                                {getRoleDisplayName(user?.role)} Suite
+                            </p>
+                        </div>
                     </div>
 
                     <nav className="flex-1 min-h-0 space-y-1 overflow-y-auto overflow-x-hidden">
@@ -385,14 +384,12 @@ const Layout = ({ children }) => {
                 </aside>
             )}
 
-            {/* 👇 4. NEW: Main Canvas Margin Fix (md:ml-72 so it goes full width on mobile) */}
             <main className={`flex-1 min-h-screen flex flex-col transition-all duration-300 w-full ${isDashboardSuite ? 'md:ml-72' : 'md:ml-64'}`}>
 
                 {isDashboardSuite ? (
                     <header className="sticky top-0 z-30 bg-[#FDFBF7]/80 border-b border-[#E3DCD2]/30 backdrop-blur-xl flex justify-between items-center w-full px-4 sm:px-8 py-4">
                         <div className="flex items-center gap-3 sm:gap-6">
 
-                            {/* 👇 5. NEW: Hamburger Button for Mobile */}
                             <button
                                 onClick={() => setIsSidebarOpen(true)}
                                 className="md:hidden flex items-center justify-center w-9 h-9 rounded-full bg-[#F2EBE1] hover:bg-[#E8DFD1] text-[#4A3728] transition-colors"
@@ -410,7 +407,10 @@ const Layout = ({ children }) => {
                                 </button>
                             )}
 
-                            <span className="font-headline italic text-lg sm:text-2xl text-[#4A3728] truncate max-w-[150px] sm:max-w-none">{getDashboardTitle()}</span>
+                            {/* Dashboard Title remains italic */}
+                            <span className="font-headline italic text-lg sm:text-2xl text-[#4A3728] truncate max-w-[150px] sm:max-w-none">
+                                {getDashboardTitle()}
+                            </span>
 
                             <div className="relative hidden lg:block ml-4">
                                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#8E735B] text-sm">search</span>
@@ -457,7 +457,6 @@ const Layout = ({ children }) => {
                     <header className="sticky top-0 z-30 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0_20px_40px_rgba(15,28,44,0.06)] flex justify-between items-center w-full px-4 sm:px-8 py-4">
                         <div className="flex items-center gap-3 sm:gap-6">
 
-                            {/* Standard Header Hamburger */}
                             <button
                                 onClick={() => setIsSidebarOpen(true)}
                                 className="md:hidden flex items-center justify-center w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
@@ -474,6 +473,7 @@ const Layout = ({ children }) => {
                                     <span className="material-symbols-outlined text-sm">arrow_back</span>
                                 </button>
                             )}
+
                             <span className="font-serif italic text-lg sm:text-xl text-indigo-900 dark:text-indigo-300 truncate max-w-[150px] sm:max-w-none">
                                 {getDashboardTitle()}
                             </span>

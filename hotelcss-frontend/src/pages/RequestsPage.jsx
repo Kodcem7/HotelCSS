@@ -197,7 +197,7 @@ const RequestsPage = () => {
                         No requests found
                     </div>
                 ) : (
-                    <div className="max-w-6xl mx-auto bg-[#FDFBF7] rounded-[22px] sm:rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] overflow-hidden">
+                    <div className="max-w-[1400px] mx-auto bg-[#FDFBF7] rounded-[22px] sm:rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] overflow-hidden">
                         <div className="overflow-x-auto">
                             <table className="min-w-full divide-y divide-[#E3DCD2]/50">
                                 <thead className="bg-[#F2EBE1]/55">
@@ -231,7 +231,14 @@ const RequestsPage = () => {
                                             className="px-6 py-3 text-left text-[11px] font-bold text-[#8E735B] uppercase tracking-widest cursor-pointer select-none"
                                             onClick={() => handleSort('quantity')}
                                         >
-                                            Quantity <span className="text-[#8E735B]/60">{getSortIcon('quantity')}</span>
+                                            Qty <span className="text-[#8E735B]/60">{getSortIcon('quantity')}</span>
+                                        </th>
+                                        {/* 👇 ADDED NOTE/DESCRIPTION HEADER */}
+                                        <th
+                                            className="px-6 py-3 text-left text-[11px] font-bold text-[#8E735B] uppercase tracking-widest cursor-pointer select-none"
+                                            onClick={() => handleSort('note')}
+                                        >
+                                            Note <span className="text-[#8E735B]/60">{getSortIcon('note')}</span>
                                         </th>
                                         <th className="px-6 py-3 text-left text-[11px] font-bold text-[#8E735B] uppercase tracking-widest">
                                             Photo
@@ -271,6 +278,12 @@ const RequestsPage = () => {
                                             <td className="px-6 py-4 whitespace-nowrap text-[13px] text-[#2C241E]">
                                                 {request.quantity}
                                             </td>
+
+                                            {/* 👇 ADDED NOTE/DESCRIPTION ROW DATA */}
+                                            <td className="px-6 py-4 text-[13px] text-[#2C241E] max-w-[200px] break-words">
+                                                {request.note || request.description || '-'}
+                                            </td>
+
                                             <td className="px-6 py-4 whitespace-nowrap text-[13px] text-[#2C241E]">
                                                 {request.photoPath ? (
                                                     <button

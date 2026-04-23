@@ -133,7 +133,7 @@ const CreateRequestPage = () => {
 
             const requestData = {
                 ServiceItemId: parseInt(formData.ServiceItemId),
-                Quantity: parseInt(formData.Quantity),
+                Quantity: parseInt(formData.Quantity) || 1, // Fallback here just in case they manage to submit empty
                 Note: formData.Note || '',
                 Type: requestType,
             };
@@ -172,12 +172,11 @@ const CreateRequestPage = () => {
     const showDepartmentPicker = isRoomUser && selectedDepartmentId == null;
 
     if (loading) {
-        // ✅ Replaced Layout wrapper
         return <LoadingSpinner text="Loading..." />;
     }
 
     return (
-        <> {/* ✅ Replaced <Layout> with Fragment */}
+        <>
             <div className="p-4 sm:p-10 space-y-8 sm:space-y-10 max-w-7xl mx-auto">
                 <section>
                     <h2 className="font-headline text-[clamp(30px,6vw,52px)] text-[#4A3728] mb-2 font-bold leading-tight">
@@ -359,15 +358,42 @@ const CreateRequestPage = () => {
                             <label className="block text-sm font-semibold text-[#4A3728] mb-2">
                                 Quantity * (1-5)
                             </label>
+
+                            {/* 👇 HERE IS THE BACKSPACE FIX! 👇 */}
                             <input
                                 type="number"
                                 min="1"
                                 max="5"
                                 value={formData.Quantity}
-                                onChange={(e) => setFormData({ ...formData, Quantity: parseInt(e.target.value) || 1 })}
+                                onChange={(e) => {
+                                    const val = e.target.value;
+                                    // 1. If they hit backspace, allow it to be empty!
+                                    if (val === '') {
+                                        setFormData({ ...formData, Quantity: '' });
+                                        return;
+                                    }
+
+                                    // 2. Parse the number
+                                    const parsed = parseInt(val, 10);
+                                    if (!isNaN(parsed)) {
+                                        setFormData({ ...formData, Quantity: parsed });
+                                    }
+                                }}
+                                onBlur={() => {
+                                    // 3. If they leave the box empty or put 0, force it to 1
+                                    if (formData.Quantity === '' || formData.Quantity < 1) {
+                                        setFormData({ ...formData, Quantity: 1 });
+                                    }
+                                    // 4. Cap it at 5 if they typed something huge
+                                    else if (formData.Quantity > 5) {
+                                        setFormData({ ...formData, Quantity: 5 });
+                                    }
+                                }}
                                 className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E]"
                                 required
                             />
+                            {/* 👆 END OF FIX 👆 */}
+
                             <p className="text-xs text-[#8E735B] mt-1">You can order between 1 and 5 items</p>
                         </div>
 

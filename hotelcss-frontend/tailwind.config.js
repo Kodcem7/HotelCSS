@@ -1,4 +1,4 @@
-@type {import('tailwindcss').Config}
+﻿/** @type {import('tailwindcss').Config} */
 export default {
     content: [
         "./index.html",
@@ -54,12 +54,21 @@ export default {
                 "secondary-fixed": "#d1e4ff",
                 "surface-container-low": "#f3f4f0",
                 "on-error-container": "#93000a",
-                "surface": "#f9faf5"
+                "surface": "#f9faf5",
+
+                // --- CUSTOM WARM DARK MODE PALETTE ---
+                "warm-dark": "#2a2118",
+                "warm-darker": "#1d1610",
+                "warm-sand": "#e0d5c1",
+                "terracotta": "#c85a17",
+                "terracotta-dim": "#9e4510",
+                "warm-border": "#4a3b2e",
             },
             fontFamily: {
-                "headline": ["Noto Serif", "serif"],
-                "body": ["Inter", "sans-serif"],
-                "label": ["Inter", "sans-serif"]
+                // 👇 UPDATED FONTS FOR BOUTIQUE HOTEL VIBE
+                "headline": ['"Playfair Display"', "serif"],
+                "body": ['"Plus Jakarta Sans"', "sans-serif"],
+                "label": ['"Plus Jakarta Sans"', "sans-serif"]
             },
         },
     },
