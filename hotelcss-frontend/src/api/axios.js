@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create axios instance with base URL
 // Use environment variable if available, otherwise default to localhost (backend runs on 5237)
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://192.168.1.104:5237/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://192.168.1.103:5237/api';
 
 // Backend origin for image URLs (same server, no /api)
 export const getBackendOrigin = () => API_BASE_URL.replace(/\/api\/?$/, '');

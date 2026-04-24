@@ -17,6 +17,7 @@ namespace CSSHotel.Models.ViewModels
         public IFormFile? Image { get; set; }
         public string? RequiredOptions { get; set; }
         public int PointsEarned { get; set; }
+        public int? PointsCost { get; set; }
 
     }
 }

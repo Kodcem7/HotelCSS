@@ -6,7 +6,9 @@ import { useAuth } from '../context/AuthContext';
 import { getRoom } from '../api/rooms';
 import { getPendingSurvey } from '../api/surveys';
 import SurveyModal from '../components/SurveyModal';
-import GuestEmailBanner from '../components/GuestEmailBanner'; // 👈 1. ADDED IMPORT
+import GuestEmailBanner from '../components/GuestEmailBanner';
+
+import { getActiveEvents, getMealList, getActiveBonusEvents } from '../api/events';
 
 const RoomDashboard = () => {
     const { user } = useAuth();
@@ -16,6 +18,21 @@ const RoomDashboard = () => {
 
     const [pendingSurvey, setPendingSurvey] = useState(null);
     const [checkingSurvey, setCheckingSurvey] = useState(true);
+
+    const [notifications, setNotifications] = useState([]);
+    const [loadingEvents, setLoadingEvents] = useState(true);
+
+    // 👇 1. Extract room number synchronously for the greeting UI
+    const displayRoomNumber = user?.username ? user.username.replace('Room', '') : '';
+
+    // 👇 2. Time-based dynamic greeting function
+    const getGreeting = () => {
+        const hour = new Date().getHours();
+        if (hour >= 5 && hour < 12) return 'Good morning,';
+        if (hour >= 12 && hour < 18) return 'Good afternoon,';
+        if (hour >= 18 && hour < 22) return 'Good evening,';
+        return 'Good night,';
+    };
 
     useEffect(() => {
         const fetchRoomStatus = async () => {
@@ -49,15 +66,42 @@ const RoomDashboard = () => {
             }
         };
 
+        const fetchDashboardEvents = async () => {
+            try {
+                setLoadingEvents(true);
+
+                const [activeRes, mealRes, bonusRes] = await Promise.all([
+                    getActiveEvents().catch(() => []),
+                    getMealList().catch(() => []),
+                    getActiveBonusEvents().catch(() => [])
+                ]);
+
+                const activeEvents = Array.isArray(activeRes) ? activeRes : activeRes?.data ?? [];
+                const mealEvents = Array.isArray(mealRes) ? mealRes : mealRes?.data ?? [];
+                const bonusEvents = Array.isArray(bonusRes) ? bonusRes : bonusRes?.data ?? [];
+
+                const allEvents = [...activeEvents, ...mealEvents, ...bonusEvents];
+
+                const uniqueEvents = Array.from(new Map(allEvents.map(item => [item.id || item.Id, item])).values());
+
+                setNotifications(uniqueEvents);
+            } catch (err) {
+                console.error("Failed to load events:", err);
+            } finally {
+                setLoadingEvents(false);
+            }
+        };
+
         if (user?.role === 'Room') {
             fetchRoomStatus();
+            fetchDashboardEvents();
         } else {
             setLoading(false);
             setCheckingSurvey(false);
+            setLoadingEvents(false);
         }
     }, [user?.role, user?.username]);
 
-    // 👇 2. ADDED HIDE FUNCTION
     const handleEmailSaved = () => {
         if (room) {
             setRoom({ ...room, mailSent: true });
@@ -65,6 +109,12 @@ const RoomDashboard = () => {
     };
 
     const isRoomAvailable = room && room.status === 'Available';
+
+    const formatEventDate = (dateString) => {
+        if (!dateString) return '';
+        const options = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        return new Date(dateString).toLocaleDateString(undefined, options);
+    };
 
     if (loading) {
         return <LoadingSpinner text="Loading room dashboard..." />;
@@ -74,7 +124,6 @@ const RoomDashboard = () => {
         <>
             <div className="p-4 sm:p-10 space-y-8 sm:space-y-12 max-w-7xl mx-auto">
 
-                {/* 👇 3. ADDED BANNER RIGHT AT THE TOP */}
                 {room && (
                     <GuestEmailBanner
                         isMailSent={room.mailSent}
@@ -83,11 +132,12 @@ const RoomDashboard = () => {
                 )}
 
                 <section>
+                    {/* 👇 3. Replaced "Room Overview" with dynamic greeting */}
                     <h2 className="font-headline text-[clamp(30px,6vw,52px)] text-[#4A3728] mb-2 font-bold leading-tight">
-                        Room Overview
+                        {getGreeting()} Room {displayRoomNumber}
                     </h2>
                     <p className="text-[14px] text-[#5D534A] leading-relaxed">
-                        Manage your requests, reception services and room info.
+                        Welcome to your hotel-app. You can create requests, view events, learn your pick-up time, see the hotel events and more.
                     </p>
 
                     {room && (
@@ -111,6 +161,75 @@ const RoomDashboard = () => {
                 </section>
 
                 {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
+
+                {!loadingEvents && notifications.length > 0 && (
+                    <section className="space-y-4">
+                        <h3 className="text-sm font-bold tracking-widest uppercase text-[#8E735B] ml-2">
+                            Today's Highlights
+                        </h3>
+
+                        <div className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                            {notifications.map((event) => {
+                                const id = event.id || event.Id;
+                                const title = event.title || event.Title;
+                                const eventType = event.eventType || event.EventType;
+                                const startDate = event.startDate || event.StartDate;
+                                const endDate = event.endDate || event.EndDate;
+
+                                const description = event.description ||
+                                    event.Description ||
+                                    event.details ||
+                                    event.Details ||
+                                    (eventType === 'BonusPoint'
+                                        ? 'Participate in this exclusive offer to earn extra reward points during your stay.'
+                                        : 'Join us for this special hotel event.');
+
+                                let iconName = 'celebration';
+                                if (eventType === 'Meal') iconName = 'restaurant';
+                                if (eventType === 'BonusPoint') iconName = 'stars';
+
+                                return (
+                                    <div
+                                        key={id}
+                                        className="flex-none w-[85%] sm:w-[350px] snap-center bg-[#FDFBF7] border border-[#E3DCD2]/40 rounded-[24px] p-5 flex flex-col justify-between shadow-[0_10px_30px_rgba(15,28,44,0.03)] hover:shadow-[0_15px_35px_rgba(15,28,44,0.06)] transition-shadow"
+                                    >
+                                        <div className="flex items-start gap-4 mb-4">
+                                            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-[#F2EBE1] flex items-center justify-center text-[#D35400]">
+                                                <span className="material-symbols-outlined">
+                                                    {iconName}
+                                                </span>
+                                            </div>
+
+                                            <div>
+                                                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                                    <h4 className="font-headline font-bold text-lg text-[#4A3728]">
+                                                        {title}
+                                                    </h4>
+                                                    <span className="bg-[#D35400]/10 text-[#D35400] text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                                        {eventType}
+                                                    </span>
+                                                </div>
+                                                <p className="text-sm text-[#5D534A] leading-relaxed line-clamp-2">
+                                                    {description}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {startDate && (
+                                            <div className="pt-3 mt-auto border-t border-[#E3DCD2]/40 flex items-center gap-2 text-xs font-semibold text-[#8E735B]">
+                                                <span className="material-symbols-outlined text-[14px]">schedule</span>
+                                                <span>
+                                                    {formatEventDate(startDate)}
+                                                    {endDate && ` - ${formatEventDate(endDate)}`}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </section>
+                )}
 
                 <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8">
                     {isRoomAvailable ? (

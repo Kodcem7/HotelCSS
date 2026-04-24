@@ -22,7 +22,7 @@ namespace HotelCSS.Controllers
         [Authorize(Roles = SD.Role_Room)]
         public IActionResult GetRewardsCatalog()
         {
-            var rewards = _unitOfWork.ServiceItem.GetAll(u => u.PointsCost != null).ToList();
+            var rewards = _unitOfWork.ServiceItem.GetAll(u => u.PointsCost > 0).ToList();
             return Ok(rewards);
         }
         [HttpGet("GetVouchersForReception")]

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import Layout from '../components/Layout'; // ❌ REMOVED
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import SuccessMessage from '../components/SuccessMessage';
@@ -22,6 +21,10 @@ const CreateRequestPage = () => {
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+
+    // 👇 1. NEW STATE FOR THE MODAL
+    const [showPriceWarning, setShowPriceWarning] = useState(false);
+
     /** For Room user: selected department (null = show department picker, number = show service form) */
     const [selectedDepartmentId, setSelectedDepartmentId] = useState(null);
     const [selectedDepartmentName, setSelectedDepartmentName] = useState('');
@@ -122,8 +125,24 @@ const CreateRequestPage = () => {
         return 'Room';
     };
 
-    const handleSubmit = async (e) => {
+    // 👇 2. UPDATED HANDLESUBMIT (Intercepts the form submission)
+    const handleSubmit = (e) => {
         e.preventDefault();
+        setError('');
+
+        if (selectedServiceItem && parseFloat(selectedServiceItem.price) > 0) {
+            // Price is higher than 0, show the modal!
+            setShowPriceWarning(true);
+        } else {
+            // It's free, execute directly
+            executeRequest();
+        }
+    };
+
+    // 👇 3. NEW EXECUTE FUNCTION (The actual API call)
+    const executeRequest = async () => {
+        setShowPriceWarning(false); // Close modal if it was open
+
         try {
             setSubmitting(true);
             setError('');
@@ -133,7 +152,7 @@ const CreateRequestPage = () => {
 
             const requestData = {
                 ServiceItemId: parseInt(formData.ServiceItemId),
-                Quantity: parseInt(formData.Quantity) || 1, // Fallback here just in case they manage to submit empty
+                Quantity: parseInt(formData.Quantity) || 1,
                 Note: formData.Note || '',
                 Type: requestType,
             };
@@ -177,7 +196,7 @@ const CreateRequestPage = () => {
 
     return (
         <>
-            <div className="p-4 sm:p-10 space-y-8 sm:space-y-10 max-w-7xl mx-auto">
+            <div className="p-4 sm:p-10 space-y-8 sm:space-y-10 max-w-7xl mx-auto relative">
                 <section>
                     <h2 className="font-headline text-[clamp(30px,6vw,52px)] text-[#4A3728] mb-2 font-bold leading-tight">
                         Create Service Request
@@ -344,8 +363,8 @@ const CreateRequestPage = () => {
                                                 Required options: {selectedServiceItem.requiredOptions}
                                             </p>
                                         )}
-                                        {selectedServiceItem.price && (
-                                            <p className="text-lg font-bold text-[#4A3728] mt-3">
+                                        {selectedServiceItem.price && parseFloat(selectedServiceItem.price) > 0 && (
+                                            <p className="text-lg font-bold text-[#D35400] mt-3">
                                                 ${parseFloat(selectedServiceItem.price).toFixed(2)}
                                             </p>
                                         )}
@@ -358,8 +377,6 @@ const CreateRequestPage = () => {
                             <label className="block text-sm font-semibold text-[#4A3728] mb-2">
                                 Quantity * (1-5)
                             </label>
-
-                            {/* 👇 HERE IS THE BACKSPACE FIX! 👇 */}
                             <input
                                 type="number"
                                 min="1"
@@ -367,24 +384,19 @@ const CreateRequestPage = () => {
                                 value={formData.Quantity}
                                 onChange={(e) => {
                                     const val = e.target.value;
-                                    // 1. If they hit backspace, allow it to be empty!
                                     if (val === '') {
                                         setFormData({ ...formData, Quantity: '' });
                                         return;
                                     }
-
-                                    // 2. Parse the number
                                     const parsed = parseInt(val, 10);
                                     if (!isNaN(parsed)) {
                                         setFormData({ ...formData, Quantity: parsed });
                                     }
                                 }}
                                 onBlur={() => {
-                                    // 3. If they leave the box empty or put 0, force it to 1
                                     if (formData.Quantity === '' || formData.Quantity < 1) {
                                         setFormData({ ...formData, Quantity: 1 });
                                     }
-                                    // 4. Cap it at 5 if they typed something huge
                                     else if (formData.Quantity > 5) {
                                         setFormData({ ...formData, Quantity: 5 });
                                     }
@@ -392,8 +404,6 @@ const CreateRequestPage = () => {
                                 className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E]"
                                 required
                             />
-                            {/* 👆 END OF FIX 👆 */}
-
                             <p className="text-xs text-[#8E735B] mt-1">You can order between 1 and 5 items</p>
                         </div>
 
@@ -429,6 +439,42 @@ const CreateRequestPage = () => {
                     </form>
                 )}
             </div>
+
+            {/* 👇 4. THE CUSTOM PRICE CONFIRMATION MODAL */}
+            {showPriceWarning && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 transition-opacity">
+                    <div className="bg-[#FDFBF7] rounded-[28px] p-8 max-w-md w-full shadow-2xl border border-[#E3DCD2]/30 transform scale-100 transition-transform">
+                        <div className="flex items-center justify-center w-16 h-16 rounded-full bg-[#F2EBE1] text-[#D35400] mx-auto mb-6">
+                            <span className="material-symbols-outlined text-3xl">payments</span>
+                        </div>
+
+                        <h3 className="font-headline text-2xl text-center text-[#4A3728] font-bold mb-4">
+                            Charge Confirmation
+                        </h3>
+
+                        <p className="text-center text-[#5D534A] leading-relaxed mb-8">
+                            This item has a price of <span className="font-bold text-[#D35400]">${parseFloat(selectedServiceItem?.price).toFixed(2)}</span>.
+                            <br /><br />
+                            Do you accept to pay this charge when the item is delivered to your room?
+                        </p>
+
+                        <div className="flex flex-col gap-3">
+                            <button
+                                onClick={executeRequest}
+                                className="w-full bg-[#D35400] text-white py-3 px-4 rounded-2xl hover:bg-[#b54600] transition font-semibold"
+                            >
+                                Yes, I accept
+                            </button>
+                            <button
+                                onClick={() => setShowPriceWarning(false)}
+                                className="w-full bg-[#F2EBE1] text-[#4A3728] py-3 px-4 rounded-2xl hover:bg-[#E8DFD1] transition font-semibold border border-[#E3DCD2]/40"
+                            >
+                                No, cancel request
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 };
