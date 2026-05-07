@@ -31,6 +31,7 @@ namespace CSSHotel.DataAccess.Data
         public DbSet<SurveyQuestion> SurveyQuestions { get; set; }
         public DbSet<SurveyAnswer> SurveyAnswers { get; set; }
         public DbSet<SurveyResponse> SurveyResponses { get; set; }
+        public DbSet<GuestReview> GuestReviews { get; set; }
 
 
 

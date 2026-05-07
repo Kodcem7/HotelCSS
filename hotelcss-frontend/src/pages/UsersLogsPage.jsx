@@ -117,7 +117,7 @@ const UsersLogsPage = () => {
 
             <section className="bg-[#FDFBF7] rounded-[24px] border border-[#E3DCD2]/40 shadow-[0_15px_35px_rgba(15,28,44,0.03)] overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse min-w-[800px]">
+                    <table className="w-full text-left border-collapse min-w-[1000px]">
                         <thead>
                             <tr className="bg-[#F2EBE1]/50 border-b border-[#E3DCD2]/50 text-[#8E735B] text-[10px] uppercase tracking-widest font-bold">
                                 <th className="p-5 w-16">ID</th>
@@ -126,13 +126,16 @@ const UsersLogsPage = () => {
                                 <th className="p-5">Guest Email</th>
                                 <th className="p-5">Check-In</th>
                                 <th className="p-5">Check-Out</th>
+                                {/* 👇 Added the new Headers here */}
+                                <th className="p-5">Money Spent</th>
+                                <th className="p-5">Points Earned</th>
                                 <th className="p-5 text-right w-20">Manage</th>
                             </tr>
                         </thead>
                         <tbody className="text-sm text-[#4A3728]">
                             {logs.length === 0 ? (
                                 <tr>
-                                    <td colSpan="7" className="p-10 text-center text-[#8E735B] italic">
+                                    <td colSpan="9" className="p-10 text-center text-[#8E735B] italic">
                                         No user logs found.
                                     </td>
                                 </tr>
@@ -184,6 +187,20 @@ const UsersLogsPage = () => {
                                                 <span className="material-symbols-outlined text-[16px] text-[#8E735B]">logout</span>
                                                 {new Date(log.checkOutDate || log.CheckOutDate).toLocaleDateString()}
                                             </div>
+                                        </td>
+
+                                        {/* 👇 New: Money Spent */}
+                                        <td className="p-5 whitespace-nowrap">
+                                            <span className="font-bold text-[#1B7F4B]">
+                                                €{parseFloat(log.moneySpent ?? log.MoneySpent ?? 0).toFixed(2)}
+                                            </span>
+                                        </td>
+
+                                        {/* 👇 New: Points Earned */}
+                                        <td className="p-5 whitespace-nowrap">
+                                            <span className="bg-[#D35400]/10 border border-[#D35400]/20 text-[#D35400] px-2.5 py-1 rounded-full font-bold text-xs tracking-wide">
+                                                +{log.pointsEarned ?? log.PointsEarned ?? 0} pts
+                                            </span>
                                         </td>
 
                                         {/* Manage / Delete */}

@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-// import Layout from '../components/Layout'; // ❌ REMOVED
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import SuccessMessage from '../components/SuccessMessage';
@@ -138,12 +137,11 @@ const RequestsPage = () => {
     };
 
     if (loading) {
-        // ✅ Layout removed from loading state
         return <LoadingSpinner text="Loading requests..." />;
     }
 
     return (
-        <> {/* ✅ Replaced <Layout> with Fragment */}
+        <>
             <div className="p-4 sm:p-10 space-y-6 sm:space-y-8 max-w-7xl mx-auto">
                 <section className="text-center max-w-3xl mx-auto">
                     <h2 className="font-headline text-[clamp(30px,6vw,52px)] text-[#4A3728] mb-2 font-bold leading-tight">
@@ -233,7 +231,6 @@ const RequestsPage = () => {
                                         >
                                             Qty <span className="text-[#8E735B]/60">{getSortIcon('quantity')}</span>
                                         </th>
-                                        {/* 👇 ADDED NOTE/DESCRIPTION HEADER */}
                                         <th
                                             className="px-6 py-3 text-left text-[11px] font-bold text-[#8E735B] uppercase tracking-widest cursor-pointer select-none"
                                             onClick={() => handleSort('note')}
@@ -279,24 +276,33 @@ const RequestsPage = () => {
                                                 {request.quantity}
                                             </td>
 
-                                            {/* 👇 ADDED NOTE/DESCRIPTION ROW DATA */}
                                             <td className="px-6 py-4 text-[13px] text-[#2C241E] max-w-[200px] break-words">
                                                 {request.note || request.description || '-'}
                                             </td>
 
-                                            <td className="px-6 py-4 whitespace-nowrap text-[13px] text-[#2C241E]">
+                                            {/* 👇 THE NEW THUMBNAIL IMPLEMENTATION */}
+                                            <td className="px-6 py-4 whitespace-nowrap">
                                                 {request.photoPath ? (
-                                                    <button
-                                                        type="button"
+                                                    <div
                                                         onClick={() => setPreviewImage(getImageUrl(request.photoPath))}
-                                                        className="text-[#D35400] hover:text-[#4A3728] transition-colors font-semibold"
+                                                        className="w-12 h-12 rounded-lg border border-[#E3DCD2]/80 overflow-hidden cursor-pointer hover:opacity-80 hover:shadow-md transition-all"
+                                                        title="Click to view full image"
                                                     >
-                                                        View
-                                                    </button>
+                                                        <img
+                                                            src={getImageUrl(request.photoPath)}
+                                                            alt="Attached photo"
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                    </div>
                                                 ) : (
-                                                    <span className="text-[#8E735B] text-xs">No photo</span>
+                                                    <div className="w-12 h-12 rounded-lg bg-[#F2EBE1]/60 flex items-center justify-center border border-[#E3DCD2]/40" title="No photo attached">
+                                                        <span className="material-symbols-outlined text-[#8E735B]/40 text-[20px]">
+                                                            image_not_supported
+                                                        </span>
+                                                    </div>
                                                 )}
                                             </td>
+
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span
                                                     className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
@@ -350,24 +356,25 @@ const RequestsPage = () => {
                 )}
                 {previewImage && (
                     <div
-                        className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70"
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm"
                         onClick={() => setPreviewImage('')}
                     >
                         <div
-                            className="relative max-w-4xl max-h-[90vh] mx-4 bg-black rounded-lg overflow-hidden"
+                            className="relative max-w-4xl max-h-[90vh] mx-4 bg-[#FDFBF7] rounded-[24px] overflow-hidden shadow-2xl border border-white/10"
                             onClick={(e) => e.stopPropagation()}
                         >
                             <button
                                 type="button"
                                 onClick={() => setPreviewImage('')}
-                                className="absolute top-3 right-3 z-10 rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white hover:bg-black/80"
+                                className="absolute top-4 right-4 z-10 flex items-center justify-center w-10 h-10 rounded-full bg-black/50 text-white hover:bg-[#D35400] transition-colors backdrop-blur-md"
+                                title="Close"
                             >
-                                Close
+                                <span className="material-symbols-outlined text-[20px]">close</span>
                             </button>
                             <img
                                 src={previewImage}
                                 alt="Request"
-                                className="block max-h-[90vh] max-w-full object-contain"
+                                className="block max-h-[85vh] max-w-full object-contain p-2"
                             />
                         </div>
                     </div>

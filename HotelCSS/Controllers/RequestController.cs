@@ -326,6 +326,7 @@ namespace HotelCSS.Controllers
             {
                 return BadRequest(new { success = false, message = $"Invalid Status. Allowed values are: {string.Join(", ", allowedStatus)}" });
             }
+
             var order = _unitOfWork.Request.GetFirstOrDefault(u => u.Id == id, includeProperties: "ServiceItem");
 
             if (order == null)
@@ -373,28 +374,40 @@ namespace HotelCSS.Controllers
             if (justCompleted)
             {
                 var room = _unitOfWork.Room.GetFirstOrDefault(u => u.RoomNumber == order.RoomNumber);
+
+                // We already have order.ServiceItem because of the IncludeProperties at the top!
                 if (room != null && order.ServiceItem != null)
                 {
-                    int basePoints = order.ServiceItem.PointsEarned;
+                    // 1. Get the quantity (default to 1 if your system allows 0 by mistake)
+                    int qty = order.Quantity > 0 ? order.Quantity : 1;
+
+                    // 2. Multiply base points by quantity
+                    int basePoints = order.ServiceItem.PointsEarned * qty;
                     var today = DateTime.Now;
 
                     var activeBonus = _unitOfWork.BonusCampaign.GetFirstOrDefault(u =>
-
-                        u.IsActive == true &&            // <-- The Admin's Kill-Switch is checked here!
-                        u.StartDate <= today &&          // <-- Is it after the start date?
-                        u.EndDate >= today &&           // <-- Is it before the end date?
+                        u.IsActive == true &&
+                        u.StartDate <= today &&
+                        u.EndDate >= today &&
                         (u.CampaignType == "AllItems" || u.ServiceItemId == order.ServiceItemId)
+                    );
 
-                        );
-
+                    // 3. Multiply bonus points by quantity
                     int bonusPoints = 0;
                     if (activeBonus != null)
                     {
-                        bonusPoints = activeBonus.ExtraPoints;
+                        bonusPoints = activeBonus.ExtraPoints * qty;
                     }
 
                     int totalPoints = basePoints + bonusPoints;
+
+                    // 4. Update the Room's Points
                     room.CurrentPoints += totalPoints;
+                    room.PointsEarned += totalPoints;
+
+                    // 5. Multiply the Price by quantity to get the total money spent
+                    room.MoneySpent += (order.ServiceItem.Price * qty);
+
                     _unitOfWork.Room.Update(room);
 
                     if (bonusPoints > 0)
@@ -407,9 +420,15 @@ namespace HotelCSS.Controllers
                     }
                 }
             }
+
             _unitOfWork.Save();
-            return Ok(new { success = true, message = responseMessage });
+            return Ok(new
+            {
+                success = true,
+                message = responseMessage
+            });
         }
+
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)

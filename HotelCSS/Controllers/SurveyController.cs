@@ -296,7 +296,10 @@ namespace HotelCSS.Controllers
             // 2. Build the Prompt for Gemini
             var promptBuilder = new System.Text.StringBuilder();
             promptBuilder.AppendLine($"Act as an expert Hotel Operations Analyst. Analyze the following guest survey results for the '{survey.Title}' survey.");
-            promptBuilder.AppendLine("Provide a professional executive summary formatted in Markdown. Identify specific strengths and pinpoint exact areas needing improvement based on the data provided. If there are complaints about cleaning, food, or staff in the text comments, highlight them explicitly.");
+            promptBuilder.AppendLine("Provide a professional executive summary formatted in Markdown. Identify specific strengths and pinpoint exact areas needing improvement based on the data provided." +
+                " If there are complaints about cleaning, food, or staff in the text comments, highlight them explicitly.To ensure the Hotel Manager can instantly identify key takeaways without drowning in text," +
+                " you MUST use the following visual emoji system at the start of your bullet points:\r\n\r\nUse ✅ or \U0001f7e2 for specific strengths, positive feedback, and high scores.\r\n\r\nUse ❌ or 🔴 for exact areas" +
+                " needing improvement or negative trends.\r\n\r\nUse 🚨 to explicitly highlight ANY textual complaints specifically regarding Cleaning, Food, or Staff.\r\n\r\nKeep your analysis concise, data-driven, and action-oriented.");
             promptBuilder.AppendLine("\n--- RAW SURVEY DATA ---");
 
             foreach (var q in survey.Questions.OrderBy(x => x.OrderIndex))
@@ -333,7 +336,6 @@ namespace HotelCSS.Controllers
 
             try
             {
-                // 3. Send the formatted data to your actual Gemini AI! 🚀
                 string aiResponse = await _aiService.GetAnswer(finalPrompt);
 
                 return Ok(new { success = true, analysis = aiResponse });
@@ -418,7 +420,8 @@ namespace HotelCSS.Controllers
                 .SelectMany(r => r.Answers)
                 // Only look at answers that belong to one of our Star Questions
                 .Where(a => starQuestionIds.Contains(a.SurveyQuestionId))
-                .Select(a => {
+                .Select(a =>
+                {
                     // SAFE PARSING: If it's a valid number, grab it. If not, ignore it.
                     bool isNumber = double.TryParse(a.AnswerValue, out double rating);
                     return new { isNumber, rating };

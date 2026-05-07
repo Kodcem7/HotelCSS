@@ -25,5 +25,8 @@ namespace CSSHotel.Models
         public bool isSkipped { get; set; } = true;
         public bool mailSent { get; set; } = false;
 
+        public decimal? MoneySpent { get; set; }
+        public int? PointsEarned { get; set; }
+
     }
 }

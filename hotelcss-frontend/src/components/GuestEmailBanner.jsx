@@ -6,12 +6,21 @@ const GuestEmailBanner = ({ isMailSent, onEmailSaved }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
+    // State to track the KVKK checkbox
+    const [agreedToKvkk, setAgreedToKvkk] = useState(false);
+
     // If they already submitted the email, the pop-up stays hidden!
     if (isMailSent) return null;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+
+        // Block submission if KVKK is not accepted
+        if (!agreedToKvkk) {
+            setError('Lütfen devam etmek için KVKK Aydınlatma Metnini okuyup onaylayın. (Please accept the KVKK terms.)');
+            return;
+        }
 
         if (!email) return;
 
@@ -32,7 +41,6 @@ const GuestEmailBanner = ({ isMailSent, onEmailSaved }) => {
         }
     };
 
-    // 👇 MAGIC TAILWIND: 'fixed inset-0 z-50' covers the entire screen!
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
 
@@ -55,7 +63,7 @@ const GuestEmailBanner = ({ isMailSent, onEmailSaved }) => {
                     </p>
 
                     {error && (
-                        <div className="mb-5 p-3 rounded-xl bg-red-50 border border-red-100 text-red-600 text-xs font-bold">
+                        <div className="mb-5 p-3 rounded-xl bg-red-50 border border-red-100 text-red-600 text-xs font-bold transition-all">
                             {error}
                         </div>
                     )}
@@ -75,10 +83,43 @@ const GuestEmailBanner = ({ isMailSent, onEmailSaved }) => {
                             />
                         </div>
 
+                        {/* The KVKK Checkbox Area */}
+                        <div className="flex items-start gap-3 p-1">
+                            <div className="flex items-center h-5 mt-0.5">
+                                <input
+                                    id="kvkk-checkbox-banner"
+                                    type="checkbox"
+                                    checked={agreedToKvkk}
+                                    onChange={(e) => {
+                                        setAgreedToKvkk(e.target.checked);
+                                        if (e.target.checked) setError(''); // Clear error instantly when checked
+                                    }}
+                                    className="w-5 h-5 rounded border-[#E3DCD2] text-[#D35400] focus:ring-[#D35400] focus:ring-2 cursor-pointer transition-colors"
+                                />
+                            </div>
+                            <label htmlFor="kvkk-checkbox-banner" className="text-xs text-[#5D534A] leading-relaxed cursor-pointer select-none">
+                                I have read and agree to the{' '}
+                                {/* 👇 THE UPDATED LINK IS RIGHT HERE 👇 */}
+                                <a
+                                    href="/KVKK-policy.pdf"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-[#D35400] font-bold underline hover:text-[#4A3728] transition-colors"
+                                >
+                                    KVKK Privacy Policy
+                                </a>
+                                {' '}and consent to the processing of my email address for accommodation services.
+                            </label>
+                        </div>
+
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full py-4 bg-[#D35400] hover:bg-[#b84800] text-white font-bold text-sm tracking-widest uppercase rounded-2xl transition shadow-lg shadow-[#D35400]/20 disabled:opacity-70 flex items-center justify-center gap-3"
+                            className={`w-full py-4 font-bold text-sm tracking-widest uppercase rounded-2xl transition flex items-center justify-center gap-3
+                                ${loading
+                                    ? 'bg-[#F2EBE1] text-[#8E735B] shadow-none cursor-not-allowed'
+                                    : 'bg-[#D35400] hover:bg-[#b84800] text-white shadow-lg shadow-[#D35400]/20'
+                                }`}
                         >
                             {loading ? (
                                 <>

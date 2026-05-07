@@ -6,7 +6,6 @@ import { getStaffList } from '../api/users';
 import { getDepartments } from '../api/departments';
 import { getRequests } from '../api/requests';
 
-// 👇 Fixed the User Logs card right here!
 const quickLinks = [
     {
         to: '/admin/staff',
@@ -71,10 +70,9 @@ const quickLinks = [
         cta: 'Loyalty Suite',
         icon: 'confirmation_number',
     },
-    // 🚀 HERE IS YOUR FIXED USER LOGS CARD!
     {
-        to: '/admin/users-logs', // 👈 Perfectly matches your AppRoutes now!
-        title: 'User Logs',      // 👈 Fixed the title!
+        to: '/admin/users-logs',
+        title: 'User Logs',
         desc: 'Monitor user actions, room history, and account events.',
         cta: 'View Logs',
         icon: 'manage_history',
@@ -92,6 +90,14 @@ const quickLinks = [
         desc: 'Analyze guest feedback and view specific room responses.',
         cta: 'View Analytics',
         icon: 'analytics',
+    },
+    // 👇 HERE IS YOUR NEW REPUTATION DASHBOARD CARD!
+    {
+        to: '/admin/reputation',
+        title: 'Guest Reputation',
+        desc: 'Monitor live TripAdvisor reviews and guest satisfaction scores.',
+        cta: 'View Reviews',
+        icon: 'rate_review',
     },
 ];
 

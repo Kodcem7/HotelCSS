@@ -22,6 +22,7 @@ namespace CSSHotel.DataAccess.Repository.IRepository
         ISurveyAnswerRepository SurveyAnswer { get; }
         ISurveyQuestionRepository SurveyQuestion { get; }
         ISurveyResponseRepository SurveyResponse { get; }
+        IGuestReviewRepository GuestReview { get; }
         void Save();
     }
 }

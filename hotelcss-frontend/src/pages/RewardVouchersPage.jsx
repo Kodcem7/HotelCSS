@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react';
-// import Layout from '../components/Layout'; // ❌ REMOVED
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
-import { getVouchersForReception, updateRewardVoucherStatus } from '../api/rewards';
+// 👇 1. Added deleteRewardVoucher to the imports
+import { getVouchersForReception, updateRewardVoucherStatus, deleteRewardVoucher } from '../api/rewards';
 
 const RewardVouchersPage = () => {
     const [vouchers, setVouchers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    // 👇 NEW: State to hold our current filter choice
     const [filterStatus, setFilterStatus] = useState('All');
 
     useEffect(() => {
@@ -45,20 +44,32 @@ const RewardVouchersPage = () => {
         }
     };
 
-    // 👇 NEW: The magic filter! 
-    // This creates a temporary list based on the dropdown choice.
+    // 👇 2. NEW: Delete handler with confirmation
+    const handleDelete = async (id) => {
+        const isConfirmed = window.confirm("Are you sure you want to delete this voucher? This action cannot be undone.");
+        if (!isConfirmed) return;
+
+        try {
+            await deleteRewardVoucher(id);
+            // Instantly remove the deleted voucher from the UI without reloading the page
+            setVouchers(prevVouchers => prevVouchers.filter(v => v.id !== id));
+        } catch (err) {
+            setError('Failed to delete voucher.');
+            console.error(err);
+        }
+    };
+
     const filteredVouchers = vouchers.filter(v => {
         if (filterStatus === 'All') return true;
         return v.status === filterStatus;
     });
 
     if (loading) {
-        // ✅ Layout removed from loading state
         return <LoadingSpinner text="Loading reward vouchers..." />;
     }
 
     return (
-        <> {/* ✅ Replaced <Layout> with Fragment */}
+        <>
             <div className="p-4 sm:p-10 space-y-6 sm:space-y-8 max-w-7xl mx-auto">
                 <section className="text-center max-w-3xl mx-auto">
                     <h2 className="font-headline text-[clamp(30px,6vw,52px)] text-[#4A3728] mb-2 font-bold leading-tight">
@@ -135,12 +146,13 @@ const RewardVouchersPage = () => {
                                                     {v.status}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-right">
+                                            {/* 👇 3. Updated Action Column with Flexbox and Delete Button */}
+                                            <td className="px-6 py-4 whitespace-nowrap flex justify-end items-center gap-2">
                                                 {v.status === 'Pending' ? (
                                                     <button
                                                         type="button"
                                                         onClick={() => handleStatusChange(v.id, 'Completed')}
-                                                        className="inline-flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-widest rounded-2xl bg-[#D35400] text-white hover:bg-[#b94702] transition"
+                                                        className="inline-flex items-center justify-center px-4 py-2.5 text-xs font-bold uppercase tracking-widest rounded-2xl bg-[#D35400] text-white hover:bg-[#b94702] transition"
                                                     >
                                                         Mark Completed
                                                     </button>
@@ -148,11 +160,20 @@ const RewardVouchersPage = () => {
                                                     <button
                                                         type="button"
                                                         onClick={() => handleStatusChange(v.id, 'Pending')}
-                                                        className="inline-flex items-center gap-2 px-4 py-3 text-xs font-bold uppercase tracking-widest rounded-2xl bg-[#F2EBE1] text-[#4A3728] hover:bg-[#E8DFD1] transition border border-[#E3DCD2]/40"
+                                                        className="inline-flex items-center justify-center px-4 py-2.5 text-xs font-bold uppercase tracking-widest rounded-2xl bg-[#F2EBE1] text-[#4A3728] hover:bg-[#E8DFD1] transition border border-[#E3DCD2]/40"
                                                     >
                                                         Revert to Pending
                                                     </button>
                                                 )}
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleDelete(v.id)}
+                                                    className="inline-flex items-center justify-center w-[36px] h-[36px] rounded-xl bg-red-50 text-red-600 hover:bg-red-100 transition border border-red-100"
+                                                    title="Delete Voucher"
+                                                >
+                                                    <span className="material-symbols-outlined text-[18px]">delete</span>
+                                                </button>
                                             </td>
                                         </tr>
                                     ))}

@@ -27,3 +27,7 @@ export const getVouchersForRoom = async () => {
     return response.data;
 };
 
+export const deleteRewardVoucher = async (id) => {
+    const response = await api.delete(`/Reward/DeleteRewardVoucher/${id}`);
+    return response.data;
+};

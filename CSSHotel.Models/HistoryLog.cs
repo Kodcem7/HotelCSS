@@ -18,5 +18,8 @@ namespace CSSHotel.Models
         public DateTime CheckInDate { get; set; }
         public DateTime CheckOutDate { get; set; }
         public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+
+        public int? PointsEarned { get; set; }
+        public decimal? MoneySpent { get; set; }
     }
 }

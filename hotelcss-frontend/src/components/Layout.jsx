@@ -211,6 +211,7 @@ const Layout = ({ children }) => {
         return t('dashboard', 'Dashboard');
     };
 
+    // 👇 This function you wrote is pure gold! We will use it for the Home button.
     const getDashboardRoot = () => {
         if (suiteKey === 'admin') return '/admin';
         if (suiteKey === 'manager') return '/manager';
@@ -273,7 +274,6 @@ const Layout = ({ children }) => {
                             className="h-20 w-auto object-contain object-left -ml-2"
                         />
                         <div>
-                            {/* 👇 ITALIC ONLY, original color and weight maintained */}
                             <p className="font-label italic text-[11px] uppercase tracking-widest text-[#8E735B] mt-1">
                                 {suiteLabel}
                             </p>
@@ -325,7 +325,6 @@ const Layout = ({ children }) => {
                             className="h-20 w-auto object-contain object-left -ml-2"
                         />
                         <div>
-                            {/* 👇 ITALIC ONLY, original color and weight maintained */}
                             <p className="font-label italic text-[11px] all-caps tracking-widest text-slate-500 mt-1 uppercase">
                                 {getRoleDisplayName(user?.role)} Suite
                             </p>
@@ -423,6 +422,15 @@ const Layout = ({ children }) => {
                         </div>
 
                         <div className="flex items-center gap-2 sm:gap-4">
+                            {/* 👇 NEW HOME ICON IMPLEMENTED HERE */}
+                            <button
+                                onClick={() => navigate(getDashboardRoot())}
+                                className="hidden sm:block p-2 rounded-full hover:bg-[#F2EBE1] transition-colors relative"
+                                title="Go to Home Dashboard"
+                            >
+                                <span className="material-symbols-outlined text-[#4A3728]">home</span>
+                            </button>
+
                             {user?.role === 'Room' && (
                                 <div className="flex items-center gap-1.5 bg-[#F2EBE1] border border-[#E3DCD2]/30 px-2 sm:px-3 py-1.5 rounded-full shadow-sm">
                                     <span className="material-symbols-outlined text-[#D35400] text-[16px] sm:text-sm">stars</span>
@@ -489,6 +497,16 @@ const Layout = ({ children }) => {
                         </div>
 
                         <div className="flex items-center gap-2 sm:gap-4">
+
+                            {/* 👇 NEW HOME ICON IMPLEMENTED HERE */}
+                            <button
+                                onClick={() => navigate(getDashboardRoot())}
+                                className="hidden sm:block p-2 rounded-full hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors relative"
+                                title="Go to Home Dashboard"
+                            >
+                                <span className="material-symbols-outlined text-slate-600 dark:text-slate-300">home</span>
+                            </button>
+
                             {user?.role === 'Room' && (
                                 <div className="flex items-center gap-1.5 bg-gradient-to-r from-amber-100 to-yellow-100 border border-amber-200 px-2 sm:px-3 py-1.5 rounded-full shadow-sm">
                                     <span className="material-symbols-outlined text-amber-500 text-[16px] sm:text-sm">stars</span>

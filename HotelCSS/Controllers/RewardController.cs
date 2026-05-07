@@ -142,5 +142,19 @@ namespace HotelCSS.Controllers
             _unitOfWork.Save();
             return Ok(new { success = true, message = $"Voucher status updated to {newStatus}." });
         }
+
+        [HttpDelete("DeleteRewardVoucher/{id}")]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
+        public IActionResult DeleteRewardVoucher(int id)
+        {
+            var voucher = _unitOfWork.RewardVoucher.GetFirstOrDefault(u => u.Id == id);
+            if (voucher == null)
+            {
+                return NotFound(new { success = false, message = "Reward voucher not found." });
+            }
+            _unitOfWork.RewardVoucher.Remove(voucher);
+            _unitOfWork.Save();
+            return Ok(new { success = true, message = "Reward voucher deleted successfully." });
+        }
     }
 }

@@ -273,6 +273,8 @@ namespace HotelCSS.Controllers
                 room.Status = "Occupied";
                 room.CurrentCheckInDate = DateTime.Now;
                 room.CurrentPoints = 0;
+                room.MoneySpent = 0;
+                room.PointsEarned = 0;
 
                 _unitOfWork.Room.Update(room);
                 _unitOfWork.Save();
@@ -364,7 +366,9 @@ namespace HotelCSS.Controllers
                 RoomNumber = room.RoomNumber,
                 GuestMail = room.CurrentGuestMail ?? "unknown",
                 CheckInDate = room.CurrentCheckInDate ?? DateTime.Now,
-                CheckOutDate = DateTime.Now
+                CheckOutDate = DateTime.Now,
+                PointsEarned = room.PointsEarned,
+                MoneySpent = room.MoneySpent
             };
             _unitOfWork.HistoryLog.Add(history);
             //Delete the requests after check-out
@@ -383,6 +387,8 @@ namespace HotelCSS.Controllers
             room.CurrentPoints = 0;
             room.isSkipped = true;
             room.mailSent = false;
+            room.PointsEarned = 0;
+            room.MoneySpent = 0;
             _unitOfWork.Room.Update(room);
             _unitOfWork.Save();
 
