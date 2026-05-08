@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
-const SUPPORTED_LANGUAGES = ['en', 'de', 'ru'];
+const SUPPORTED_LANGUAGES = ['en', 'de', 'ru', 'tr'];
 const STORAGE_KEY = 'hotelcss-language';
 
 export const UI_TRANSLATIONS = {
@@ -61,9 +61,127 @@ export const UI_TRANSLATIONS = {
         staffSuite: 'ПАНЕЛЬ ПЕРСОНАЛА',
         roomSuite: 'ПАНЕЛЬ НОМЕРА',
     },
+    tr: {
+        settings: 'Ayarlar',
+        logout: 'Çıkış Yap',
+        searchOperations: 'İşlemlerde ara...',
+        backToDashboard: 'Panele dön',
+        administrator: 'Yönetici',
+        manager: 'Müdür',
+        reception: 'Resepsiyon',
+        staff: 'Personel',
+        housekeeping: 'Kat Hizmetleri',
+        restaurant: 'Restoran',
+        room: 'Oda',
+        dashboard: 'Panel',
+        adminSuite: 'YÖNETİCİ PANELİ',
+        hotelManagerSuite: 'OTEL MÜDÜRÜ PANELİ',
+        receptionSuite: 'RESEPSİYON PANELİ',
+        staffSuite: 'PERSONEL PANELİ',
+        roomSuite: 'ODA PANELİ',
+    },
 };
 
 export const PHRASE_TRANSLATIONS = {
+    tr: {
+        // Core suites / navigation
+        'ADMIN SUITE': 'YÖNETİCİ PANELİ',
+        'HOTEL MANAGER SUITE': 'OTEL MÜDÜRÜ PANELİ',
+        'RECEPTION SUITE': 'RESEPSİYON PANELİ',
+        'STAFF SUITE': 'PERSONEL PANELİ',
+        'ROOM SUITE': 'ODA PANELİ',
+
+        'DASHBOARD': 'PANEL',
+        'STAFF': 'PERSONEL',
+        'DEPARTMENTS': 'DEPARTMANLAR',
+        'REQUESTS': 'TALEPLER',
+        'ROOMS': 'ODALAR',
+        'CREATE ROOMS': 'ODA OLUŞTUR',
+        'SERVICE ITEMS': 'HİZMET ÜRÜNLERİ',
+        'EVENTS': 'ETKİNLİKLER',
+        'RECEPTION SERVICES': 'RESEPSİYON HİZMETLERİ',
+        'VOUCHERS': 'KUPONLAR',
+        'REWARDS': 'ÖDÜLLER',
+        'POINT SHOP': 'PUAN MAĞAZASI',
+        'MY REQUESTS': 'TALEPLERİM',
+        'CAMPAIGNS': 'KAMPANYALAR',
+
+        // Dashboard titles (Layout.jsx)
+        'Admin Dashboard': 'Yönetici Paneli',
+        'Manager Dashboard': 'Müdür Paneli',
+        'Reception Dashboard': 'Resepsiyon Paneli',
+        'Staff Dashboard': 'Personel Paneli',
+        'Room Dashboard': 'Oda Paneli',
+        'Reception Services': 'Resepsiyon Hizmetleri',
+        'Reception Requests': 'Resepsiyon Talepleri',
+        'Reception Rooms': 'Resepsiyon Odaları',
+        'Staff Requests': 'Personel Talepleri',
+        'Room Rewards': 'Oda Ödülleri',
+        'Room Vouchers': 'Oda Kuponları',
+        'My Requests': 'Taleplerim',
+        'Campaigns': 'Kampanyalar',
+        'Point Shop': 'Puan Mağazası',
+        'Reward Vouchers': 'Ödül Kuponları',
+
+        // Common UI strings that appear as plain text nodes
+        'Go to Home Dashboard': 'Ana panele git',
+        'Staff': 'Personel',
+        'Departments': 'Departmanlar',
+        'Requests': 'Talepler',
+        'Rooms': 'Odalar',
+        'Create Rooms': 'Oda Oluştur',
+        'Service Items': 'Hizmet Ürünleri',
+        'Events': 'Etkinlikler',
+        'Vouchers': 'Kuponlar',
+
+        // Hotel events management page
+        'Hotel Events': 'Otel Etkinlikleri',
+        'Loading hotel events...': 'Otel etkinlikleri yükleniyor...',
+        'Failed to load hotel events': 'Otel etkinlikleri yüklenemedi',
+        'No hotel events defined yet.': 'Henüz otel etkinliği tanımlanmadı.',
+        'Add Event': 'Etkinlik Ekle',
+        'Edit': 'Düzenle',
+        'Delete': 'Sil',
+        'Edit Event': 'Etkinliği Düzenle',
+        'Create Event': 'Etkinlik Oluştur',
+        'Update Event': 'Etkinliği Güncelle',
+        'Title *': 'Başlık *',
+        'Description': 'Açıklama',
+        'Event Type': 'Etkinlik Türü',
+        'Active': 'Aktif',
+        'Inactive': 'Pasif',
+        'Click to toggle active status': 'Aktif/pasif durumunu değiştirmek için tıkla',
+        'Start:': 'Başlangıç:',
+        'End:': 'Bitiş:',
+        'Start Date/Time': 'Başlangıç Tarihi/Saati',
+        'End Date/Time': 'Bitiş Tarihi/Saati',
+        'Extra Points': 'Ek Puan',
+        'Cancel': 'İptal',
+        'General': 'Genel',
+        'Meal / Menu': 'Yemek / Menü',
+        'Bonus Point Campaign': 'Bonus Puan Kampanyası',
+        'Campaign Type': 'Kampanya Türü',
+        'All Items': 'Tüm Ürünler',
+        'Specific Item': 'Belirli Ürün',
+        'Select service item...': 'Hizmet ürünü seç...',
+        'Remove': 'Kaldır',
+        'Bonus rules (input array)': 'Bonus kuralları (girdi dizisi)',
+        'Each rule becomes a separate BonusPoint event+campaign in backend.': 'Her kural backend tarafında ayrı bir BonusPoint etkinliği ve kampanyası olur.',
+        '+ Add rule': '+ Kural ekle',
+        'Meal Info (breakfast / lunch / dinner details)': 'Yemek Bilgisi (kahvaltı / öğle / akşam detayları)',
+        'e.g. Breakfast: ...\nLunch: ...\nDinner: ...': 'ör. Kahvaltı: ...\nÖğle: ...\nAkşam: ...',
+        'Please add at least one bonus rule with Bonus Points > 0.': 'Lütfen Bonus Puan > 0 olacak şekilde en az bir bonus kuralı ekleyin.',
+        'Bonus point campaign event(s) created successfully': 'Bonus puan kampanyası etkinliği(leri) başarıyla oluşturuldu',
+        'Hotel event updated successfully': 'Otel etkinliği başarıyla güncellendi',
+        'Hotel event created successfully': 'Otel etkinliği başarıyla oluşturuldu',
+        'Failed to save hotel event': 'Otel etkinliği kaydedilemedi',
+        'Hotel event deleted successfully': 'Otel etkinliği başarıyla silindi',
+        'Failed to delete hotel event': 'Otel etkinliği silinemedi',
+        'Failed to toggle status': 'Durum değiştirilemedi',
+        'Bonus point campaign is active for eligible purchases.': 'Uygun satın alımlar için bonus puan kampanyası aktiftir.',
+        'Create announcements, meal menus and bonus point campaigns for guests.': 'Misafirler için duyurular, yemek menüleri ve bonus puan kampanyaları oluşturun.',
+        'Are you sure you want to delete the event "': 'Etkinliği silmek istediğinize emin misiniz "',
+    },
     de: {
         'Operational Overview': 'Betriebsuebersicht',
         'Reception Overview': 'Rezeptionsuebersicht',
@@ -561,6 +679,16 @@ export const PHRASE_TRANSLATIONS = {
 
 const LanguageContext = createContext(null);
 
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const isSafeForRegexReplace = (value) => {
+    // Avoid applying regex-based replacements on strings with newlines or excessive punctuation.
+    // Intended for short UI labels like "Requests", "Admin Dashboard", etc.
+    if (!value || value.length > 80) return false;
+    if (value.includes('\n')) return false;
+    return true;
+};
+
 export const LanguageProvider = ({ children }) => {
     const [language, setLanguageState] = useState('en');
 
@@ -600,8 +728,24 @@ export const LanguageProvider = ({ children }) => {
         let translatedText = text;
         const keys = Object.keys(table).sort((a, b) => b.length - a.length);
         keys.forEach((key) => {
+            if (!key) return;
+            const nextValue = table[key];
+            if (nextValue == null) return;
+
+            // Exact match replacement first.
             if (translatedText.includes(key)) {
-                translatedText = translatedText.split(key).join(table[key]);
+                translatedText = translatedText.split(key).join(nextValue);
+                return;
+            }
+
+            // Case-insensitive replacement helps when UI has variants like "Requests" vs "REQUESTS".
+            if (isSafeForRegexReplace(key)) {
+                const pattern = new RegExp(escapeRegExp(key), 'gi');
+                translatedText = translatedText.replace(pattern, (match) => {
+                    // Preserve exact-match semantics if a mapping exists for the specific casing.
+                    if (table[match]) return table[match];
+                    return nextValue;
+                });
             }
         });
         return translatedText;

@@ -103,7 +103,7 @@ const UsersLogsPage = () => {
                     className="flex items-center justify-center gap-2 px-5 py-3 bg-[#B22222]/10 text-[#B22222] hover:bg-[#B22222] hover:text-white border border-[#B22222]/20 font-bold text-[12px] uppercase tracking-widest rounded-xl transition-all shadow-sm whitespace-nowrap"
                 >
                     <span className="material-symbols-outlined text-sm">delete_sweep</span>
-                    Clear > 6 Months
+                    Clear {'>'} 6 Months
                 </button>
             </section>
 

@@ -51,7 +51,9 @@ const MissingTranslationReporter = () => {
     const lastReportRef = useRef('');
 
     useEffect(() => {
-        if (language === 'en' || AUTH_ROUTES.includes(location.pathname)) {
+        // Turkish is the source language for much of the UI text in this project,
+        // so missing-phrase reporting is not useful and becomes noisy.
+        if (language === 'en' || language === 'tr' || AUTH_ROUTES.includes(location.pathname)) {
             return;
         }
 
