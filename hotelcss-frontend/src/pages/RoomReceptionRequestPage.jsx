@@ -4,10 +4,12 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import SuccessMessage from '../components/SuccessMessage';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext'; // ✅ Added Language Context
 import { createWakeUpCall, getPickUpTime } from '../api/receptionService';
 
 const RoomReceptionRequestPage = () => {
     const { user } = useAuth();
+    const { translateUiText } = useLanguage(); // ✅ Hook initialized
 
     const [selectedType, setSelectedType] = useState('wake-up'); // 'wake-up' | 'pickup-info'
     const [formData, setFormData] = useState({
@@ -44,7 +46,7 @@ const RoomReceptionRequestPage = () => {
         }
 
         if (!formData.ScheduledTime) {
-            setError('Lütfen bir saat seçin.');
+            setError(translateUiText('Please select a time.')); // ✅ English Base
             return;
         }
 
@@ -59,7 +61,7 @@ const RoomReceptionRequestPage = () => {
                 Notes: formData.Notes || undefined,
             });
 
-            setSuccess('Resepsiyon isteğiniz başarıyla iletildi! (Uyanma servisi)');
+            setSuccess(translateUiText('Your reception request has been successfully submitted!')); // ✅ English Base
             setFormData({
                 ScheduledTime: '',
                 Notes: '',
@@ -67,7 +69,7 @@ const RoomReceptionRequestPage = () => {
         } catch (err) {
             const msg =
                 err.response?.data?.message ||
-                'Resepsiyon isteği oluşturulurken bir hata oluştu.';
+                translateUiText('An error occurred while creating the reception request.'); // ✅ English Base
             setError(msg);
         } finally {
             setSubmitting(false);
@@ -88,10 +90,10 @@ const RoomReceptionRequestPage = () => {
             <div className="p-4 sm:p-10 space-y-8 sm:space-y-10 max-w-7xl mx-auto">
                 <section>
                     <h2 className="font-headline text-[clamp(30px,6vw,52px)] text-[#4A3728] mb-2 font-bold leading-tight">
-                        Reception Requests
+                        {translateUiText('Reception Requests')}
                     </h2>
                     <p className="text-[14px] text-[#5D534A] leading-relaxed">
-                        Resepsiyondan hizmet talep edebilir veya mevcut bilgileri görüntüleyebilirsiniz.
+                        {translateUiText('You can request services from reception or view available information.')} {/* ✅ English Base */}
                     </p>
                 </section>
 
@@ -104,21 +106,21 @@ const RoomReceptionRequestPage = () => {
                         type="button"
                         onClick={() => setSelectedType('wake-up')}
                         className={`flex-1 px-4 py-3 text-sm font-semibold rounded-2xl border transition ${selectedType === 'wake-up'
-                                ? 'bg-[#4A3728] text-white border-[#4A3728]'
-                                : 'bg-[#F2EBE1] text-[#4A3728] border-[#E3DCD2]/50 hover:bg-[#E8DFD1]'
+                            ? 'bg-[#4A3728] text-white border-[#4A3728]'
+                            : 'bg-[#F2EBE1] text-[#4A3728] border-[#E3DCD2]/50 hover:bg-[#E8DFD1]'
                             }`}
                     >
-                        Wake-up Service
+                        {translateUiText('Wake-up Service')}
                     </button>
                     <button
                         type="button"
                         onClick={() => setSelectedType('pickup-info')}
                         className={`flex-1 px-4 py-3 text-sm font-semibold rounded-2xl border transition ${selectedType === 'pickup-info'
-                                ? 'bg-[#4A3728] text-white border-[#4A3728]'
-                                : 'bg-[#F2EBE1] text-[#4A3728] border-[#E3DCD2]/50 hover:bg-[#E8DFD1]'
+                            ? 'bg-[#4A3728] text-white border-[#4A3728]'
+                            : 'bg-[#F2EBE1] text-[#4A3728] border-[#E3DCD2]/50 hover:bg-[#E8DFD1]'
                             }`}
                     >
-                        Learn Pick-Up Time
+                        {translateUiText('Learn Pick-Up Time')}
                     </button>
                 </div>
 
@@ -130,7 +132,7 @@ const RoomReceptionRequestPage = () => {
                     >
                         <div>
                             <label className="block text-sm font-semibold text-[#4A3728] mb-1">
-                                Room
+                                {translateUiText('Room')}
                             </label>
                             <p className="px-4 py-3 border border-[#E3DCD2]/50 rounded-2xl bg-[#F2EBE1]/55 text-[#2C241E] font-semibold">
                                 {user?.username}
@@ -139,7 +141,7 @@ const RoomReceptionRequestPage = () => {
 
                         <div>
                             <label className="block text-sm font-semibold text-[#4A3728] mb-1">
-                                Wake-up Time *
+                                {translateUiText('Wake-up Time')} *
                             </label>
                             <input
                                 type="datetime-local"
@@ -151,13 +153,13 @@ const RoomReceptionRequestPage = () => {
                                 required
                             />
                             <p className="text-xs text-[#8E735B] mt-1">
-                                Lütfen uyanmak istediğiniz tarihi ve saati seçin.
+                                {translateUiText('Please select the date and time you want to wake up.')} {/* ✅ English Base */}
                             </p>
                         </div>
 
                         <div>
                             <label className="block text-sm font-semibold text-[#4A3728] mb-1">
-                                Notes (optional)
+                                {translateUiText('Notes (optional)')}
                             </label>
                             <textarea
                                 value={formData.Notes}
@@ -166,7 +168,7 @@ const RoomReceptionRequestPage = () => {
                                 }
                                 className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] placeholder:text-[#8E735B]"
                                 rows="3"
-                                placeholder="Örneğin: Lütfen nazikçe uyandırın."
+                                placeholder={translateUiText('e.g. Please wake me up gently')} // ✅ English Base
                             />
                         </div>
 
@@ -176,7 +178,7 @@ const RoomReceptionRequestPage = () => {
                                 disabled={submitting}
                                 className="flex-1 bg-[#4A3728] text-white py-3 px-4 rounded-2xl hover:bg-[#3a2b20] transition disabled:opacity-60 disabled:cursor-not-allowed font-semibold"
                             >
-                                {submitting ? 'Gönderiliyor...' : 'Wake-up Request Oluştur'}
+                                {submitting ? translateUiText('Sending...') : translateUiText('Create Wake-up Request')} {/* ✅ English Base */}
                             </button>
                         </div>
                     </form>
@@ -186,17 +188,16 @@ const RoomReceptionRequestPage = () => {
                 {selectedType === 'pickup-info' && (
                     <div className="bg-[#FDFBF7] rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] p-8 max-w-3xl mx-auto">
                         <h3 className="font-headline text-2xl text-[#4A3728] font-bold mb-2">
-                            Learn Pick-Up Time
+                            {translateUiText('Learn Pick-Up Time')}
                         </h3>
                         <p className="text-[14px] text-[#5D534A] mb-6 leading-relaxed">
-                            Resepsiyon tarafından sizin için tanımlanmış pick-up (transfer) saati
-                            varsa aşağıda görebilirsiniz.
+                            {translateUiText('If a pick-up (transfer) time has been set for you by the reception, you can view it below.')} {/* ✅ English Base */}
                         </p>
                         {loadingPickup ? (
-                            <LoadingSpinner text="Yükleniyor..." />
+                            <LoadingSpinner text={translateUiText('Loading...')} />
                         ) : pickupInfos.length === 0 ? (
                             <p className="text-[#8E735B] text-sm">
-                                Şu anda odanız için tanımlı bir pick-up zamanı bulunmuyor.
+                                {translateUiText('There is currently no pick-up time set for your room.')} {/* ✅ English Base */}
                             </p>
                         ) : (
                             <ul className="divide-y divide-[#E3DCD2]/50">
@@ -211,7 +212,7 @@ const RoomReceptionRequestPage = () => {
                                             )}
                                         </div>
                                         <span className="px-2.5 py-1 inline-flex text-[11px] leading-5 font-bold rounded-full bg-[#F2EBE1] text-[#4A3728] border border-[#E3DCD2]/40">
-                                            {info.status}
+                                            {translateUiText(info.status)}
                                         </span>
                                     </li>
                                 ))}

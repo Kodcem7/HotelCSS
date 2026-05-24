@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext'; // ✅ Added Language Context
 import { getRoom } from '../api/rooms';
 import { getPendingSurvey } from '../api/surveys';
 import SurveyModal from '../components/SurveyModal';
@@ -12,6 +13,7 @@ import { getActiveEvents, getMealList, getActiveBonusEvents } from '../api/event
 
 const RoomDashboard = () => {
     const { user } = useAuth();
+    const { translateUiText } = useLanguage(); // ✅ Hook initialized
     const [room, setRoom] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -28,10 +30,10 @@ const RoomDashboard = () => {
     // 👇 2. Time-based dynamic greeting function
     const getGreeting = () => {
         const hour = new Date().getHours();
-        if (hour >= 5 && hour < 12) return 'Good morning,';
-        if (hour >= 12 && hour < 18) return 'Good afternoon,';
-        if (hour >= 18 && hour < 22) return 'Good evening,';
-        return 'Good night,';
+        if (hour >= 5 && hour < 12) return 'Good morning';
+        if (hour >= 12 && hour < 18) return 'Good afternoon';
+        if (hour >= 18 && hour < 22) return 'Good evening';
+        return 'Good Night'; // Matches the exact key in your PHRASE_TRANSLATIONS
     };
 
     useEffect(() => {
@@ -58,7 +60,7 @@ const RoomDashboard = () => {
                 }
 
             } catch (err) {
-                setError('Failed to load room information');
+                setError(translateUiText('Failed to load room information'));
                 console.error(err);
                 setCheckingSurvey(false);
             } finally {
@@ -117,7 +119,7 @@ const RoomDashboard = () => {
     };
 
     if (loading) {
-        return <LoadingSpinner text="Loading room dashboard..." />;
+        return <LoadingSpinner text={translateUiText('Loading room dashboard...')} />;
     }
 
     return (
@@ -134,28 +136,28 @@ const RoomDashboard = () => {
                 <section>
                     {/* 👇 3. Replaced "Room Overview" with dynamic greeting */}
                     <h2 className="font-headline text-[clamp(30px,6vw,52px)] text-[#4A3728] mb-2 font-bold leading-tight">
-                        {getGreeting()} Room {displayRoomNumber}
+                        {translateUiText(getGreeting())}, {translateUiText('Room')} {displayRoomNumber}
                     </h2>
                     <p className="text-[14px] text-[#5D534A] leading-relaxed">
-                        Welcome to your hotel-app. You can create requests, view events, learn your pick-up time, see the hotel events and more.
+                        {translateUiText('Welcome to your hotel-app. You can create requests,view events,learn your pick-up time,see the hotel events and more')}
                     </p>
 
                     {room && (
                         <div className="mt-4 inline-flex items-center gap-2 bg-[#F2EBE1] border border-[#E3DCD2]/30 px-4 py-2 rounded-full">
-                            <span className="font-semibold text-[#4A3728]">Room</span>
+                            <span className="font-semibold text-[#4A3728]">{translateUiText('Room')}</span>
                             <span className="font-semibold text-[#4A3728]">#{room.roomNumber}</span>
                             <span
                                 className={`ml-2 inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold ${room.status === 'Occupied' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
                                     }`}
                             >
-                                {room.status}
+                                {translateUiText(room.status)}
                             </span>
                         </div>
                     )}
 
                     {isRoomAvailable && (
                         <p className="mt-3 text-[13px] text-[#B22222]">
-                            This room is currently empty. Creating new requests is disabled.
+                            {translateUiText('This room is currently empty. Creating new requests is disabled.')} {/* Ensure you add this to PHRASE_TRANSLATIONS if you haven't! */}
                         </p>
                     )}
                 </section>
@@ -165,7 +167,7 @@ const RoomDashboard = () => {
                 {!loadingEvents && notifications.length > 0 && (
                     <section className="space-y-4">
                         <h3 className="text-sm font-bold tracking-widest uppercase text-[#8E735B] ml-2">
-                            Today's Highlights
+                            {translateUiText("Today's Highlights")} {/* Ensure you add this to PHRASE_TRANSLATIONS if you haven't! */}
                         </h3>
 
                         <div className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
@@ -181,8 +183,8 @@ const RoomDashboard = () => {
                                     event.details ||
                                     event.Details ||
                                     (eventType === 'BonusPoint'
-                                        ? 'Participate in this exclusive offer to earn extra reward points during your stay.'
-                                        : 'Join us for this special hotel event.');
+                                        ? translateUiText('Participate in this exclusive offer to earn extra reward points during your stay.')
+                                        : translateUiText('Join us for this special hotel event.'));
 
                                 let iconName = 'celebration';
                                 if (eventType === 'Meal') iconName = 'restaurant';
@@ -203,14 +205,14 @@ const RoomDashboard = () => {
                                             <div>
                                                 <div className="flex items-center gap-2 mb-1 flex-wrap">
                                                     <h4 className="font-headline font-bold text-lg text-[#4A3728]">
-                                                        {title}
+                                                        {translateUiText(title)}
                                                     </h4>
                                                     <span className="bg-[#D35400]/10 text-[#D35400] text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                                                        {eventType}
+                                                        {translateUiText(eventType)}
                                                     </span>
                                                 </div>
                                                 <p className="text-sm text-[#5D534A] leading-relaxed line-clamp-2">
-                                                    {description}
+                                                    {translateUiText(description)}
                                                 </p>
                                             </div>
                                         </div>
@@ -237,9 +239,9 @@ const RoomDashboard = () => {
                             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-5 sm:mb-6">
                                 <span className="material-symbols-outlined text-[#D35400] text-3xl">add</span>
                             </div>
-                            <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">Create Service Request</h3>
+                            <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">{translateUiText('Create Service Request')}</h3>
                             <p className="text-[14px] text-[#5D534A] leading-relaxed">
-                                Not available while the room status is Available.
+                                {translateUiText('Not available while the room status is Available.')}
                             </p>
                         </div>
                     ) : (
@@ -251,11 +253,11 @@ const RoomDashboard = () => {
                                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-5 sm:mb-6">
                                     <span className="material-symbols-outlined text-[#D35400] text-3xl">add</span>
                                 </div>
-                                <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">Create Service Request</h3>
-                                <p className="text-[14px] text-[#5D534A] leading-relaxed mb-6">Request room service or amenities.</p>
+                                <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">{translateUiText('Create Service Request')}</h3>
+                                <p className="text-[14px] text-[#5D534A] leading-relaxed mb-6">{translateUiText('Request room service or amenities.')}</p>
                             </div>
                             <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#D35400] group-hover:gap-4 transition-all">
-                                Open <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                                {translateUiText('Open')} <span className="material-symbols-outlined text-sm">arrow_forward</span>
                             </span>
                         </Link>
                     )}
@@ -269,11 +271,11 @@ const RoomDashboard = () => {
                             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-5 sm:mb-6">
                                 <span className="material-symbols-outlined text-[#D35400] text-3xl">report</span>
                             </div>
-                            <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">Report an Issue</h3>
-                            <p className="text-[14px] text-[#5D534A] leading-relaxed mb-6">Report problems in your room.</p>
+                            <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">{translateUiText('Report an Issue')}</h3>
+                            <p className="text-[14px] text-[#5D534A] leading-relaxed mb-6">{translateUiText('Report problems in your room.')}</p>
                         </div>
                         <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#D35400] group-hover:gap-4 transition-all">
-                            Open <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                            {translateUiText('Open')} <span className="material-symbols-outlined text-sm">arrow_forward</span>
                         </span>
                     </Link>
 
@@ -286,11 +288,11 @@ const RoomDashboard = () => {
                             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-5 sm:mb-6">
                                 <span className="material-symbols-outlined text-[#D35400] text-3xl">concierge</span>
                             </div>
-                            <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">Reception Request</h3>
-                            <p className="text-[14px] text-[#5D534A] leading-relaxed mb-6">Wake-up calls or other services.</p>
+                            <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">{translateUiText('Reception Request')}</h3>
+                            <p className="text-[14px] text-[#5D534A] leading-relaxed mb-6">{translateUiText('Wake-up calls or other services.')}</p>
                         </div>
                         <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#D35400] group-hover:gap-4 transition-all">
-                            Open <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                            {translateUiText('Open')} <span className="material-symbols-outlined text-sm">arrow_forward</span>
                         </span>
                     </Link>
 
@@ -302,11 +304,11 @@ const RoomDashboard = () => {
                             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-5 sm:mb-6">
                                 <span className="material-symbols-outlined text-[#D35400] text-3xl">history</span>
                             </div>
-                            <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">My Requests</h3>
-                            <p className="text-[14px] text-[#5D534A] leading-relaxed mb-6">View your request history.</p>
+                            <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">{translateUiText('My Requests')}</h3>
+                            <p className="text-[14px] text-[#5D534A] leading-relaxed mb-6">{translateUiText('View your request history.')}</p>
                         </div>
                         <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#D35400] group-hover:gap-4 transition-all">
-                            Open <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                            {translateUiText('Open')} <span className="material-symbols-outlined text-sm">arrow_forward</span>
                         </span>
                     </Link>
 
@@ -318,11 +320,11 @@ const RoomDashboard = () => {
                             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-5 sm:mb-6">
                                 <span className="material-symbols-outlined text-[#D35400] text-3xl">stars</span>
                             </div>
-                            <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">Point Shop</h3>
-                            <p className="text-[14px] text-[#5D534A] leading-relaxed mb-6">Spend points on rewards.</p>
+                            <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">{translateUiText('Point Shop')}</h3>
+                            <p className="text-[14px] text-[#5D534A] leading-relaxed mb-6">{translateUiText('Spend points on exclusive rewards.')}</p>
                         </div>
                         <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#D35400] group-hover:gap-4 transition-all">
-                            Open <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                            {translateUiText('Open')} <span className="material-symbols-outlined text-sm">arrow_forward</span>
                         </span>
                     </Link>
 
@@ -334,19 +336,19 @@ const RoomDashboard = () => {
                             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-5 sm:mb-6">
                                 <span className="material-symbols-outlined text-[#D35400] text-3xl">confirmation_number</span>
                             </div>
-                            <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">My Vouchers</h3>
-                            <p className="text-[14px] text-[#5D534A] leading-relaxed mb-6">View your earned reward codes.</p>
+                            <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">{translateUiText('My Vouchers')}</h3>
+                            <p className="text-[14px] text-[#5D534A] leading-relaxed mb-6">{translateUiText('View earned reward codes.')}</p>
                         </div>
                         <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#D35400] group-hover:gap-4 transition-all">
-                            Open <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                            {translateUiText('Open')} <span className="material-symbols-outlined text-sm">arrow_forward</span>
                         </span>
                     </Link>
                 </section>
 
                 <section className="bg-[#FDFBF7] p-5 sm:p-8 rounded-[22px] sm:rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)]">
-                    <h3 className="font-headline text-2xl text-[#4A3728] font-bold mb-2">Room Information</h3>
+                    <h3 className="font-headline text-2xl text-[#4A3728] font-bold mb-2">{translateUiText('Room Information')}</h3>
                     <p className="text-[14px] text-[#5D534A] leading-relaxed">
-                        This dashboard is for room-based access. Guests can scan QR codes to access room-specific features.
+                        {translateUiText('This dashboard is for room-based access. Guests can scan QR codes to access room-specific features.')}
                     </p>
                 </section>
             </div>

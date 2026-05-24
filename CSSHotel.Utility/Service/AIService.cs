@@ -1,4 +1,4 @@
-using GenerativeAI;
+﻿using GenerativeAI;
 using GenerativeAI.Core;
 using GenerativeAI.Microsoft;
 using GenerativeAI.Types;
@@ -40,6 +40,14 @@ Use this to answer questions about the hotel. NO PRICES should be given, just me
 - EXTRA CHARGE SERVICES: Premium Internet (outside lobby), Safe Box, Billiards, Beach Sunbeds & Umbrellas, Extra Room Key, Room Upgrades, Laundry, Phone calls.
 - RULES: Check-out is 12:00 PM (services are extra after this time). For late check-out, contact reception. Keep balcony doors closed when AC is on. Towels/linens changed twice a week. STRICT RULE: Do NOT take white room towels to the pool or beach.
 - POOL: Open 10:00-18:00. Towels are rented at reception. No reserving sunbeds with towels. Children under 12 must be supervised.
+
+LANGUAGE DETECTION & RESPONSE RULE (CRITICAL):
+- You MUST detect the language the user is speaking in the 'userText'.
+- Supported languages for your responses: English (en), German (de), Russian (ru), and Turkish (tr).
+- If the user writes in German, Russian, or Turkish, ANY text you put into the ""Note"" field MUST be translated into that exact same language.
+- If the user writes in English, or any other language not listed above, default to English for the ""Note"" field.
+- For Example: If user says ""Ich möchte eine Cola"", and you need to ask about Ice and Lemon (Intent: Clarify), your Note MUST be in German: ""Möchten Sie Eis, Zitrone oder beides zu Ihrer Cola?""
+- For Example: If user says ""Привет"" (Chit-chat), your Note MUST be in Russian: ""Я ваш гостиничный помощник. Я могу помочь вам заказать вещи в ваш номер. Пожалуйста, скажите мне, что вам нужно, и я постараюсь помочь.""
 
 VALID INTENT VALUES (MUST USE EXACTLY ONE OF THESE):
 - ""Order""
