@@ -5,6 +5,7 @@ const languageOptions = [
     { code: 'en', name: 'English' },
     { code: 'de', name: 'Deutsch' },
     { code: 'ru', name: 'Русский' },
+    { code: 'tr', name: 'Türkçe' },
 ];
 
 const labels = {
@@ -28,6 +29,13 @@ const labels = {
         sectionTitle: 'Язык',
         sectionText: 'Изменения применяются сразу и сохраняются для следующей сессии.',
         active: 'Активно',
+    },
+    tr: {
+        title: 'Uygulama Ayarları',
+        subtitle: 'Uygulama arayüzü için tercih ettiğiniz dili seçin.',
+        sectionTitle: 'Dil',
+        sectionText: 'Değişiklikler hemen uygulanır ve bir sonraki oturumunuz için kaydedilir.',
+        active: 'Aktif',
     },
 };
 

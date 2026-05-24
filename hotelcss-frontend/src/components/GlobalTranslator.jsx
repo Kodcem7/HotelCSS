@@ -40,6 +40,12 @@ const GlobalTranslator = () => {
                     const parentTag = node.parentElement?.tagName;
                     const ignored = parentTag === 'SCRIPT' || parentTag === 'STYLE' || parentTag === 'NOSCRIPT';
                     if (!ignored) {
+                        const parentEl = node.parentElement;
+                        // Don't translate Material Symbols glyph names (e.g. "menu", "home").
+                        if (parentEl?.classList?.contains('material-symbols-outlined')) {
+                            node = walker.nextNode();
+                            continue;
+                        }
                         if (!textMap.has(node)) {
                             textMap.set(node, node.nodeValue || '');
                         }
