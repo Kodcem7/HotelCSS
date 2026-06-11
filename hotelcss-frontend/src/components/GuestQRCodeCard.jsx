@@ -2,8 +2,12 @@ import { QRCodeSVG } from 'qrcode.react';
 
 const GuestQRCodeCard = ({ roomNumber, currentToken }) => {
   // 1. Build the magic link
-  // Use window.location.origin so it dynamically works on localhost AND production
-  const loginUrl = `${window.location.origin}/room-login?room=${roomNumber}&token=${currentToken}`;
+  // The QR must point to an address a guest's phone can reach on the LAN.
+  // If the staff opens the panel at http://localhost the phone can't use it,
+  // so prefer an explicitly configured base (VITE_QR_BASE_URL, e.g. the host's
+  // LAN address). Fall back to the current origin when not configured.
+  const qrBase = import.meta.env.VITE_QR_BASE_URL || window.location.origin;
+  const loginUrl = `${qrBase}/room-login?room=${roomNumber}&token=${currentToken}`;
 
   return (
     <div className="bg-white p-6 rounded-2xl shadow-md text-center max-w-sm mx-auto border border-[#E3DCD2]">

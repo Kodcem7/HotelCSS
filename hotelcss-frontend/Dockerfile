@@ -11,6 +11,10 @@ COPY . .
 # so this defaults to the API container's published port on localhost.
 ARG VITE_API_BASE_URL=http://localhost:5237/api
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+# Optional: address guests' phones use to reach the app over the LAN.
+# When set, room QR codes use this instead of the panel's window.location.origin.
+ARG VITE_QR_BASE_URL=
+ENV VITE_QR_BASE_URL=$VITE_QR_BASE_URL
 RUN npm run build
 
 # ---- Serve stage ----
