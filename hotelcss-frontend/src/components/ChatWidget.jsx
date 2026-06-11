@@ -5,7 +5,7 @@ import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognitio
 import { useState, useRef, useEffect } from 'react';
 import { analyzeRequest } from '../api/chat';
 import { createRequest } from '../api/requests';
-import { getPickUpTime, createWakeUpCall } from '../api/receptionservice';
+import { getPickUpTime, createWakeUpCall } from '../api/receptionService';
 import { useAuth } from '../context/AuthContext';
 import { getActiveBonusEvents, getActiveEvents, getMealList } from '../api/events';
 import { getMyPoints } from '../api/rooms';
