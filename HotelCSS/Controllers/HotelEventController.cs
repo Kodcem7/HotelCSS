@@ -148,6 +148,7 @@ namespace HotelCSS.Controllers
                 return NotFound(new { success = false, message = "Hotel event not found" });
             }
 
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -160,6 +161,12 @@ namespace HotelCSS.Controllers
             existing.EndDate = dto.EndDate;
             existing.MealInfo = dto.MealInfo;
             existing.IsActive = dto.IsActive;
+
+            var today = DateTime.Now;
+            if (existing.StartDate < today && existing.EndDate > today)
+            {
+                existing.IsActive = false;
+            }
 
             _unitOfWork.HotelEvent.Update(existing);
             _unitOfWork.Save();

@@ -1,0 +1,72 @@
+services:
+  # ---- SQL Server ----
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: hotelcss-db
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "HotelCss!2024Strong"
+      MSSQL_PID: "Express"
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+
+  # ---- Waits for SQL Server, then creates an empty HotelCSSdb ----
+  # The backend's DbInitializer applies EF migrations on startup, but it needs
+  # the database to already exist. This one-shot service guarantees that.
+  db-init:
+    image: mcr.microsoft.com/mssql-tools:latest
+    container_name: hotelcss-db-init
+    depends_on:
+      - db
+    environment:
+      MSSQL_SA_PASSWORD: "HotelCss!2024Strong"
+    command:
+      - /bin/bash
+      - -c
+      - |
+        for i in $$(seq 1 60); do
+          /opt/mssql-tools/bin/sqlcmd -S db -U sa -P "$$MSSQL_SA_PASSWORD" \
+            -Q "IF DB_ID('HotelCSSdb') IS NULL CREATE DATABASE HotelCSSdb;" && exit 0
+          echo "Waiting for SQL Server to be ready... ($$i/60)"
+          sleep 2
+        done
+        echo "SQL Server did not become ready in time." && exit 1
+    restart: "no"
+
+  # ---- ASP.NET Core API ----
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hotelcss-api
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ASPNETCORE_URLS: "http://+:8080"
+      ConnectionStrings__DefaultConnection: "Server=db,1433;Database=HotelCSSdb;User Id=sa;Password=HotelCss!2024Strong;TrustServerCertificate=True;Encrypt=False"
+    ports:
+      - "5237:8080"
+    # Uncomment to persist uploaded images across `docker compose down`:
+    # volumes:
+    #   - api-images:/app/wwwroot/images
+
+  # ---- React frontend (built, served by nginx) ----
+  web:
+    build:
+      context: ./hotelcss-frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: "http://localhost:5237/api"
+    container_name: hotelcss-web
+    depends_on:
+      - api
+    ports:
+      - "5173:80"
+
+volumes:
+  mssql-data:
+  # api-images:

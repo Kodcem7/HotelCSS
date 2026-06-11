@@ -44,6 +44,7 @@ import MissingTranslationReporter from '../components/MissingTranslationReporter
 import UsersLogsPage from '../pages/UsersLogsPage';
 import ReputationDashboard from '../pages/ReputationDashboard';
 
+
 const AppRoutes = () => {
     const { isAuthenticated, user } = useAuth();
 
@@ -78,6 +79,7 @@ const AppRoutes = () => {
                     <Route path="/admin/reception/services" element={<ReceptionServicesPage />} />
                     <Route path="/admin/users-logs" element={<UsersLogsPage />} />
                     <Route path="/admin/reputation" element={<ReputationDashboard />} />
+
 
                     {/* Manager Specific */}
                     <Route path="/manager" element={<ManagerDashboard />} />

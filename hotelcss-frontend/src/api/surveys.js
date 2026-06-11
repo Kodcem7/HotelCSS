@@ -1,4 +1,5 @@
-import api from './axios';
+﻿import api from './axios';
+import axios from 'axios';
 
 // For the Admin to create a new survey
 export const createSurvey = async (surveyData) => {
@@ -54,5 +55,10 @@ export const deleteSurvey = async (id) => {
 
 export const averageStars = async (surveyId) => {
     const response = await api.get(`/Survey/AverageStars/${surveyId}`);
+    return response.data;
+};
+export const getQuestionTrends = async (surveyId) => {
+    // 👇 We use 'api' and match the exact URL structure!
+    const response = await api.get(`/Survey/${surveyId}/question-trends`);
     return response.data;
 };

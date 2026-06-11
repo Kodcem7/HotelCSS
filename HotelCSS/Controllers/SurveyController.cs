@@ -122,7 +122,8 @@ namespace HotelCSS.Controllers
                 Title = obj.Title,
                 Description = obj.Description,
                 IsActive = obj.IsActive,
-                Questions = new List<SurveyQuestion>()
+                Questions = new List<SurveyQuestion>(),
+                LastActivatedAt = DateTime.UtcNow
             };
 
             foreach (var question in obj.Questions)
@@ -181,14 +182,13 @@ namespace HotelCSS.Controllers
             }
 
             var existingResponse = _unitOfWork.SurveyResponse.GetFirstOrDefault(
-                r => r.SurveyId == activeSurvey.Id && r.RoomNumber == roomNumber);
+                r => r.SurveyId == activeSurvey.Id && r.RoomNumber == roomNumber && r.SubmittedAt >= activeSurvey.LastActivatedAt);
 
-            bool alreadyAnswered = existingResponse != null;
-
-            if (alreadyAnswered)
+            if (existingResponse != null)
             {
                 return Ok(new { hasPendingSurvey = false });
             }
+
             var room = _unitOfWork.Room.GetFirstOrDefault(r => r.RoomNumber == roomNumber);
             if (room.isSkipped)
             {
@@ -218,20 +218,25 @@ namespace HotelCSS.Controllers
             string roomNumString = roomUser.UserName.Replace("Room", "");
             int.TryParse(roomNumString, out int roomNumber);
 
-            var existingResponse = _unitOfWork.SurveyResponse.GetFirstOrDefault(
-                r => r.SurveyId == obj.SurveyId && r.RoomNumber == roomNumber);
-
-            bool alreadyAnswered = existingResponse != null;
-
-            if (alreadyAnswered)
+            var survey = _unitOfWork.Survey.GetFirstOrDefault(u => u.Id == obj.SurveyId);
+            if (survey == null)
             {
-                return BadRequest(new { message = "You already completed this survey!" });
+                return NotFound(new { message = "Survey not found" });
+            }
+            // Only look for responses submitted AFTER the survey was last activated
+            var existingResponse = _unitOfWork.SurveyResponse.GetFirstOrDefault(
+                r => r.SurveyId == obj.SurveyId && r.RoomNumber == roomNumber && r.SubmittedAt >= survey.LastActivatedAt);
+
+            if (existingResponse != null)
+            {
+                return BadRequest(new { message = "You already completed this survey round!" });
             }
 
             var response = new SurveyResponse
             {
                 SurveyId = obj.SurveyId,
                 RoomNumber = roomNumber,
+                SubmittedAt = DateTime.Now,
                 Answers = new List<SurveyAnswer>(),
             };
 
@@ -263,13 +268,32 @@ namespace HotelCSS.Controllers
 
             if (survey.IsActive)
             {
+                survey.LastActivatedAt = DateTime.Now;
+
                 var activeSurveys = _unitOfWork.Survey.GetAll(u => u.IsActive && u.Id != id).ToList();
                 foreach (var s in activeSurveys)
                 {
                     s.IsActive = false;
                     _unitOfWork.Survey.Update(s);
                 }
+
+                var rooms = _unitOfWork.Room.GetAll().ToList();
+                foreach (var room in rooms)
+                {
+                    // If the room is empty right now, skip it. If someone is checked in, don't skip it!
+                    if (room.Status == SD.Status_Room_Available)
+                    {
+                        room.isSkipped = true;
+                    }
+                    else
+                    {
+                        room.isSkipped = false;
+                    }
+                    _unitOfWork.Room.Update(room);
+                }
             }
+
+
 
             _unitOfWork.Survey.Update(survey);
             _unitOfWork.Save();
@@ -441,5 +465,69 @@ namespace HotelCSS.Controllers
             return Ok(new { success = true, average = average });
         }
 
+        [HttpGet("{surveyId}/question-trends")]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
+
+        public async Task<IActionResult> GetQuestionTrends(int surveyId)
+        {
+            var survey = _unitOfWork.Survey.GetFirstOrDefault(u => u.Id == surveyId);
+            if (survey == null || survey.LastActivatedAt == null)
+            {
+                return Ok(new { success = true, data = new List<QuestionTrendDTO>() });
+            }
+
+            DateTime activationDate = survey.LastActivatedAt.Value.Date;
+
+            var responses = _unitOfWork.SurveyResponse.GetAll(u => u.SurveyId == surveyId && u.SubmittedAt >= activationDate, includeProperties: "Answers,Answers.SurveyQuestion").ToList();
+
+            if (!responses.Any())
+            {
+                return Ok(new { success = true, data = new List<QuestionTrendDTO>() });
+            }
+
+
+            var groupByWeek = responses.GroupBy(u =>
+            {
+                int daysPassed = (u.SubmittedAt.Date - activationDate).Days;
+                int weekblock = daysPassed / 7;
+                return activationDate.AddDays(weekblock * 7);
+            }).OrderBy(u => u.Key).ToList();
+
+            var result = new List<QuestionTrendDTO>();
+
+            foreach (var group in groupByWeek)
+            {
+                DateTime startDate = group.Key;
+                DateTime endDate = startDate.AddDays(7);
+
+                var trend = new QuestionTrendDTO
+                {
+                    Period = $"{startDate:dd/MM/yyyy} - {endDate:dd/MM/yyyy}",
+                    QuestionAverages = group
+                    .SelectMany(u => u.Answers)
+                    .Where(u => u.SurveyQuestion.QuestionType == "StarRating")
+                    .GroupBy(u => u.SurveyQuestion.QuestionText)
+                    .ToDictionary(
+                    u => u.Key,
+                    u =>
+                    {
+                        double sum = 0;
+                        int count = 0;
+                        foreach (var answer in u)
+                        {
+                            if (double.TryParse(answer.AnswerValue, out double val))
+                            {
+                                sum += val;
+                                count++;
+                            }
+                        }
+                        return count > 0 ? Math.Round(sum / count, 1) : 0;
+                    }
+                )
+                };
+                result.Add(trend);
+            }
+            return Ok(new { success = true, data = result });
+        }
     }
 }

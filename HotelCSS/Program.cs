@@ -5,6 +5,7 @@ using CSSHotel.DataAccess.Repository.IRepository;
 using CSSHotel.Models;
 using CSSHotel.Utility;
 using CSSHotel.Utility.Service;
+using HotelCSS.BackgroundServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -54,6 +55,7 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 builder.Services.AddScoped<CSSHotel.Utility.Service.AIService>();
 
 builder.Services.AddMemoryCache();
+builder.Services.AddHostedService<EventStatusWorker>();
 
 builder.Services.Configure<IdentityOptions>(options =>
 {

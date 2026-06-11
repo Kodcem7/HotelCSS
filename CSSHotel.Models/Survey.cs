@@ -24,5 +24,6 @@ namespace CSSHotel.Models
 
         // EF Core Magic: One Survey has Many Questions
         public ICollection<SurveyQuestion> Questions { get; set; }
+        public DateTime? LastActivatedAt { get; set; }
     }
 }

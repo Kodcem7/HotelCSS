@@ -1,8 +1,8 @@
 ﻿import { useState, useEffect } from 'react';
-// import Layout from '../components/Layout'; // ❌ REMOVED
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import SuccessMessage from '../components/SuccessMessage';
+import SurveyAnalyticsChart from '../components/SurveyAnalyticsChart'; // 👇 IMPORTED YOUR NEW CHART
 import { getAllSurveys, getSurveyResponses, getResponseDetails, toggleSurveyStatus, getSurveyAiAnalysis, deleteSurvey, averageStars } from '../api/surveys';
 
 const AdminSurveyResultsPage = () => {
@@ -14,7 +14,8 @@ const AdminSurveyResultsPage = () => {
     const [answers, setAnswers] = useState(null);
     const [currentSurveyTitle, setCurrentSurveyTitle] = useState('');
 
-    // 👇 NEW STATE: Hold the average rating for the survey being viewed
+    // 👇 NEW STATE: We need to store the ID so we can pass it to the Chart
+    const [currentSurveyId, setCurrentSurveyId] = useState(null);
     const [currentSurveyAverage, setCurrentSurveyAverage] = useState(null);
 
     // AI States
@@ -76,12 +77,12 @@ const AdminSurveyResultsPage = () => {
         }
     };
 
-    // 👇 UPGRADED: Now fetches the responses AND the average score dynamically!
     const handleViewResponses = async (surveyId) => {
         try {
             setLoading(true);
             setError('');
-            setCurrentSurveyAverage(null); // Reset from previous views
+            setCurrentSurveyAverage(null);
+            setCurrentSurveyId(surveyId); // 👇 Save the ID for the chart!
 
             // 1. Fetch the responses
             const res = await getSurveyResponses(surveyId);
@@ -91,12 +92,10 @@ const AdminSurveyResultsPage = () => {
             // 2. Fetch the average silently in the background
             try {
                 const avgRes = await averageStars(surveyId);
-                // Only set it if it's greater than 0
                 if (avgRes && avgRes.average > 0) {
                     setCurrentSurveyAverage(avgRes.average);
                 }
             } catch (avgErr) {
-                // If it fails (e.g. no star questions on this survey), just ignore it and don't break the page
                 console.log("No star ratings to average for this survey.");
             }
 
@@ -140,10 +139,10 @@ const AdminSurveyResultsPage = () => {
         }
     };
 
-    if (loading) return <LoadingSpinner text="Loading data..." />; // ✅ Layout removed
+    if (loading) return <LoadingSpinner text="Loading data..." />;
 
     return (
-        <> {/* ✅ Using Fragment */}
+        <>
             <div className="max-w-6xl mx-auto p-6">
                 {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
                 {success && <SuccessMessage message={success} onDismiss={() => setSuccess('')} />}
@@ -285,6 +284,13 @@ const AdminSurveyResultsPage = () => {
                                 </div>
                             )}
                         </div>
+
+                        {/* 👇 INSERTED THE CHART RIGHT HERE */}
+                        {currentSurveyId && (
+                            <div className="mb-8">
+                                <SurveyAnalyticsChart surveyId={currentSurveyId} />
+                            </div>
+                        )}
 
                         <div className="bg-[#FDFBF7] rounded-[24px] shadow-[0_20px_40px_rgba(15,28,44,0.04)] border border-[#E3DCD2]/40 overflow-hidden">
                             <table className="w-full text-left border-collapse">

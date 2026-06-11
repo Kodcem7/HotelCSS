@@ -439,6 +439,7 @@ export const PHRASE_TRANSLATIONS = {
         'Good morning': 'Guten Morgen',
         'Good afternoon': 'Guten Tag',
         'Good Night': 'Gute Nacht',
+        'Good evening': 'Guten Abend',
         'Welcome to your hotel-app. You can create requests,view events,learn your pick-up time,see the hotel events and more': 'Willkommen in Ihrer Hotel-App. Sie können Anfragen erstellen, Veranstaltungen ansehen, Ihre Abholzeit erfahren und vieles mehr.',
     },
     ru: {
@@ -695,6 +696,7 @@ export const PHRASE_TRANSLATIONS = {
         'Good morning': 'Доброе утро',
         'Good afternoon': 'Добрый день',
         'Good Night': 'Спокойной ночи',
+        'Good evening': 'Добрый вечер',
         'Welcome to your hotel-app. You can create requests,view events,learn your pick-up time,see the hotel events and more': 'Добро пожаловать в ваше приложение отеля. Вы можете создавать запросы, просматривать события, узнавать время трансфера и многое другое.',
     },
 };
