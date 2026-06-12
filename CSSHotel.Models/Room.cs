@@ -25,6 +25,7 @@ namespace CSSHotel.Models
         public bool isSkipped { get; set; } = true;
         public bool mailSent { get; set; } = false;
 
+        [Column(TypeName = "decimal(18, 2)")]
         public decimal? MoneySpent { get; set; }
         public int? PointsEarned { get; set; }
 

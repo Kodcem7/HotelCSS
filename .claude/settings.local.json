@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -E \"\\\\.cs$|^d\")",
+      "Bash(ls -la /c/Users/Cem/source/repos/HotelCSS/CSSHotel.Models/*.cs)",
+      "Bash(awk '{print $NF}')",
+      "Bash(dotnet ef:*)",
+      "Bash(dotnet tool:*)"
+    ]
+  }
+}
