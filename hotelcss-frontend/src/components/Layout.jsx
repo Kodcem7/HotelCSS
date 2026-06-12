@@ -25,9 +25,8 @@ const Layout = ({ children }) => {
         setToasts((prev) => prev.filter((t) => t.id !== id));
     }, []);
 
-    useSignalR(role === 'Room', handleOrderCompleted);
-
     const role = user?.role;
+    useSignalR(role === 'Room', handleOrderCompleted);
     const isStaffLike =
         role === 'Staff' ||
         role === 'Housekeeping' ||
