@@ -5,7 +5,9 @@
       "Bash(ls -la /c/Users/Cem/source/repos/HotelCSS/CSSHotel.Models/*.cs)",
       "Bash(awk '{print $NF}')",
       "Bash(dotnet ef:*)",
-      "Bash(dotnet tool:*)"
+      "Bash(dotnet tool:*)",
+      "Bash(grep -l \"useLanguage\\\\|t\\(\" /c/Users/Cem/source/repos/HotelCSS/hotelcss-frontend/src/pages/*.jsx)",
+      "Bash(ls -1 /c/Users/Cem/source/repos/HotelCSS/hotelcss-frontend/src/pages/*.jsx)"
     ]
   }
 }

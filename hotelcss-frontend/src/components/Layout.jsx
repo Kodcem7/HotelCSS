@@ -246,7 +246,7 @@ const Layout = ({ children }) => {
     return (
         <div
             className={`font-body antialiased flex min-h-screen relative overflow-hidden ${isDashboardSuite ? 'bg-[#FDFBF7] text-[#2C241E]' : 'bg-background text-on-surface'
-                } ${isDashboardSuite ? 'text-[14px] sm:text-[16px]' : ''}`}
+                } ${isDashboardSuite ? 'text-[13px] sm:text-[14px] md:text-[16px]' : ''}`}
         >
 
             {isSidebarOpen && (
@@ -258,7 +258,7 @@ const Layout = ({ children }) => {
 
             {/* SideNavBar */}
             {isDashboardSuite ? (
-                <aside className={`w-72 fixed inset-y-0 left-0 bg-[#FDFBF7] flex flex-col py-8 pr-5 z-50 border-r border-[#E3DCD2]/30 transition-transform duration-300 ease-in-out md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                <aside className={`w-64 sm:w-72 fixed inset-y-0 left-0 bg-[#FDFBF7] flex flex-col py-6 sm:py-8 pr-4 sm:pr-5 z-50 border-r border-[#E3DCD2]/30 transition-transform duration-300 ease-in-out md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
 
                     <button
                         onClick={() => setIsSidebarOpen(false)}
@@ -383,79 +383,77 @@ const Layout = ({ children }) => {
                 </aside>
             )}
 
-            <main className={`flex-1 min-h-screen flex flex-col transition-all duration-300 w-full ${isDashboardSuite ? 'md:ml-72' : 'md:ml-64'}`}>
+            <main className={`flex-1 min-h-screen flex flex-col transition-all duration-300 w-full ${isDashboardSuite ? 'md:ml-64 lg:ml-72' : 'md:ml-64'}`}>
 
                 {isDashboardSuite ? (
-                    <header className="sticky top-0 z-30 bg-[#FDFBF7]/80 border-b border-[#E3DCD2]/30 backdrop-blur-xl flex justify-between items-center w-full px-4 sm:px-8 py-4">
-                        <div className="flex items-center gap-3 sm:gap-6">
+                    <header className="sticky top-0 z-30 bg-[#FDFBF7]/80 border-b border-[#E3DCD2]/30 backdrop-blur-xl flex justify-between items-center w-full px-3 sm:px-6 lg:px-8 py-3 sm:py-4">
+                        <div className="flex items-center gap-2 sm:gap-4">
 
                             <button
                                 onClick={() => setIsSidebarOpen(true)}
-                                className="md:hidden flex items-center justify-center w-9 h-9 rounded-full bg-[#F2EBE1] hover:bg-[#E8DFD1] text-[#4A3728] transition-colors"
+                                className="md:hidden flex items-center justify-center w-8 h-8 rounded-full bg-[#F2EBE1] hover:bg-[#E8DFD1] text-[#4A3728] transition-colors flex-shrink-0"
                             >
-                                <span className="material-symbols-outlined text-[20px]">menu</span>
+                                <span className="material-symbols-outlined text-[18px]">menu</span>
                             </button>
 
                             {showBackButton && (
                                 <button
                                     onClick={() => navigate(getDashboardRoot())}
-                                    className="hidden sm:flex items-center justify-center w-8 h-8 rounded-full bg-[#F2EBE1] hover:bg-[#E8DFD1] text-[#5D534A] transition-colors"
+                                    className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#F2EBE1] hover:bg-[#E8DFD1] text-[#5D534A] transition-colors flex-shrink-0"
                                     aria-label={t('backToDashboard', 'Back to dashboard')}
                                 >
-                                    <span className="material-symbols-outlined text-sm">arrow_back</span>
+                                    <span className="material-symbols-outlined text-[16px] sm:text-sm">arrow_back</span>
                                 </button>
                             )}
 
-                            {/* Dashboard Title remains italic */}
-                            <span className="font-headline italic text-lg sm:text-2xl text-[#4A3728] truncate max-w-[150px] sm:max-w-none">
+                            <span className="font-headline italic text-base sm:text-xl lg:text-2xl text-[#4A3728] truncate max-w-[120px] sm:max-w-[200px] lg:max-w-none">
                                 {getDashboardTitle()}
                             </span>
 
-                            <div className="relative hidden lg:block ml-4">
+                            <div className="relative hidden lg:block ml-2">
                                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#8E735B] text-sm">search</span>
                                 <input
                                     type="text"
                                     placeholder={t('searchOperations', 'Search operations...')}
-                                    className="bg-[#F2EBE1] border-none rounded-full py-2 pl-10 pr-4 text-base w-64 focus:ring-2 focus:ring-[#D35400]/20 transition-all text-[#2C241E] placeholder:text-[#8E735B]"
+                                    className="bg-[#F2EBE1] border-none rounded-full py-2 pl-10 pr-4 text-sm w-56 focus:ring-2 focus:ring-[#D35400]/20 transition-all text-[#2C241E] placeholder:text-[#8E735B]"
                                 />
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-2 sm:gap-4">
-                            {/* 👇 NEW HOME ICON IMPLEMENTED HERE */}
+                        <div className="flex items-center gap-1.5 sm:gap-3">
                             <button
                                 onClick={() => navigate(getDashboardRoot())}
-                                className="hidden sm:block p-2 rounded-full hover:bg-[#F2EBE1] transition-colors relative"
+                                className="hidden sm:flex p-1.5 sm:p-2 rounded-full hover:bg-[#F2EBE1] transition-colors"
                                 title="Go to Home Dashboard"
                             >
-                                <span className="material-symbols-outlined text-[#4A3728]">home</span>
+                                <span className="material-symbols-outlined text-[#4A3728] text-[20px]">home</span>
                             </button>
 
                             {user?.role === 'Room' && (
-                                <div className="flex items-center gap-1.5 bg-[#F2EBE1] border border-[#E3DCD2]/30 px-2 sm:px-3 py-1.5 rounded-full shadow-sm">
-                                    <span className="material-symbols-outlined text-[#D35400] text-[16px] sm:text-sm">stars</span>
-                                    <span className="font-bold text-[#4A3728] tracking-wide text-sm sm:text-base">
-                                        {myPoints} <span className="text-[10px] sm:text-xs font-semibold uppercase text-[#8E735B]">pts</span>
+                                <div className="flex items-center gap-1 sm:gap-1.5 bg-[#F2EBE1] border border-[#E3DCD2]/30 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-sm">
+                                    <span className="material-symbols-outlined text-[#D35400] text-[14px] sm:text-[16px]">stars</span>
+                                    <span className="font-bold text-[#4A3728] tracking-wide text-xs sm:text-sm">
+                                        {myPoints} <span className="text-[9px] sm:text-[10px] font-semibold uppercase text-[#8E735B]">pts</span>
                                     </span>
                                 </div>
                             )}
 
-                            <button className="hidden sm:block p-2 rounded-full hover:bg-[#F2EBE1] transition-colors relative">
-                                <span className="material-symbols-outlined text-[#4A3728]">notifications</span>
-                                <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-[#D35400] rounded-full"></span>
+                            <button className="hidden sm:flex p-1.5 sm:p-2 rounded-full hover:bg-[#F2EBE1] transition-colors relative">
+                                <span className="material-symbols-outlined text-[#4A3728] text-[20px]">notifications</span>
+                                <span className="absolute top-2 right-2 w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[#D35400] rounded-full"></span>
                             </button>
 
-                            <div className="flex items-center gap-3 pl-2 sm:pl-4 sm:border-l border-[#E3DCD2]/30">
+                            <div className="flex items-center gap-2 sm:gap-3 pl-1.5 sm:pl-3 sm:border-l border-[#E3DCD2]/30">
                                 <div className="text-right hidden sm:block">
-                                    <p className="text-base font-semibold text-[#4A3728] leading-none">
+                                    <p className="text-sm font-semibold text-[#4A3728] leading-none truncate max-w-[100px] lg:max-w-none">
                                         {user?.username || 'Admin User'}
                                     </p>
-                                    <p className="text-[11px] text-[#8E735B] uppercase tracking-wider mt-1">
+                                    <p className="text-[10px] text-[#8E735B] uppercase tracking-wider mt-0.5">
                                         {(user?.role === 'Manager' ? 'HOTEL MANAGER' : getRoleDisplayName(user?.role)).toUpperCase()}
                                     </p>
                                 </div>
 
-                                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#F2EBE1] flex items-center justify-center text-[#4A3728] font-bold shadow-sm ring-2 ring-white text-sm sm:text-base">
+                                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#F2EBE1] flex items-center justify-center text-[#4A3728] font-bold shadow-sm ring-2 ring-white text-sm flex-shrink-0">
                                     {user?.username ? user.username.charAt(0).toUpperCase() : 'A'}
                                 </div>
                             </div>
@@ -539,7 +537,7 @@ const Layout = ({ children }) => {
                 )}
 
                 {/* Content Area */}
-                <div className={`flex-1 w-full ${isDashboardSuite ? 'bg-[#FDFBF7]' : 'bg-background'} overflow-x-hidden p-4 sm:p-6`}>
+                <div className={`flex-1 w-full ${isDashboardSuite ? 'bg-[#FDFBF7]' : 'bg-background'} overflow-x-hidden p-3 sm:p-5 lg:p-6`}>
                     {children}
                 </div>
             </main>

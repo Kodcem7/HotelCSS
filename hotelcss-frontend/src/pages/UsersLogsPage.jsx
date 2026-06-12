@@ -68,35 +68,35 @@ const UsersLogsPage = () => {
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm('Bu log kaydını silmek istediğinize emin misiniz?')) return;
+        if (!window.confirm('Are you sure you want to delete this log entry?')) return;
         try {
             setError('');
             setSuccess('');
             await deleteLog(id);
-            setSuccess('Log başarıyla silindi.');
+            setSuccess('Log deleted successfully.');
             setLogs(logs.filter(log => (log.id || log.Id) !== id));
         } catch (err) {
-            setError(err.response?.data?.message || 'Log silinemedi.');
+            setError(err.response?.data?.message || 'Failed to delete log.');
         }
     };
 
     const handleDeleteOldLogs = async () => {
-        if (!window.confirm('UYARI: 6 aydan eski tüm loglar kalıcı olarak silinecek. Devam etmek istiyor musunuz?')) return;
+        if (!window.confirm('WARNING: This will permanently delete all logs older than 6 months. Do you want to proceed?')) return;
         try {
             setLoading(true);
             setError('');
             setSuccess('');
             const res = await deleteLast6Months();
-            setSuccess(res.message || 'Eski loglar temizlendi.');
+            setSuccess(res.message || 'Old logs cleared successfully.');
             await fetchLogs();
         } catch (err) {
-            setError(err.response?.data?.message || 'Eski loglar silinemedi.');
+            setError(err.response?.data?.message || 'Failed to clear old logs.');
             setLoading(false);
         }
     };
 
     if (loading && logs.length === 0) {
-        return <LoadingSpinner text="Loglar yükleniyor..." />;
+        return <LoadingSpinner text="Loading user logs..." />;
     }
 
     const totalMoneySpent = logs.reduce((sum, log) => sum + parseFloat(get(log, 'moneySpent', 'MoneySpent') ?? 0), 0);
@@ -108,11 +108,11 @@ const UsersLogsPage = () => {
             {/* Header */}
             <section className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#E3DCD2]/50 pb-6">
                 <div>
-                    <h2 className="font-headline text-[clamp(30px,5vw,42px)] text-[#4A3728] mb-2 font-bold leading-tight">
-                        Misafir Logları
+                    <h2 className="font-headline text-[clamp(24px,4vw,42px)] text-[#4A3728] mb-2 font-bold leading-tight">
+                        Guest Logs
                     </h2>
                     <p className="text-[14px] text-[#5D534A]">
-                        Check-out sonrası misafir aktivitelerinin geçmişi.
+                        Post check-out history of guest activity.
                     </p>
                 </div>
                 <button
@@ -120,7 +120,7 @@ const UsersLogsPage = () => {
                     className="flex items-center justify-center gap-2 px-5 py-3 bg-[#B22222]/10 text-[#B22222] hover:bg-[#B22222] hover:text-white border border-[#B22222]/20 font-bold text-[12px] uppercase tracking-widest rounded-xl transition-all shadow-sm whitespace-nowrap"
                 >
                     <span className="material-symbols-outlined text-sm">delete_sweep</span>
-                    6 Aydan Eskiyi Temizle
+                    Clear &gt; 6 Months
                 </button>
             </section>
 
@@ -137,21 +137,21 @@ const UsersLogsPage = () => {
                 <div className="bg-[#FDFBF7] rounded-2xl border border-[#E3DCD2]/40 shadow-sm p-5 flex items-center gap-4">
                     <span className="material-symbols-outlined text-[32px] text-[#D35400]">receipt_long</span>
                     <div>
-                        <div className="text-xs text-[#8E735B] uppercase tracking-wider font-bold">Toplam Konaklama</div>
+                        <div className="text-xs text-[#8E735B] uppercase tracking-wider font-bold">Total Stays</div>
                         <div className="text-2xl font-bold text-[#4A3728]">{logs.length}</div>
                     </div>
                 </div>
                 <div className="bg-[#FDFBF7] rounded-2xl border border-[#E3DCD2]/40 shadow-sm p-5 flex items-center gap-4">
                     <span className="material-symbols-outlined text-[32px] text-[#1B7F4B]">payments</span>
                     <div>
-                        <div className="text-xs text-[#8E735B] uppercase tracking-wider font-bold">Toplam Ciro</div>
+                        <div className="text-xs text-[#8E735B] uppercase tracking-wider font-bold">Total Revenue</div>
                         <div className="text-2xl font-bold text-[#1B7F4B]">€{totalMoneySpent.toFixed(2)}</div>
                     </div>
                 </div>
                 <div className="bg-[#FDFBF7] rounded-2xl border border-[#E3DCD2]/40 shadow-sm p-5 flex items-center gap-4">
                     <span className="material-symbols-outlined text-[32px] text-[#D35400]">stars</span>
                     <div>
-                        <div className="text-xs text-[#8E735B] uppercase tracking-wider font-bold">Toplam Kazanılan Puan</div>
+                        <div className="text-xs text-[#8E735B] uppercase tracking-wider font-bold">Total Points Earned</div>
                         <div className="text-2xl font-bold text-[#D35400]">{totalPointsEarned.toLocaleString()} pts</div>
                     </div>
                 </div>
@@ -164,23 +164,23 @@ const UsersLogsPage = () => {
                         <thead>
                             <tr className="bg-[#F2EBE1]/50 border-b border-[#E3DCD2]/50 text-[#8E735B] text-[10px] uppercase tracking-widest font-bold">
                                 <th className="p-5 w-12">ID</th>
-                                <th className="p-5">Kayıt Tarihi</th>
-                                <th className="p-5">Oda</th>
-                                <th className="p-5">Misafir E-posta</th>
+                                <th className="p-5">Log Date</th>
+                                <th className="p-5">Room</th>
+                                <th className="p-5">Guest Email</th>
                                 <th className="p-5">Check-In</th>
                                 <th className="p-5">Check-Out</th>
-                                <th className="p-5">Harcama</th>
-                                <th className="p-5">Kazanılan Puan</th>
-                                <th className="p-5">Harcanan Puan</th>
-                                <th className="p-5">Siparişler</th>
-                                <th className="p-5 text-right w-16">Sil</th>
+                                <th className="p-5">Spending</th>
+                                <th className="p-5">Points Earned</th>
+                                <th className="p-5">Points Spent</th>
+                                <th className="p-5">Orders</th>
+                                <th className="p-5 text-right w-16">Delete</th>
                             </tr>
                         </thead>
                         <tbody className="text-sm text-[#4A3728]">
                             {logs.length === 0 ? (
                                 <tr>
                                     <td colSpan="11" className="p-10 text-center text-[#8E735B] italic">
-                                        Henüz log kaydı bulunamadı.
+                                        No user logs found.
                                     </td>
                                 </tr>
                             ) : (
@@ -203,16 +203,13 @@ const UsersLogsPage = () => {
                                                 key={id}
                                                 className="border-b border-[#E3DCD2]/30 hover:bg-[#F2EBE1]/30 transition-colors"
                                             >
-                                                {/* ID */}
                                                 <td className="p-5 font-mono text-xs text-[#8E735B]">#{id}</td>
 
-                                                {/* Timestamp */}
                                                 <td className="p-5 whitespace-nowrap">
                                                     <div className="font-bold">{ts.date}</div>
                                                     <div className="text-xs text-[#8E735B]">{ts.time}</div>
                                                 </td>
 
-                                                {/* Room */}
                                                 <td className="p-5">
                                                     <span className="inline-flex items-center gap-1.5 bg-[#F2EBE1] border border-[#E3DCD2]/50 px-3 py-1 rounded-lg font-bold text-[#4A3728]">
                                                         <span className="material-symbols-outlined text-[16px] text-[#D35400]">meeting_room</span>
@@ -220,7 +217,6 @@ const UsersLogsPage = () => {
                                                     </span>
                                                 </td>
 
-                                                {/* Guest Email */}
                                                 <td className="p-5">
                                                     <div className="flex items-center gap-2">
                                                         <span className="material-symbols-outlined text-[16px] text-[#8E735B]">mail</span>
@@ -228,7 +224,6 @@ const UsersLogsPage = () => {
                                                     </div>
                                                 </td>
 
-                                                {/* Check-In */}
                                                 <td className="p-5 whitespace-nowrap text-[#5D534A]">
                                                     <div className="flex items-center gap-2">
                                                         <span className="material-symbols-outlined text-[16px] text-[#1B7F4B]">login</span>
@@ -236,7 +231,6 @@ const UsersLogsPage = () => {
                                                     </div>
                                                 </td>
 
-                                                {/* Check-Out */}
                                                 <td className="p-5 whitespace-nowrap text-[#5D534A]">
                                                     <div className="flex items-center gap-2">
                                                         <span className="material-symbols-outlined text-[16px] text-[#B22222]">logout</span>
@@ -244,19 +238,16 @@ const UsersLogsPage = () => {
                                                     </div>
                                                 </td>
 
-                                                {/* Money Spent */}
                                                 <td className="p-5 whitespace-nowrap">
                                                     <span className="font-bold text-[#1B7F4B]">€{moneySpent}</span>
                                                 </td>
 
-                                                {/* Points Earned */}
                                                 <td className="p-5 whitespace-nowrap">
                                                     <span className="bg-[#D35400]/10 border border-[#D35400]/20 text-[#D35400] px-2.5 py-1 rounded-full font-bold text-xs tracking-wide">
                                                         +{pointsEarned} pts
                                                     </span>
                                                 </td>
 
-                                                {/* Points Spent */}
                                                 <td className="p-5 whitespace-nowrap">
                                                     {pointsSpent > 0 ? (
                                                         <span className="bg-[#B22222]/10 border border-[#B22222]/20 text-[#B22222] px-2.5 py-1 rounded-full font-bold text-xs tracking-wide">
@@ -267,7 +258,6 @@ const UsersLogsPage = () => {
                                                     )}
                                                 </td>
 
-                                                {/* Orders Summary */}
                                                 <td className="p-5">
                                                     {ordersSummary ? (
                                                         <button
@@ -275,29 +265,27 @@ const UsersLogsPage = () => {
                                                             className="flex items-center gap-1.5 text-xs font-bold text-[#4A3728] bg-[#F2EBE1] hover:bg-[#E8DDD3] border border-[#E3DCD2]/60 px-3 py-1.5 rounded-lg transition-colors"
                                                         >
                                                             <span className="material-symbols-outlined text-[14px] text-[#D35400]">receipt</span>
-                                                            Detay
+                                                            Details
                                                             <span className="material-symbols-outlined text-[14px]">
                                                                 {isExpanded ? 'expand_less' : 'expand_more'}
                                                             </span>
                                                         </button>
                                                     ) : (
-                                                        <span className="text-[#C4B8AE] text-xs">Sipariş yok</span>
+                                                        <span className="text-[#C4B8AE] text-xs">No orders</span>
                                                     )}
                                                 </td>
 
-                                                {/* Delete */}
                                                 <td className="p-5 text-right">
                                                     <button
                                                         onClick={() => handleDelete(id)}
                                                         className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors inline-flex items-center justify-center"
-                                                        title="Logu Sil"
+                                                        title="Delete Log"
                                                     >
                                                         <span className="material-symbols-outlined text-[20px]">delete</span>
                                                     </button>
                                                 </td>
                                             </tr>
 
-                                            {/* Expandable Orders Row */}
                                             {isExpanded && ordersSummary && (
                                                 <tr key={`${id}-orders`} className="bg-[#FDF8F3] border-b border-[#E3DCD2]/30">
                                                     <td colSpan="11" className="px-8 py-4">
@@ -305,7 +293,7 @@ const UsersLogsPage = () => {
                                                             <span className="material-symbols-outlined text-[20px] text-[#D35400] mt-0.5">shopping_bag</span>
                                                             <div>
                                                                 <div className="text-xs font-bold text-[#8E735B] uppercase tracking-wider mb-2">
-                                                                    Tamamlanan Siparişler
+                                                                    Completed Orders
                                                                 </div>
                                                                 <div className="flex flex-wrap gap-2">
                                                                     {ordersSummary.split(', ').map((item, i) => (
