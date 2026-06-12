@@ -305,7 +305,7 @@ namespace HotelCSS.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception)]
-        public IActionResult Update(int id, string newStatus)
+        public async Task<IActionResult> Update(int id, string newStatus)
         {
             if (id <= 0)
             {
@@ -422,6 +422,17 @@ namespace HotelCSS.Controllers
             }
 
             _unitOfWork.Save();
+
+            if (justCompleted && order.ServiceItem != null)
+            {
+                await _hubContext.Clients.Group($"Room{order.RoomNumber}").SendAsync("OrderCompleted", new
+                {
+                    itemName = order.ServiceItem.Name,
+                    quantity = order.Quantity,
+                    roomNumber = order.RoomNumber
+                });
+            }
+
             return Ok(new
             {
                 success = true,

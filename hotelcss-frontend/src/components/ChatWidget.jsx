@@ -4,7 +4,7 @@ import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognitio
 
 import { useState, useRef, useEffect } from 'react';
 import { analyzeRequest } from '../api/chat';
-import { createRequest } from '../api/requests';
+import { createRequest, getRequests } from '../api/requests';
 import { getPickUpTime, createWakeUpCall } from '../api/receptionService';
 import { useAuth } from '../context/AuthContext';
 import { getActiveBonusEvents, getActiveEvents, getMealList } from '../api/events';
@@ -241,6 +241,40 @@ const ChatWidget = () => {
                         }
                     } catch (err) {
                         reply = "You can use your points to get free services, but I am currently unable to load the shop menu.";
+                    }
+                }
+                else if (intent === 'orderhistory') {
+                    try {
+                        const raw = await getRequests();
+                        const list = Array.isArray(raw) ? raw : raw?.$values ?? raw?.data ?? [];
+                        const orders = list
+                            .filter(r => r.type === 'Room' || r.Type === 'Room')
+                            .sort((a, b) => new Date(b.requestDate || b.RequestDate) - new Date(a.requestDate || a.RequestDate))
+                            .slice(0, 5);
+
+                        if (orders.length === 0) {
+                            reply = "You have no room service orders yet during this stay.";
+                        } else {
+                            let text = "Here are your recent orders during this stay:\n\n";
+                            orders.forEach(o => {
+                                const name = o.serviceItem?.name || o.ServiceItem?.Name || 'Service';
+                                const qty = o.quantity || o.Quantity || 1;
+                                const status = o.status || o.Status || 'Unknown';
+                                const date = new Date(o.requestDate || o.RequestDate).toLocaleString([], {
+                                    dateStyle: 'short', timeStyle: 'short'
+                                });
+                                const statusIcon = status === 'Completed' ? '✓' : status === 'Cancelled' ? '✗' : '⏳';
+                                text += `${statusIcon} **${name}** ×${qty} — ${status} (${date})\n`;
+                            });
+                            if (list.length > 5) text += `\n_Showing 5 most recent out of ${list.length} total._`;
+                            reply = text.trim();
+                        }
+                        actionLink = "/room/history";
+                        actionLinkText = "View Full History";
+                    } catch (err) {
+                        reply = "I couldn't load your order history right now. You can check it in the My Requests page.";
+                        actionLink = "/room/history";
+                        actionLinkText = "My Requests";
                     }
                 }
                 else if (intent === 'clarify' && hasItem) {

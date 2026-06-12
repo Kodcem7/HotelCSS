@@ -7,7 +7,14 @@
       "Bash(dotnet ef:*)",
       "Bash(dotnet tool:*)",
       "Bash(grep -l \"useLanguage\\\\|t\\(\" /c/Users/Cem/source/repos/HotelCSS/hotelcss-frontend/src/pages/*.jsx)",
-      "Bash(ls -1 /c/Users/Cem/source/repos/HotelCSS/hotelcss-frontend/src/pages/*.jsx)"
+      "Bash(ls -1 /c/Users/Cem/source/repos/HotelCSS/hotelcss-frontend/src/pages/*.jsx)",
+      "Bash(findstr /E \"Hub|Program|Startup\")",
+      "Bash(findstr signalr *)",
+      "Bash(npm install *)",
+      "Bash(dotnet build *)",
+      "Bash(findstr /i \"error\\\\|warning\\\\|Build succeeded\\\\|Build FAILED\")",
+      "Bash(Select-String -Pattern \"error|warning|succeeded|FAILED\")",
+      "Bash(Select-Object -Last 20)"
     ]
   }
 }

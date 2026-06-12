@@ -1,8 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import ChatWidget from './ChatWidget';
+import NotificationToast from './NotificationToast';
+import useSignalR from '../hooks/useSignalR';
 import { getMyPoints, getRoom } from '../api/rooms';
 
 const Layout = ({ children }) => {
@@ -12,6 +14,18 @@ const Layout = ({ children }) => {
     const location = useLocation();
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [toasts, setToasts] = useState([]);
+
+    const handleOrderCompleted = useCallback((payload) => {
+        const id = `toast-${Date.now()}-${Math.random()}`;
+        setToasts((prev) => [...prev, { id, itemName: payload.itemName ?? 'Item', quantity: payload.quantity ?? 1 }]);
+    }, []);
+
+    const dismissToast = useCallback((id) => {
+        setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, []);
+
+    useSignalR(role === 'Room', handleOrderCompleted);
 
     const role = user?.role;
     const isStaffLike =
@@ -544,6 +558,11 @@ const Layout = ({ children }) => {
 
             {/* Chat widget for Room users */}
             {user?.role === 'Room' && <ChatWidget />}
+
+            {/* Order completion toasts for Room users */}
+            {user?.role === 'Room' && toasts.length > 0 && (
+                <NotificationToast toasts={toasts} onDismiss={dismissToast} />
+            )}
         </div>
     );
 };
