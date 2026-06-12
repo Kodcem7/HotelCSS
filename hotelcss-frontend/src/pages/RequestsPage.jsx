@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import SuccessMessage from '../components/SuccessMessage';
@@ -16,9 +16,16 @@ const RequestsPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [previewImage, setPreviewImage] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: 'requestDate', direction: 'desc' });
+    const [, setTick] = useState(0);
 
     useEffect(() => {
         fetchRequests();
+    }, []);
+
+    // Re-render every 60 s so "X min waiting" badges stay current
+    useEffect(() => {
+        const id = setInterval(() => setTick((t) => t + 1), 60_000);
+        return () => clearInterval(id);
     }, []);
 
     const fetchRequests = async () => {
@@ -61,6 +68,11 @@ const RequestsPage = () => {
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to delete request');
         }
+    };
+
+    const getWaitMinutes = (requestDate) => {
+        const ms = Date.now() - new Date(requestDate).getTime();
+        return Math.max(0, Math.floor(ms / 60_000));
     };
 
     const getStatusColor = (status) => {
@@ -304,13 +316,27 @@ const RequestsPage = () => {
                                             </td>
 
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <span
-                                                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
-                                                        request.status
-                                                    )}`}
-                                                >
-                                                    {request.status}
-                                                </span>
+                                                <div className="flex flex-col gap-1 items-start">
+                                                    <span
+                                                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
+                                                            request.status
+                                                        )}`}
+                                                    >
+                                                        {request.status}
+                                                    </span>
+                                                    {(request.status === 'Pending' || request.status === 'InProcess') && (
+                                                        <span className={`inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
+                                                            getWaitMinutes(request.requestDate) >= 15
+                                                                ? 'bg-red-100 text-red-700'
+                                                                : getWaitMinutes(request.requestDate) >= 5
+                                                                    ? 'bg-orange-100 text-orange-700'
+                                                                    : 'bg-gray-100 text-gray-500'
+                                                        }`}>
+                                                            <span className="material-symbols-outlined text-[10px]">schedule</span>
+                                                            {getWaitMinutes(request.requestDate)}m
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-[13px] text-[#5D534A]">
                                                 {new Date(request.requestDate).toLocaleDateString()}

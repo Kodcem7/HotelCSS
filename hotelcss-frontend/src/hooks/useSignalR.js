@@ -5,19 +5,22 @@ const HUB_URL = (import.meta.env.VITE_API_BASE_URL || 'http://192.168.1.105:5237
     .replace(/\/api\/?$/, '') + '/hubs/notifications';
 
 /**
- * Connects to the SignalR NotificationHub and calls onOrderCompleted
- * whenever the backend emits "OrderCompleted" for this room.
+ * Connects to the SignalR NotificationHub.
  *
- * @param {boolean} enabled  - only connect when user is authenticated (role=Room)
- * @param {function} onOrderCompleted - ({ itemName, quantity, roomNumber }) => void
+ * @param {boolean} enabled        - connect only when authenticated
+ * @param {function} onOrderCompleted   - ({ itemName, quantity, roomNumber }) => void  (Room users)
+ * @param {function} onNewRequest       - (message: string) => void  (Staff/Admin users)
+ * @param {function} onRequestsUpdated  - () => void  (Staff/Admin dashboards — refresh live stats)
  */
-const useSignalR = (enabled, onOrderCompleted) => {
+const useSignalR = (enabled, onOrderCompleted, onNewRequest, onRequestsUpdated) => {
     const connectionRef = useRef(null);
     const onOrderCompletedRef = useRef(onOrderCompleted);
+    const onNewRequestRef = useRef(onNewRequest);
+    const onRequestsUpdatedRef = useRef(onRequestsUpdated);
 
-    useEffect(() => {
-        onOrderCompletedRef.current = onOrderCompleted;
-    }, [onOrderCompleted]);
+    useEffect(() => { onOrderCompletedRef.current = onOrderCompleted; }, [onOrderCompleted]);
+    useEffect(() => { onNewRequestRef.current = onNewRequest; }, [onNewRequest]);
+    useEffect(() => { onRequestsUpdatedRef.current = onRequestsUpdated; }, [onRequestsUpdated]);
 
     useEffect(() => {
         if (!enabled) return;
@@ -36,6 +39,15 @@ const useSignalR = (enabled, onOrderCompleted) => {
 
         connection.on('OrderCompleted', (payload) => {
             onOrderCompletedRef.current?.(payload);
+        });
+
+        connection.on('ReceiveMessage', (message) => {
+            onNewRequestRef.current?.(message);
+            onRequestsUpdatedRef.current?.();
+        });
+
+        connection.on('RequestsUpdated', () => {
+            onRequestsUpdatedRef.current?.();
         });
 
         let isMounted = true;

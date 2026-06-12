@@ -14,7 +14,16 @@
       "Bash(dotnet build *)",
       "Bash(findstr /i \"error\\\\|warning\\\\|Build succeeded\\\\|Build FAILED\")",
       "Bash(Select-String -Pattern \"error|warning|succeeded|FAILED\")",
-      "Bash(Select-Object -Last 20)"
+      "Bash(Select-Object -Last 20)",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(cat .claude/launch.json)",
+      "Bash(cat ../.claude/launch.json)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(ls -1 docker-compose*.yml docker-compose*.yaml compose*.yml)",
+      "Bash(find . -iname \"Dockerfile*\" -not -path \"*/node_modules/*\")",
+      "PowerShell(docker compose -f \"C:\\\\Users\\\\Cem\\\\source\\\\repos\\\\HotelCSS\\\\docker-compose.yml\" ps --format \"table {{.Name}}\\\\t{{.Status}}\\\\t{{.Ports}}\")",
+      "PowerShell($html = \\(Invoke-WebRequest -Uri \"http://localhost:5173\" -UseBasicParsing\\).Content; \\([regex]::Matches\\($html, 'index-[A-Za-z0-9_-]+\\\\.js'\\) | ForEach-Object { $_.Value } | Select-Object -Unique\\))"
     ]
   }
 }
