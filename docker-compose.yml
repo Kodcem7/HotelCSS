@@ -68,7 +68,7 @@ services:
         # ⚠️ Update this (and rebuild web) whenever the host's LAN IP changes —
         # a static IP / DHCP reservation avoids that. Leave empty to instead use
         # whatever address the panel was opened from.
-        VITE_QR_BASE_URL: "http://192.168.1.102:5173"
+        VITE_QR_BASE_URL: "http://192.168.1.105:5173"
         # IP değiştiğinde docker compose up --build -d web
     container_name: hotelcss-web
     depends_on:
