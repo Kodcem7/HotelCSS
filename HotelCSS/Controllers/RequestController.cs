@@ -433,6 +433,9 @@ namespace HotelCSS.Controllers
                 });
             }
 
+            // Notify staff dashboards so live stat cards refresh in real time
+            await _hubContext.Clients.Group("StaffGroup").SendAsync("RequestsUpdated");
+
             return Ok(new
             {
                 success = true,

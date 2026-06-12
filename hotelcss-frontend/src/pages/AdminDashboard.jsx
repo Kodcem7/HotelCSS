@@ -1,10 +1,12 @@
-﻿import { useState, useEffect } from 'react';
+﻿import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import { getStaffList } from '../api/users';
 import { getDepartments } from '../api/departments';
 import { getRequests } from '../api/requests';
+import { getHistoryLogs } from '../api/historylogs';
+import useSignalR from '../hooks/useSignalR';
 
 const quickLinks = [
     {
@@ -114,42 +116,110 @@ const AdminDashboard = () => {
         totalDepartments: 0,
         totalRequests: 0,
         pendingRequests: 0,
+        inProcessRequests: 0,
+        completedRequests: 0,
     });
+    const [performance, setPerformance] = useState([]);
+    const [revenue, setRevenue] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [livePulse, setLivePulse] = useState(false);
+
+    const isToday = (dateStr) => {
+        if (!dateStr) return false;
+        const d = new Date(dateStr);
+        const now = new Date();
+        return d.getFullYear() === now.getFullYear() &&
+            d.getMonth() === now.getMonth() &&
+            d.getDate() === now.getDate();
+    };
+
+    const buildPerformance = (requests) => {
+        const todays = requests.filter((r) => isToday(r.requestDate));
+        const byType = {};
+        todays.forEach((r) => {
+            const key = r.type || 'Other';
+            if (!byType[key]) byType[key] = { type: key, total: 0, completed: 0, pending: 0 };
+            byType[key].total += 1;
+            if (r.status === 'Completed') byType[key].completed += 1;
+            if (r.status === 'Pending' || r.status === 'InProcess') byType[key].pending += 1;
+        });
+        return Object.values(byType).sort((a, b) => b.total - a.total);
+    };
+
+    const buildRevenue = (logs) => {
+        // Last 6 months of revenue from checkout history (HistoryLog.MoneySpent)
+        const buckets = [];
+        const now = new Date();
+        for (let i = 5; i >= 0; i--) {
+            const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            buckets.push({
+                key: `${d.getFullYear()}-${d.getMonth()}`,
+                label: d.toLocaleString('en-US', { month: 'short' }),
+                year: d.getFullYear(),
+                total: 0,
+            });
+        }
+        const bucketMap = Object.fromEntries(buckets.map((b) => [b.key, b]));
+        logs.forEach((log) => {
+            const when = log.checkOutDate || log.timestamp;
+            if (!when) return;
+            const d = new Date(when);
+            const key = `${d.getFullYear()}-${d.getMonth()}`;
+            if (bucketMap[key]) bucketMap[key].total += Number(log.moneySpent) || 0;
+        });
+        return buckets;
+    };
+
+    const fetchStats = useCallback(async (isInitial = false) => {
+        try {
+            if (isInitial) setLoading(true);
+            setError('');
+
+            const [staffRes, deptRes, requestsRes, logsRes] = await Promise.all([
+                getStaffList().catch(() => ({ data: [] })),
+                getDepartments().catch(() => []),
+                getRequests().catch(() => []),
+                getHistoryLogs().catch(() => []),
+            ]);
+
+            const staffData = staffRes?.data || [];
+            const departments = Array.isArray(deptRes) ? deptRes : [];
+            const requests = Array.isArray(requestsRes) ? requestsRes : [];
+            const logs = Array.isArray(logsRes) ? logsRes : [];
+
+            setStats({
+                totalStaff: staffData.length,
+                totalDepartments: departments.length,
+                totalRequests: requests.length,
+                pendingRequests: requests.filter((r) => r.status === 'Pending').length,
+                inProcessRequests: requests.filter((r) => r.status === 'InProcess').length,
+                completedRequests: requests.filter((r) => r.status === 'Completed').length,
+            });
+            setPerformance(buildPerformance(requests));
+            setRevenue(buildRevenue(logs));
+        } catch (err) {
+            if (isInitial) setError('Failed to load dashboard statistics');
+            console.error(err);
+        } finally {
+            if (isInitial) setLoading(false);
+        }
+    }, []);
 
     useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                setLoading(true);
-                setError('');
+        fetchStats(true);
+    }, [fetchStats]);
 
-                const [staffRes, deptRes, requestsRes] = await Promise.all([
-                    getStaffList(),
-                    getDepartments(),
-                    getRequests().catch(() => []),
-                ]);
+    // Live updates: re-fetch (debounced) when a request is created or its status changes
+    const refreshTimerRef = useRef(null);
+    const handleRequestsUpdated = useCallback(() => {
+        setLivePulse(true);
+        setTimeout(() => setLivePulse(false), 1200);
+        if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
+        refreshTimerRef.current = setTimeout(() => fetchStats(false), 400);
+    }, [fetchStats]);
 
-                const staffData = staffRes?.data || [];
-                const departments = Array.isArray(deptRes) ? deptRes : [];
-                const requests = Array.isArray(requestsRes) ? requestsRes : [];
-
-                setStats({
-                    totalStaff: staffData.length,
-                    totalDepartments: departments.length,
-                    totalRequests: requests.length,
-                    pendingRequests: requests.filter((r) => r.status === 'Pending').length,
-                });
-            } catch (err) {
-                setError('Failed to load dashboard statistics');
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchStats();
-    }, []);
+    useSignalR(true, null, null, handleRequestsUpdated);
 
     if (loading) {
         return <LoadingSpinner text="Loading dashboard..." />;
@@ -162,9 +232,15 @@ const AdminDashboard = () => {
             {isAdminDashboardSuite ? (
                 <div className="p-4 sm:p-10 space-y-8 sm:space-y-12 max-w-7xl mx-auto">
                     <section>
-                        <h2 className="font-headline text-[clamp(30px,6vw,52px)] text-[#4A3728] mb-2 font-bold leading-tight">
-                            Operational Overview
-                        </h2>
+                        <div className="flex items-center gap-3 flex-wrap">
+                            <h2 className="font-headline text-[clamp(30px,6vw,52px)] text-[#4A3728] font-bold leading-tight">
+                                Operational Overview
+                            </h2>
+                            <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full transition-colors ${livePulse ? 'bg-[#D35400] text-white' : 'bg-[#F2EBE1] text-[#8E735B]'}`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${livePulse ? 'bg-white animate-ping' : 'bg-[#1B7F4B]'}`}></span>
+                                Live
+                            </span>
+                        </div>
                     </section>
 
                     <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -210,8 +286,92 @@ const AdminDashboard = () => {
                                 </div>
                                 <p className="text-[clamp(28px,5vw,44px)] font-headline mb-1 leading-none">{stats.pendingRequests}</p>
                                 <p className="font-label text-[11px] uppercase tracking-widest text-white/80 font-bold">Pending Requests</p>
+                                <div className="flex gap-4 mt-4 pt-3 border-t border-white/10">
+                                    <div>
+                                        <p className="text-lg font-headline leading-none">{stats.inProcessRequests}</p>
+                                        <p className="text-[9px] uppercase tracking-widest text-white/60 font-bold mt-1">In Process</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-lg font-headline leading-none">{stats.completedRequests}</p>
+                                        <p className="text-[9px] uppercase tracking-widest text-white/60 font-bold mt-1">Completed</p>
+                                    </div>
+                                </div>
                             </div>
                             <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-white/5 rounded-full blur-3xl group-hover:bg-white/10 transition-colors"></div>
+                        </div>
+                    </section>
+
+                    <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Today's performance by department */}
+                        <div className="bg-[#FDFBF7] p-5 sm:p-8 rounded-[22px] sm:rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)]">
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="font-headline text-[clamp(18px,2.6vw,24px)] text-[#4A3728] font-bold leading-tight">Today's Performance</h3>
+                                <span className="text-[10px] font-label uppercase tracking-widest text-[#8E735B] font-bold">By Department</span>
+                            </div>
+                            {performance.length === 0 ? (
+                                <p className="text-[14px] text-[#5D534A] py-8 text-center">No requests recorded today yet.</p>
+                            ) : (
+                                <div className="space-y-4">
+                                    {performance.map((p) => {
+                                        const pct = p.total > 0 ? Math.round((p.completed / p.total) * 100) : 0;
+                                        return (
+                                            <div key={p.type}>
+                                                <div className="flex justify-between items-baseline mb-1.5">
+                                                    <span className="text-[13px] font-bold text-[#4A3728]">{p.type}</span>
+                                                    <span className="text-[12px] text-[#5D534A]">
+                                                        <span className="text-[#1B7F4B] font-bold">{p.completed}</span> / {p.total} completed
+                                                        {p.pending > 0 && <span className="text-[#D35400] ml-2">{p.pending} open</span>}
+                                                    </span>
+                                                </div>
+                                                <div className="h-2.5 w-full bg-[#F2EBE1] rounded-full overflow-hidden">
+                                                    <div
+                                                        className="h-full bg-[#1B7F4B] rounded-full transition-all duration-500"
+                                                        style={{ width: `${pct}%` }}
+                                                    ></div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Revenue trend (last 6 months) */}
+                        <div className="bg-[#FDFBF7] p-5 sm:p-8 rounded-[22px] sm:rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)]">
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="font-headline text-[clamp(18px,2.6vw,24px)] text-[#4A3728] font-bold leading-tight">Revenue Trend</h3>
+                                <span className="text-[10px] font-label uppercase tracking-widest text-[#8E735B] font-bold">Last 6 Months</span>
+                            </div>
+                            {(() => {
+                                const maxRev = Math.max(1, ...revenue.map((r) => r.total));
+                                const totalRev = revenue.reduce((s, r) => s + r.total, 0);
+                                return (
+                                    <>
+                                        <p className="text-[clamp(24px,4vw,36px)] font-headline text-[#4A3728] leading-none mb-6">
+                                            €{totalRev.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                            <span className="text-[12px] font-label uppercase tracking-widest text-[#8E735B] font-bold ml-2">total</span>
+                                        </p>
+                                        <div className="flex items-end justify-between gap-2 sm:gap-3 h-40">
+                                            {revenue.map((r) => {
+                                                const h = Math.round((r.total / maxRev) * 100);
+                                                return (
+                                                    <div key={r.key} className="flex-1 flex flex-col items-center justify-end h-full gap-2">
+                                                        <span className="text-[10px] font-bold text-[#5D534A]">
+                                                            {r.total > 0 ? `€${Math.round(r.total)}` : ''}
+                                                        </span>
+                                                        <div
+                                                            className="w-full bg-[#D35400] rounded-t-lg transition-all duration-500 min-h-[2px]"
+                                                            style={{ height: `${Math.max(h, r.total > 0 ? 4 : 0)}%` }}
+                                                            title={`${r.label}: €${r.total.toFixed(2)}`}
+                                                        ></div>
+                                                        <span className="text-[10px] font-label uppercase tracking-widest text-[#8E735B] font-bold">{r.label}</span>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </>
+                                );
+                            })()}
                         </div>
                     </section>
 

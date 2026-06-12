@@ -16,6 +16,8 @@ const Layout = ({ children }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [toasts, setToasts] = useState([]);
 
+    const role = user?.role;
+
     const handleOrderCompleted = useCallback((payload) => {
         const id = `toast-${Date.now()}-${Math.random()}`;
         setToasts((prev) => [...prev, { id, itemName: payload.itemName ?? 'Item', quantity: payload.quantity ?? 1 }]);
@@ -25,9 +27,39 @@ const Layout = ({ children }) => {
         setToasts((prev) => prev.filter((t) => t.id !== id));
     }, []);
 
-    useSignalR(role === 'Room', handleOrderCompleted);
+    const audioCtxRef = useRef(null);
+    const handleNewRequest = useCallback(() => {
+        try {
+            const Ctor = window.AudioContext || window.webkitAudioContext;
+            if (!Ctor) return;
+            // Reuse a single AudioContext — creating one per event eventually
+            // throws "number of hardware contexts reached the maximum".
+            if (!audioCtxRef.current) audioCtxRef.current = new Ctor();
+            const ctx = audioCtxRef.current;
+            if (ctx.state === 'suspended') ctx.resume();
 
-    const role = user?.role;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, ctx.currentTime);
+            osc.frequency.setValueAtTime(660, ctx.currentTime + 0.15);
+            gain.gain.setValueAtTime(0.25, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.45);
+        } catch {
+            // AudioContext not available (e.g. server-side or blocked)
+        }
+    }, []);
+
+    const isStaffRole = role === 'Admin' || role === 'Manager' || role === 'Reception' ||
+        role === 'Staff' || role === 'HouseKeeping' || role === 'Housekeeping' ||
+        role === 'Kitchen' || role === 'Technic' || role === 'Restaurant';
+
+    useSignalR(role === 'Room', handleOrderCompleted, null);
+    useSignalR(isStaffRole, null, handleNewRequest);
     const isStaffLike =
         role === 'Staff' ||
         role === 'Housekeeping' ||

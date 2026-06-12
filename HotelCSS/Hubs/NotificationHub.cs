@@ -9,6 +9,12 @@ namespace HotelCSS.Hubs
         {
             var user = Context.User;
 
+            if (user == null)
+            {
+                await base.OnConnectedAsync();
+                return;
+            }
+
             if (user.IsInRole("Admin") || user.IsInRole("Reception") || user.IsInRole("Kitchen") ||
                 user.IsInRole("Technic") || user.IsInRole("Manager") || user.IsInRole("HouseKeeping") ||
                 user.IsInRole("Restaurant"))
