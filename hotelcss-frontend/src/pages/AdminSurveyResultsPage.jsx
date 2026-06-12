@@ -3,7 +3,8 @@
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import SuccessMessage from '../components/SuccessMessage';
-import { getAllSurveys, getSurveyResponses, getResponseDetails, toggleSurveyStatus, getSurveyAiAnalysis, deleteSurvey, averageStars } from '../api/surveys';
+import SurveyAnalyticsChart from '../components/SurveyAnalyticsChart';
+import { getAllSurveys, getSurveyResponses, getResponseDetails, toggleSurveyStatus, getSurveyAiAnalysis, deleteSurvey, averageStars, getQuestionTrends } from '../api/surveys';
 
 const AdminSurveyResultsPage = () => {
     // view state can be: 'surveys', 'responses', 'answers', 'analysis'
@@ -16,6 +17,9 @@ const AdminSurveyResultsPage = () => {
 
     // 👇 NEW STATE: Hold the average rating for the survey being viewed
     const [currentSurveyAverage, setCurrentSurveyAverage] = useState(null);
+
+    // Weekly per-question trend data for the chart view
+    const [trendData, setTrendData] = useState(null);
 
     // AI States
     const [aiAnalysis, setAiAnalysis] = useState('');
@@ -104,6 +108,21 @@ const AdminSurveyResultsPage = () => {
             setCurrentView('responses');
         } catch (err) {
             setError('Failed to load responses.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleViewTrends = async (surveyId, title) => {
+        try {
+            setLoading(true);
+            setError('');
+            setCurrentSurveyTitle(title);
+            const res = await getQuestionTrends(surveyId);
+            setTrendData(res);
+            setCurrentView('trends');
+        } catch (err) {
+            setError('Failed to load weekly trends.');
         } finally {
             setLoading(false);
         }
@@ -200,6 +219,14 @@ const AdminSurveyResultsPage = () => {
                                                 </button>
 
                                                 <button
+                                                    onClick={() => handleViewTrends(s.id, s.title)}
+                                                    className="text-[#4A3728] hover:text-[#2C241E] font-semibold text-sm bg-[#F2EBE1] hover:bg-[#E8DFD1] px-4 py-2 rounded-xl transition-colors inline-flex items-center gap-1 border border-[#E3DCD2]"
+                                                >
+                                                    <span className="material-symbols-outlined text-[18px] text-[#2E86C1]">show_chart</span>
+                                                    Weekly Trends
+                                                </button>
+
+                                                <button
                                                     onClick={() => handleViewResponses(s.id)}
                                                     className="text-[#D35400] hover:text-[#BA4A00] font-semibold text-sm bg-[#F2EBE1] hover:bg-[#E8DFD1] px-4 py-2 rounded-xl transition-colors"
                                                 >
@@ -253,6 +280,35 @@ const AdminSurveyResultsPage = () => {
                                         {aiAnalysis}
                                     </p>
                                 </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* LEVEL TRENDS - WEEKLY PER-QUESTION CHART */}
+                {currentView === 'trends' && trendData && (
+                    <div className="animation-fade-in-up">
+                        <div className="mb-6">
+                            <button
+                                onClick={() => setCurrentView('surveys')}
+                                className="flex items-center text-[#8E735B] hover:text-[#4A3728] font-semibold mb-4 transition-colors"
+                            >
+                                <span className="material-symbols-outlined mr-1 text-sm">arrow_back</span> Back to Surveys
+                            </button>
+                            <h2 className="font-headline text-4xl text-[#4A3728] font-bold leading-tight flex items-center gap-2">
+                                <span className="material-symbols-outlined text-4xl text-[#2E86C1]">show_chart</span>
+                                Weekly Question Trends
+                            </h2>
+                            <p className="text-[#5D534A] mt-2 text-[14px]">Survey: {currentSurveyTitle} — her sorunun hafta hafta ortalama yıldızı (1–5). Düşen çizgiler hizmet kalitesindeki düşüşü gösterir.</p>
+                        </div>
+
+                        <div className="bg-[#FDFBF7] p-8 rounded-[24px] shadow-[0_20px_40px_rgba(15,28,44,0.06)] border border-[#E3DCD2]/50">
+                            {trendData.weeks && trendData.weeks.length > 0 ? (
+                                <SurveyAnalyticsChart questions={trendData.questions} weeks={trendData.weeks} />
+                            ) : (
+                                <p className="text-center text-[#8E735B] py-12">
+                                    {trendData.message || "Henüz veri yok. Survey'i her hafta aktif edip kapattıkça grafik dolacaktır."}
+                                </p>
                             )}
                         </div>
                     </div>

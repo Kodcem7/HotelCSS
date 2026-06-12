@@ -152,6 +152,13 @@ namespace HotelCSS.Controllers
             _unitOfWork.Survey.Add(newSurvey);
             _unitOfWork.Save();
 
+            // If created as active, open its first cycle (round).
+            if (newSurvey.IsActive)
+            {
+                _unitOfWork.SurveyCycle.Add(new SurveyCycle { SurveyId = newSurvey.Id, StartedAt = DateTime.Now });
+                _unitOfWork.Save();
+            }
+
             return Ok(new
             {
                 success = true,
@@ -180,10 +187,18 @@ namespace HotelCSS.Controllers
                 return Ok(new { hasPendingSurvey = false });
             }
 
-            var existingResponse = _unitOfWork.SurveyResponse.GetFirstOrDefault(
-                r => r.SurveyId == activeSurvey.Id && r.RoomNumber == roomNumber);
+            // Answered-check is per CYCLE (week), not per survey, so the same room can
+            // answer the same survey again each time it is re-activated.
+            var currentCycle = _unitOfWork.SurveyCycle
+                .GetAll(c => c.SurveyId == activeSurvey.Id && c.EndedAt == null)
+                .OrderByDescending(c => c.StartedAt)
+                .FirstOrDefault();
 
-            bool alreadyAnswered = existingResponse != null;
+            bool alreadyAnswered = currentCycle != null
+                ? _unitOfWork.SurveyResponse.GetFirstOrDefault(
+                      r => r.SurveyCycleId == currentCycle.Id && r.RoomNumber == roomNumber) != null
+                : _unitOfWork.SurveyResponse.GetFirstOrDefault(
+                      r => r.SurveyId == activeSurvey.Id && r.RoomNumber == roomNumber) != null;
 
             if (alreadyAnswered)
             {
@@ -218,10 +233,16 @@ namespace HotelCSS.Controllers
             string roomNumString = roomUser.UserName.Replace("Room", "");
             int.TryParse(roomNumString, out int roomNumber);
 
-            var existingResponse = _unitOfWork.SurveyResponse.GetFirstOrDefault(
-                r => r.SurveyId == obj.SurveyId && r.RoomNumber == roomNumber);
+            var currentCycle = _unitOfWork.SurveyCycle
+                .GetAll(c => c.SurveyId == obj.SurveyId && c.EndedAt == null)
+                .OrderByDescending(c => c.StartedAt)
+                .FirstOrDefault();
 
-            bool alreadyAnswered = existingResponse != null;
+            bool alreadyAnswered = currentCycle != null
+                ? _unitOfWork.SurveyResponse.GetFirstOrDefault(
+                      r => r.SurveyCycleId == currentCycle.Id && r.RoomNumber == roomNumber) != null
+                : _unitOfWork.SurveyResponse.GetFirstOrDefault(
+                      r => r.SurveyId == obj.SurveyId && r.RoomNumber == roomNumber) != null;
 
             if (alreadyAnswered)
             {
@@ -231,6 +252,7 @@ namespace HotelCSS.Controllers
             var response = new SurveyResponse
             {
                 SurveyId = obj.SurveyId,
+                SurveyCycleId = currentCycle?.Id,
                 RoomNumber = roomNumber,
                 Answers = new List<SurveyAnswer>(),
             };
@@ -263,12 +285,30 @@ namespace HotelCSS.Controllers
 
             if (survey.IsActive)
             {
+                // Only one survey active at a time: deactivate others + close their open cycles.
                 var activeSurveys = _unitOfWork.Survey.GetAll(u => u.IsActive && u.Id != id).ToList();
                 foreach (var s in activeSurveys)
                 {
                     s.IsActive = false;
                     _unitOfWork.Survey.Update(s);
+                    CloseOpenCycles(s.Id);
                 }
+
+                // Open a fresh cycle (this week's round) for this survey.
+                _unitOfWork.SurveyCycle.Add(new SurveyCycle { SurveyId = survey.Id, StartedAt = DateTime.Now });
+
+                // Reset skip flags so currently occupied rooms get the survey again this round.
+                var rooms = _unitOfWork.Room.GetAll().ToList();
+                foreach (var room in rooms)
+                {
+                    room.isSkipped = room.Status == SD.Status_Room_Available;
+                    _unitOfWork.Room.Update(room);
+                }
+            }
+            else
+            {
+                // Deactivated: close this survey's open cycle.
+                CloseOpenCycles(survey.Id);
             }
 
             _unitOfWork.Survey.Update(survey);
@@ -439,6 +479,100 @@ namespace HotelCSS.Controllers
             var average = Math.Round(starRatings.Average(), 1);
 
             return Ok(new { success = true, average = average });
+        }
+
+        // Closes any still-open cycle(s) for a survey (sets EndedAt = now).
+        private void CloseOpenCycles(int surveyId)
+        {
+            var openCycles = _unitOfWork.SurveyCycle.GetAll(c => c.SurveyId == surveyId && c.EndedAt == null).ToList();
+            foreach (var c in openCycles)
+            {
+                c.EndedAt = DateTime.Now;
+                _unitOfWork.SurveyCycle.Update(c);
+            }
+        }
+
+        // Per-question average star rating for each weekly cycle (for the trend chart).
+        [HttpGet("GetQuestionTrends/{surveyId}")]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
+        public IActionResult GetQuestionTrends(int surveyId)
+        {
+            var survey = _unitOfWork.Survey.GetFirstOrDefault(s => s.Id == surveyId, includeProperties: "Questions");
+            if (survey == null)
+            {
+                return NotFound(new { success = false, message = "Survey not found." });
+            }
+
+            var starQuestions = survey.Questions
+                .Where(q => q.QuestionType == "StarRating")
+                .OrderBy(q => q.OrderIndex)
+                .ToList();
+
+            var questionMeta = starQuestions
+                .Select(q => new { id = q.Id, key = $"q{q.Id}", text = q.QuestionText })
+                .ToList();
+
+            var cycles = _unitOfWork.SurveyCycle
+                .GetAll(c => c.SurveyId == surveyId)
+                .OrderBy(c => c.StartedAt)
+                .ToList();
+
+            if (!starQuestions.Any() || !cycles.Any())
+            {
+                return Ok(new
+                {
+                    success = true,
+                    surveyTitle = survey.Title,
+                    questions = questionMeta,
+                    weeks = new List<object>(),
+                    message = !starQuestions.Any()
+                        ? "This survey has no star-rating questions."
+                        : "No survey rounds yet. Activate the survey to start a round."
+                });
+            }
+
+            var responses = _unitOfWork.SurveyResponse
+                .GetAll(r => r.SurveyId == surveyId && r.SurveyCycleId != null, includeProperties: "Answers")
+                .ToList();
+
+            var weeks = new List<Dictionary<string, object>>();
+            foreach (var cycle in cycles)
+            {
+                var row = new Dictionary<string, object>
+                {
+                    ["cycleId"] = cycle.Id,
+                    ["startedAt"] = cycle.StartedAt,
+                    ["label"] = cycle.StartedAt.ToString("dd MMM, HH:mm"),
+                    ["responseCount"] = responses.Count(r => r.SurveyCycleId == cycle.Id)
+                };
+
+                var cycleAnswers = responses
+                    .Where(r => r.SurveyCycleId == cycle.Id)
+                    .SelectMany(r => r.Answers)
+                    .ToList();
+
+                foreach (var q in starQuestions)
+                {
+                    var ratings = cycleAnswers
+                        .Where(a => a.SurveyQuestionId == q.Id)
+                        .Select(a => double.TryParse(a.AnswerValue, out var v) ? (double?)v : null)
+                        .Where(v => v.HasValue)
+                        .Select(v => v.Value)
+                        .ToList();
+
+                    row[$"q{q.Id}"] = ratings.Any() ? (object)Math.Round(ratings.Average(), 2) : null;
+                }
+
+                weeks.Add(row);
+            }
+
+            return Ok(new
+            {
+                success = true,
+                surveyTitle = survey.Title,
+                questions = questionMeta,
+                weeks = weeks
+            });
         }
 
     }

@@ -26,6 +26,7 @@ namespace CSSHotel.DataAccess.Repository
         public ISurveyAnswerRepository SurveyAnswer { get; private set; }
         public ISurveyQuestionRepository SurveyQuestion { get; private set; }
         public ISurveyResponseRepository SurveyResponse { get; private set; }
+        public ISurveyCycleRepository SurveyCycle { get; private set; }
         public IGuestReviewRepository GuestReview { get; private set; }
 
         public UnitOfWork(ApplicationDbContext db)
@@ -45,6 +46,7 @@ namespace CSSHotel.DataAccess.Repository
             SurveyAnswer = new SurveyAnswerRepository(_db);
             SurveyQuestion = new SurveyQuestionRepository(_db);
             SurveyResponse = new SurveyResponseRepository(_db);
+            SurveyCycle = new SurveyCycleRepository(_db);
             GuestReview = new GuestReviewRepository(_db);
         }
 
