@@ -361,25 +361,51 @@ namespace HotelCSS.Controllers
                 return BadRequest(new { success = false, message = "Room not found or already empty." });
             }
 
+            // --- Summarize orders before deleting ---
+            var completedOrders = _unitOfWork.Request.GetAll(
+                u => u.RoomNumber == roomNumber && u.Status == SD.StatusCompleted,
+                includeProperties: "ServiceItem"
+            ).ToList();
+
+            string? ordersSummary = null;
+            if (completedOrders.Any())
+            {
+                var lines = completedOrders
+                    .Where(o => o.ServiceItem != null)
+                    .GroupBy(o => o.ServiceItem!.Name)
+                    .Select(g => $"{g.Key} x{g.Sum(o => o.Quantity)}")
+                    .ToList();
+                if (lines.Any())
+                    ordersSummary = string.Join(", ", lines);
+            }
+
+            // --- Sum points spent on reward vouchers before deleting ---
+            var rewardVouchers = _unitOfWork.RewardVoucher.GetAll(u => u.RoomNumber == roomNumber).ToList();
+            int pointsSpent = rewardVouchers.Sum(v => v.PointsPaid);
+
             HistoryLog history = new HistoryLog
             {
                 RoomNumber = room.RoomNumber,
                 GuestMail = room.CurrentGuestMail ?? "unknown",
                 CheckInDate = room.CurrentCheckInDate ?? DateTime.Now,
                 CheckOutDate = DateTime.Now,
-                PointsEarned = room.PointsEarned,
-                MoneySpent = room.MoneySpent
+                PointsEarned = room.PointsEarned ?? 0,
+                PointsSpent = pointsSpent,
+                MoneySpent = room.MoneySpent ?? 0,
+                OrdersSummary = ordersSummary
             };
             _unitOfWork.HistoryLog.Add(history);
-            //Delete the requests after check-out
+
+            // Delete service requests after check-out
             var oldServiceRequests = _unitOfWork.Request.GetAll(u => u.RoomNumber == roomNumber);
             _unitOfWork.Request.RemoveRange(oldServiceRequests);
-            //Delete ReceptionService Requests from it's table after c/o
+
+            // Delete ReceptionService requests after check-out
             var oldReceptionRequests = _unitOfWork.ReceptionService.GetAll(u => u.RoomNumber == roomNumber);
             _unitOfWork.ReceptionService.RemoveRange(oldReceptionRequests);
-            //Set room to available
-            var oldPointsSpent = _unitOfWork.RewardVoucher.GetAll(u => u.RoomNumber == roomNumber);
-            _unitOfWork.RewardVoucher.RemoveRange(oldPointsSpent);
+
+            // Delete reward vouchers after check-out
+            _unitOfWork.RewardVoucher.RemoveRange(rewardVouchers);
 
             room.Status = SD.Status_Room_Available;
             room.CurrentGuestMail = null;
