@@ -26,6 +26,32 @@
 </head>
 <body>
     <div id="root"></div>
+    <script>
+        /* Safety net: if the app bundle fails to load/parse/run (e.g. on an
+           old mobile browser), show the real error on screen instead of a
+           blank white page. Written in ES5 so it runs even on old engines. */
+        (function () {
+            function showErr(msg, stack) {
+                var d = document.getElementById('boot-error');
+                if (!d) {
+                    d = document.createElement('div');
+                    d.id = 'boot-error';
+                    d.style.cssText = 'position:fixed;left:0;top:0;right:0;bottom:0;z-index:99999;background:#fff;color:#9a0000;font:12px/1.5 monospace;padding:16px;white-space:pre-wrap;word-break:break-word;overflow:auto';
+                    document.body.appendChild(d);
+                }
+                d.textContent = 'APP ERROR:\n' + msg + '\n\n' + (stack || '');
+            }
+            window.addEventListener('error', function (e) {
+                var m = e.message || 'Script error';
+                if (e.filename) m += ' @ ' + e.filename + ':' + (e.lineno || 0);
+                showErr(m, e.error && e.error.stack);
+            });
+            window.addEventListener('unhandledrejection', function (e) {
+                var r = e.reason || {};
+                showErr('Unhandled promise: ' + (r.message || r), r.stack);
+            });
+        })();
+    </script>
     <script type="module" src="/src/main.jsx"></script>
 </body>
 </html>

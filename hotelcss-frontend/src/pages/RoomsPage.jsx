@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import SuccessMessage from '../components/SuccessMessage';
-import { getRooms, updateRoom, addPoints, subtractPoints } from '../api/rooms';
+import { getRooms, updateRoom, addPoints, subtractPoints, deleteRoom } from '../api/rooms';
 import { checkOutRoom } from '../api/users';
 import GuestQRCodeCard from '../components/GuestQRCodeCard';
 
@@ -116,6 +116,25 @@ const RoomsPage = () => {
             await fetchRooms();
         } catch (err) {
             setError(err.response?.data?.message || `Failed to subtract points from Room ${roomNumber}`);
+            console.error(err);
+        }
+    };
+
+    const handleDeleteRoom = async (roomNumber, status) => {
+        const message =
+            status === 'Occupied'
+                ? `Room ${roomNumber} is currently OCCUPIED. Deleting it will permanently remove the room and its guest assignment.\nAre you absolutely sure?`
+                : `Are you sure you want to permanently delete Room ${roomNumber}?\nThis action cannot be undone.`;
+        if (!window.confirm(message)) return;
+
+        try {
+            setError('');
+            setSuccess('');
+            await deleteRoom(roomNumber);
+            setSuccess(`Room ${roomNumber} deleted successfully.`);
+            await fetchRooms();
+        } catch (err) {
+            setError(err.response?.data?.message || `Failed to delete Room ${roomNumber}`);
             console.error(err);
         }
     };
@@ -266,7 +285,7 @@ const RoomsPage = () => {
                                     <button
                                         type="button"
                                         onClick={() => setQrModalRoom(room)}
-                                        className={`px-4 py-3 text-xs font-bold uppercase tracking-widest rounded-2xl bg-[#4A3728] text-white hover:bg-[#3a2b20] transition ${room.status === 'Available' ? 'w-full' : 'flex-1'}`}
+                                        className="flex-1 px-4 py-3 text-xs font-bold uppercase tracking-widest rounded-2xl bg-[#4A3728] text-white hover:bg-[#3a2b20] transition"
                                     >
                                         Show QR
                                     </button>
@@ -280,6 +299,16 @@ const RoomsPage = () => {
                                             Check-out
                                         </button>
                                     )}
+
+                                    <button
+                                        type="button"
+                                        onClick={() => handleDeleteRoom(room.roomNumber, room.status)}
+                                        title="Delete room"
+                                        aria-label={`Delete Room ${room.roomNumber}`}
+                                        className="flex-shrink-0 px-3 py-3 rounded-2xl bg-red-500/10 text-red-700 border border-red-500/30 hover:bg-red-500 hover:text-white transition flex items-center justify-center"
+                                    >
+                                        <span className="material-symbols-outlined text-[18px]">delete</span>
+                                    </button>
                                 </div>
                             </div>
                         ))}

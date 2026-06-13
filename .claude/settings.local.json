@@ -27,7 +27,9 @@
       "mcp__visualize__read_me",
       "mcp__visualize__show_widget",
       "Bash(cd \"C:/Users/Cem/source/repos/HotelCSS/hotelcss-frontend/src/pages\" && sed -i 's/clamp\\(30px,6vw,52px\\)/clamp\\(22px,6vw,52px\\)/g' *.jsx && echo \"Done. Remaining count:\" && grep -rl \"clamp\\(30px,6vw,52px\\)\" . | wc -l)",
-      "PowerShell($p = \"C:\\\\Program Files\\\\Docker\\\\Docker\\\\Docker Desktop.exe\"; if \\(Test-Path $p\\) { Start-Process $p; \"Docker Desktop baslatiliyor...\" } else { \"Docker Desktop exe bulunamadi: $p\" })"
+      "PowerShell($p = \"C:\\\\Program Files\\\\Docker\\\\Docker\\\\Docker Desktop.exe\"; if \\(Test-Path $p\\) { Start-Process $p; \"Docker Desktop baslatiliyor...\" } else { \"Docker Desktop exe bulunamadi: $p\" })",
+      "PowerShell($sqlcmd = \\(Get-Command sqlcmd -ErrorAction SilentlyContinue\\).Source; if \\(-not $sqlcmd\\) { \"sqlcmd not found in PATH\" } else { \"sqlcmd: $sqlcmd\"; \"--- Databases on SQLEXPRESS ---\"; sqlcmd -S \"localhost\\\\SQLEXPRESS\" -E -h -1 -W -Q \"SET NOCOUNT ON; SELECT name FROM sys.databases ORDER BY name;\" })",
+      "PowerShell(cd \"C:\\\\Users\\\\Cem\\\\source\\\\repos\\\\HotelCSS\\\\hotelcss-frontend\"; $env:VITE_API_BASE_URL='http://localhost:5237/api'; npm run build 2>&1 | Select-String -Pattern \"error|✓ built\" -CaseSensitive:$false | Select-Object -Last 4; Remove-Item Env:\\\\VITE_API_BASE_URL)"
     ]
   }
 }
