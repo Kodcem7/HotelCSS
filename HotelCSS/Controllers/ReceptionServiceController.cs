@@ -247,7 +247,7 @@ namespace HotelCSS.Controllers
 
         [HttpPut("wakeup/status/{id}")]
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception)]
-        public IActionResult UpdateWakeUpStatus(int id, string status)
+        public async Task<IActionResult> UpdateWakeUpStatus(int id, string status)
         {
             if (id <= 0)
             {
@@ -317,12 +317,19 @@ namespace HotelCSS.Controllers
             _unitOfWork.ReceptionService.Update(objFromDb);
             _unitOfWork.Save();
 
+            // Live tracking: notify the guest's room so their request list refreshes.
+            await _hubContext.Clients.Group($"Room{objFromDb.RoomNumber}").SendAsync("RequestStatusChanged", new
+            {
+                requestId = objFromDb.Id,
+                status = objFromDb.Status
+            });
+
             return Ok(new { success = true, message = "Wake-up service status updated successfully" });
         }
 
         [HttpPut("pickup/status/{id}")]
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception)]
-        public IActionResult UpdatePickUpStatus(int id, string status)
+        public async Task<IActionResult> UpdatePickUpStatus(int id, string status)
         {
             if (id <= 0)
             {
@@ -390,6 +397,13 @@ namespace HotelCSS.Controllers
             objFromDb.Status = status;
             _unitOfWork.ReceptionService.Update(objFromDb);
             _unitOfWork.Save();
+
+            // Live tracking: notify the guest's room so their request list refreshes.
+            await _hubContext.Clients.Group($"Room{objFromDb.RoomNumber}").SendAsync("RequestStatusChanged", new
+            {
+                requestId = objFromDb.Id,
+                status = objFromDb.Status
+            });
 
             return Ok(new { success = true, message = "Pick-up status updated successfully" });
         }
