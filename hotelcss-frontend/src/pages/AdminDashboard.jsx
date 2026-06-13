@@ -230,10 +230,10 @@ const AdminDashboard = () => {
             {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
 
             {isAdminDashboardSuite ? (
-                <div className="p-4 sm:p-10 space-y-8 sm:space-y-12 max-w-7xl mx-auto">
+                <div className="p-4 sm:p-10 space-y-6 sm:space-y-12 max-w-7xl mx-auto">
                     <section>
                         <div className="flex items-center gap-3 flex-wrap">
-                            <h2 className="font-headline text-[clamp(30px,6vw,52px)] text-[#4A3728] font-bold leading-tight">
+                            <h2 className="font-headline text-[clamp(22px,6vw,52px)] text-[#4A3728] font-bold leading-tight">
                                 Operational Overview
                             </h2>
                             <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full transition-colors ${livePulse ? 'bg-[#D35400] text-white' : 'bg-[#F2EBE1] text-[#8E735B]'}`}>
@@ -243,48 +243,48 @@ const AdminDashboard = () => {
                         </div>
                     </section>
 
-                    <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <div className="bg-[#FDFBF7] p-5 sm:p-8 rounded-[22px] sm:rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] group hover:shadow-[0_25px_55px_rgba(15,28,44,0.07)] transition-shadow duration-300">
-                            <div className="flex justify-between items-start mb-4">
-                                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#F2EBE1] border border-[#E3DCD2]/30 flex items-center justify-center">
+                    <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+                        <div className="bg-[#FDFBF7] p-4 sm:p-8 rounded-[20px] sm:rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] group hover:shadow-[0_25px_55px_rgba(15,28,44,0.07)] transition-shadow duration-300">
+                            <div className="flex justify-between items-start mb-3 sm:mb-4">
+                                <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-[#F2EBE1] border border-[#E3DCD2]/30 flex items-center justify-center">
                                     <span className="material-symbols-outlined text-[#D35400]">groups</span>
                                 </div>
                                 <span className="text-[10px] font-label uppercase tracking-widest text-[#8E735B] font-bold">Live</span>
                             </div>
-                            <p className="text-[clamp(28px,5vw,44px)] font-headline text-[#4A3728] mb-1 leading-none">{stats.totalStaff}</p>
+                            <p className="text-[clamp(24px,5vw,44px)] font-headline text-[#4A3728] mb-1 leading-none">{stats.totalStaff}</p>
                             <p className="font-label text-[11px] uppercase tracking-widest text-[#8E735B] font-bold">Total Staff</p>
                         </div>
 
-                        <div className="bg-[#FDFBF7] p-5 sm:p-8 rounded-[22px] sm:rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] group hover:shadow-[0_25px_55px_rgba(15,28,44,0.07)] transition-shadow duration-300">
-                            <div className="flex justify-between items-start mb-4">
-                                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#F2EBE1] border border-[#E3DCD2]/30 flex items-center justify-center">
+                        <div className="bg-[#FDFBF7] p-4 sm:p-8 rounded-[20px] sm:rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] group hover:shadow-[0_25px_55px_rgba(15,28,44,0.07)] transition-shadow duration-300">
+                            <div className="flex justify-between items-start mb-3 sm:mb-4">
+                                <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-[#F2EBE1] border border-[#E3DCD2]/30 flex items-center justify-center">
                                     <span className="material-symbols-outlined text-[#D35400]">account_tree</span>
                                 </div>
                             </div>
-                            <p className="text-[clamp(28px,5vw,44px)] font-headline text-[#4A3728] mb-1 leading-none">{stats.totalDepartments}</p>
+                            <p className="text-[clamp(24px,5vw,44px)] font-headline text-[#4A3728] mb-1 leading-none">{stats.totalDepartments}</p>
                             <p className="font-label text-[11px] uppercase tracking-widest text-[#8E735B] font-bold">Departments</p>
                         </div>
 
-                        <div className="bg-[#FDFBF7] p-5 sm:p-8 rounded-[22px] sm:rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] group hover:shadow-[0_25px_55px_rgba(15,28,44,0.07)] transition-shadow duration-300">
-                            <div className="flex justify-between items-start mb-4">
-                                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#F2EBE1] border border-[#E3DCD2]/30 flex items-center justify-center">
+                        <div className="bg-[#FDFBF7] p-4 sm:p-8 rounded-[20px] sm:rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] group hover:shadow-[0_25px_55px_rgba(15,28,44,0.07)] transition-shadow duration-300">
+                            <div className="flex justify-between items-start mb-3 sm:mb-4">
+                                <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-[#F2EBE1] border border-[#E3DCD2]/30 flex items-center justify-center">
                                     <span className="material-symbols-outlined text-[#D35400]">receipt_long</span>
                                 </div>
                                 <span className="text-[10px] font-label uppercase tracking-widest text-[#8E735B] font-bold">Today</span>
                             </div>
-                            <p className="text-[clamp(28px,5vw,44px)] font-headline text-[#4A3728] mb-1 leading-none">{stats.totalRequests}</p>
+                            <p className="text-[clamp(24px,5vw,44px)] font-headline text-[#4A3728] mb-1 leading-none">{stats.totalRequests}</p>
                             <p className="font-label text-[11px] uppercase tracking-widest text-[#8E735B] font-bold">Total Requests</p>
                         </div>
 
-                        <div className="bg-[#4A3728] text-white p-5 sm:p-8 rounded-[22px] sm:rounded-[28px] shadow-[0_30px_60px_rgba(14,28,43,0.20)] relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300">
+                        <div className="bg-[#4A3728] text-white p-4 sm:p-8 rounded-[20px] sm:rounded-[28px] shadow-[0_30px_60px_rgba(14,28,43,0.20)] relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300">
                             <div className="relative z-10">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 flex items-center justify-center">
+                                <div className="flex justify-between items-start mb-3 sm:mb-4">
+                                    <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-white/10 flex items-center justify-center">
                                         <span className="material-symbols-outlined text-white">schedule</span>
                                     </div>
-                                    <span className="text-[10px] font-bold uppercase tracking-widest bg-[#D35400] text-white px-3 py-1 rounded-full shadow-sm">Urgent</span>
+                                    <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest bg-[#D35400] text-white px-2 sm:px-3 py-1 rounded-full shadow-sm">Urgent</span>
                                 </div>
-                                <p className="text-[clamp(28px,5vw,44px)] font-headline mb-1 leading-none">{stats.pendingRequests}</p>
+                                <p className="text-[clamp(24px,5vw,44px)] font-headline mb-1 leading-none">{stats.pendingRequests}</p>
                                 <p className="font-label text-[11px] uppercase tracking-widest text-white/80 font-bold">Pending Requests</p>
                                 <div className="flex gap-4 mt-4 pt-3 border-t border-white/10">
                                     <div>
@@ -414,7 +414,7 @@ const AdminDashboard = () => {
                         <h2 className="font-headline text-display-lg text-primary mb-2">Operational Overview</h2>
                     </section>
 
-                    <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
                         <div className="bg-surface-container-lowest p-8 rounded-xl border border-outline-variant/10 shadow-[0_20px_40px_rgba(15,28,44,0.04)] group hover:scale-[1.02] transition-transform duration-300">
                             <div className="flex justify-between items-start mb-4">
                                 <div className="w-12 h-12 rounded-full bg-primary/5 flex items-center justify-center">

@@ -11,6 +11,42 @@ import GuestEmailBanner from '../components/GuestEmailBanner';
 
 import { getActiveEvents, getMealList, getActiveBonusEvents } from '../api/events';
 
+// Responsive action card: compact horizontal row on mobile, full card on >= sm.
+const ActionCard = ({ to, icon, title, desc, t, disabled = false, onClick }) => {
+    const containerClass =
+        "bg-[#F2EBE1] p-3.5 sm:p-8 rounded-2xl sm:rounded-[28px] flex flex-row sm:flex-col items-center sm:items-stretch sm:justify-between gap-3 sm:gap-0 transition-all group border border-[#E3DCD2]/20 " +
+        (disabled
+            ? "opacity-60 cursor-not-allowed"
+            : "hover:bg-white hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)]");
+
+    const inner = (
+        <>
+            <div className="flex flex-row sm:flex-col items-center sm:items-stretch gap-3 sm:gap-0 flex-1 sm:flex-none min-w-0 w-full">
+                <div className="flex-shrink-0 w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center sm:mb-6">
+                    <span className="material-symbols-outlined text-[#D35400] text-[22px] sm:text-3xl">{icon}</span>
+                </div>
+                <div className="flex-1 sm:flex-none min-w-0">
+                    <h3 className="font-headline text-[15px] sm:text-xl text-[#4A3728] font-bold sm:mb-2 leading-snug">{t(title)}</h3>
+                    <p className="text-[12px] sm:text-[14px] text-[#5D534A] leading-snug sm:leading-relaxed sm:mb-6">{t(desc)}</p>
+                </div>
+                <span className="material-symbols-outlined text-[#D35400] text-2xl sm:hidden flex-shrink-0">chevron_right</span>
+            </div>
+            <span className="hidden sm:inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#D35400] group-hover:gap-4 transition-all">
+                {t('Open')} <span className="material-symbols-outlined text-sm">arrow_forward</span>
+            </span>
+        </>
+    );
+
+    if (disabled) {
+        return <div className={containerClass}>{inner}</div>;
+    }
+    return (
+        <Link to={to} className={containerClass} onClick={onClick}>
+            {inner}
+        </Link>
+    );
+};
+
 const RoomDashboard = () => {
     const { user } = useAuth();
     const { translateUiText } = useLanguage(); // ✅ Hook initialized
@@ -124,7 +160,7 @@ const RoomDashboard = () => {
 
     return (
         <>
-            <div className="p-4 sm:p-10 space-y-8 sm:space-y-12 max-w-7xl mx-auto">
+            <div className="p-4 sm:p-10 space-y-6 sm:space-y-12 max-w-7xl mx-auto">
 
                 {room && (
                     <GuestEmailBanner
@@ -135,10 +171,10 @@ const RoomDashboard = () => {
 
                 <section>
                     {/* 👇 3. Replaced "Room Overview" with dynamic greeting */}
-                    <h2 className="font-headline text-[clamp(30px,6vw,52px)] text-[#4A3728] mb-2 font-bold leading-tight">
+                    <h2 className="font-headline text-[clamp(22px,6vw,52px)] text-[#4A3728] mb-1.5 sm:mb-2 font-bold leading-tight">
                         {translateUiText(getGreeting())}, {translateUiText('Room')} {displayRoomNumber}
                     </h2>
-                    <p className="text-[14px] text-[#5D534A] leading-relaxed">
+                    <p className="text-[13px] sm:text-[14px] text-[#5D534A] leading-relaxed">
                         {translateUiText('Welcome to your hotel-app. You can create requests,view events,learn your pick-up time,see the hotel events and more')}
                     </p>
 
@@ -233,121 +269,73 @@ const RoomDashboard = () => {
                     </section>
                 )}
 
-                <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8">
+                <section className="flex flex-col gap-2.5 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-8">
                     {isRoomAvailable ? (
-                        <div className="bg-[#F2EBE1] p-5 sm:p-8 rounded-[22px] sm:rounded-[28px] opacity-60 cursor-not-allowed border border-[#E3DCD2]/20">
-                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-5 sm:mb-6">
-                                <span className="material-symbols-outlined text-[#D35400] text-3xl">add</span>
-                            </div>
-                            <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">{translateUiText('Create Service Request')}</h3>
-                            <p className="text-[14px] text-[#5D534A] leading-relaxed">
-                                {translateUiText('Not available while the room status is Available.')}
-                            </p>
-                        </div>
+                        <ActionCard
+                            t={translateUiText}
+                            icon="add"
+                            title="Create Service Request"
+                            desc="Not available while the room status is Available."
+                            disabled
+                        />
                     ) : (
-                        <Link
+                        <ActionCard
+                            t={translateUiText}
                             to="/room/create-request"
-                            className="bg-[#F2EBE1] p-5 sm:p-8 rounded-[22px] sm:rounded-[28px] flex flex-col justify-between hover:bg-white transition-all group border border-[#E3DCD2]/20 hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)]"
-                        >
-                            <div>
-                                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-5 sm:mb-6">
-                                    <span className="material-symbols-outlined text-[#D35400] text-3xl">add</span>
-                                </div>
-                                <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">{translateUiText('Create Service Request')}</h3>
-                                <p className="text-[14px] text-[#5D534A] leading-relaxed mb-6">{translateUiText('Request room service or amenities.')}</p>
-                            </div>
-                            <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#D35400] group-hover:gap-4 transition-all">
-                                {translateUiText('Open')} <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                            </span>
-                        </Link>
+                            icon="add"
+                            title="Create Service Request"
+                            desc="Request room service or amenities."
+                        />
                     )}
 
-                    <Link
+                    <ActionCard
+                        t={translateUiText}
                         to="/room/report-issue"
-                        className={`bg-[#F2EBE1] p-5 sm:p-8 rounded-[22px] sm:rounded-[28px] flex flex-col justify-between hover:bg-white transition-all group border border-[#E3DCD2]/20 hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)] ${isRoomAvailable ? 'opacity-60 cursor-not-allowed' : ''}`}
+                        icon="report"
+                        title="Report an Issue"
+                        desc="Report problems in your room."
+                        disabled={isRoomAvailable}
                         onClick={(e) => isRoomAvailable && e.preventDefault()}
-                    >
-                        <div>
-                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-5 sm:mb-6">
-                                <span className="material-symbols-outlined text-[#D35400] text-3xl">report</span>
-                            </div>
-                            <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">{translateUiText('Report an Issue')}</h3>
-                            <p className="text-[14px] text-[#5D534A] leading-relaxed mb-6">{translateUiText('Report problems in your room.')}</p>
-                        </div>
-                        <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#D35400] group-hover:gap-4 transition-all">
-                            {translateUiText('Open')} <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                        </span>
-                    </Link>
+                    />
 
-                    <Link
+                    <ActionCard
+                        t={translateUiText}
                         to="/room/reception-request"
-                        className={`bg-[#F2EBE1] p-5 sm:p-8 rounded-[22px] sm:rounded-[28px] flex flex-col justify-between hover:bg-white transition-all group border border-[#E3DCD2]/20 hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)] ${isRoomAvailable ? 'opacity-60 cursor-not-allowed' : ''}`}
+                        icon="concierge"
+                        title="Reception Request"
+                        desc="Wake-up calls or other services."
+                        disabled={isRoomAvailable}
                         onClick={(e) => isRoomAvailable && e.preventDefault()}
-                    >
-                        <div>
-                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-5 sm:mb-6">
-                                <span className="material-symbols-outlined text-[#D35400] text-3xl">concierge</span>
-                            </div>
-                            <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">{translateUiText('Reception Request')}</h3>
-                            <p className="text-[14px] text-[#5D534A] leading-relaxed mb-6">{translateUiText('Wake-up calls or other services.')}</p>
-                        </div>
-                        <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#D35400] group-hover:gap-4 transition-all">
-                            {translateUiText('Open')} <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                        </span>
-                    </Link>
+                    />
 
-                    <Link
+                    <ActionCard
+                        t={translateUiText}
                         to="/room/history"
-                        className="bg-[#F2EBE1] p-5 sm:p-8 rounded-[22px] sm:rounded-[28px] flex flex-col justify-between hover:bg-white transition-all group border border-[#E3DCD2]/20 hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)]"
-                    >
-                        <div>
-                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-5 sm:mb-6">
-                                <span className="material-symbols-outlined text-[#D35400] text-3xl">history</span>
-                            </div>
-                            <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">{translateUiText('My Requests')}</h3>
-                            <p className="text-[14px] text-[#5D534A] leading-relaxed mb-6">{translateUiText('View your request history.')}</p>
-                        </div>
-                        <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#D35400] group-hover:gap-4 transition-all">
-                            {translateUiText('Open')} <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                        </span>
-                    </Link>
+                        icon="history"
+                        title="My Requests"
+                        desc="View your request history."
+                    />
 
-                    <Link
+                    <ActionCard
+                        t={translateUiText}
                         to="/room/point-shop"
-                        className="bg-[#F2EBE1] p-5 sm:p-8 rounded-[22px] sm:rounded-[28px] flex flex-col justify-between hover:bg-white transition-all group border border-[#E3DCD2]/20 hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)]"
-                    >
-                        <div>
-                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-5 sm:mb-6">
-                                <span className="material-symbols-outlined text-[#D35400] text-3xl">stars</span>
-                            </div>
-                            <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">{translateUiText('Point Shop')}</h3>
-                            <p className="text-[14px] text-[#5D534A] leading-relaxed mb-6">{translateUiText('Spend points on exclusive rewards.')}</p>
-                        </div>
-                        <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#D35400] group-hover:gap-4 transition-all">
-                            {translateUiText('Open')} <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                        </span>
-                    </Link>
+                        icon="stars"
+                        title="Point Shop"
+                        desc="Spend points on exclusive rewards."
+                    />
 
-                    <Link
+                    <ActionCard
+                        t={translateUiText}
                         to="/room/vouchers"
-                        className="bg-[#F2EBE1] p-5 sm:p-8 rounded-[22px] sm:rounded-[28px] flex flex-col justify-between hover:bg-white transition-all group border border-[#E3DCD2]/20 hover:border-[#E3DCD2]/40 shadow-none hover:shadow-[0_25px_55px_rgba(15,28,44,0.08)]"
-                    >
-                        <div>
-                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#FDFBF7] border border-[#E3DCD2]/30 flex items-center justify-center mb-5 sm:mb-6">
-                                <span className="material-symbols-outlined text-[#D35400] text-3xl">confirmation_number</span>
-                            </div>
-                            <h3 className="font-headline text-xl text-[#4A3728] font-bold mb-2">{translateUiText('My Vouchers')}</h3>
-                            <p className="text-[14px] text-[#5D534A] leading-relaxed mb-6">{translateUiText('View earned reward codes.')}</p>
-                        </div>
-                        <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-[#D35400] group-hover:gap-4 transition-all">
-                            {translateUiText('Open')} <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                        </span>
-                    </Link>
+                        icon="confirmation_number"
+                        title="My Vouchers"
+                        desc="View earned reward codes."
+                    />
                 </section>
 
                 <section className="bg-[#FDFBF7] p-5 sm:p-8 rounded-[22px] sm:rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)]">
-                    <h3 className="font-headline text-2xl text-[#4A3728] font-bold mb-2">{translateUiText('Room Information')}</h3>
-                    <p className="text-[14px] text-[#5D534A] leading-relaxed">
+                    <h3 className="font-headline text-xl sm:text-2xl text-[#4A3728] font-bold mb-2">{translateUiText('Room Information')}</h3>
+                    <p className="text-[13px] sm:text-[14px] text-[#5D534A] leading-relaxed">
                         {translateUiText('This dashboard is for room-based access. Guests can scan QR codes to access room-specific features.')}
                     </p>
                 </section>

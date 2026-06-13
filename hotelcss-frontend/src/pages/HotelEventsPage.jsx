@@ -63,7 +63,7 @@ const HotelEventsPage = () => {
         <> {/* ✅ Replaced <Layout> with Fragment */}
             <div className="p-4 sm:p-10 space-y-8 sm:space-y-10 max-w-7xl mx-auto">
                 <section>
-                    <h2 className="font-headline text-[clamp(30px,6vw,52px)] text-[#4A3728] mb-2 font-bold leading-tight">
+                    <h2 className="font-headline text-[clamp(22px,6vw,52px)] text-[#4A3728] mb-2 font-bold leading-tight">
                         Hotel Events & Information
                     </h2>
                     <p className="text-[14px] text-[#5D534A] leading-relaxed">
