@@ -156,7 +156,7 @@ const RequestsPage = () => {
         <>
             <div className="p-4 sm:p-10 space-y-6 sm:space-y-8 max-w-7xl mx-auto">
                 <section className="text-center max-w-3xl mx-auto">
-                    <h2 className="font-headline text-[clamp(30px,6vw,52px)] text-[#4A3728] mb-2 font-bold leading-tight">
+                    <h2 className="font-headline text-[clamp(22px,6vw,52px)] text-[#4A3728] mb-2 font-bold leading-tight">
                         Guest Requests
                     </h2>
                     <p className="text-[14px] text-[#5D534A] leading-relaxed">
@@ -207,7 +207,78 @@ const RequestsPage = () => {
                         No requests found
                     </div>
                 ) : (
-                    <div className="max-w-[1400px] mx-auto bg-[#FDFBF7] rounded-[22px] sm:rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] overflow-hidden">
+                    <>
+                    {/* Mobile: card list (table is unreadable on small screens) */}
+                    <div className="md:hidden max-w-2xl mx-auto w-full space-y-3">
+                        {sortedRequests.map((request) => (
+                            <div key={request.id} className="bg-[#FDFBF7] rounded-2xl border border-[#E3DCD2]/40 shadow-[0_10px_30px_rgba(15,28,44,0.04)] p-4">
+                                <div className="flex items-start justify-between gap-3 mb-2">
+                                    <div className="min-w-0">
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            <span className="font-headline text-[#4A3728] font-bold text-base">Room {request.roomNumber}</span>
+                                            <span className="text-[11px] text-[#8E735B] font-semibold">#{request.id}</span>
+                                        </div>
+                                        <div className="text-[12px] text-[#8E735B] mt-0.5">
+                                            {request.type || 'N/A'} · {new Date(request.requestDate).toLocaleDateString()}
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                                        <span className={`px-2 inline-flex text-[11px] leading-5 font-semibold rounded-full ${getStatusColor(request.status)}`}>
+                                            {request.status}
+                                        </span>
+                                        {(request.status === 'Pending' || request.status === 'InProcess') && (
+                                            <span className={`inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
+                                                getWaitMinutes(request.requestDate) >= 15
+                                                    ? 'bg-red-100 text-red-700'
+                                                    : getWaitMinutes(request.requestDate) >= 5
+                                                        ? 'bg-orange-100 text-orange-700'
+                                                        : 'bg-gray-100 text-gray-500'
+                                            }`}>
+                                                <span className="material-symbols-outlined text-[10px]">schedule</span>
+                                                {getWaitMinutes(request.requestDate)}m
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="flex items-start gap-3">
+                                    {request.photoPath && (
+                                        <div
+                                            onClick={() => setPreviewImage(getImageUrl(request.photoPath))}
+                                            className="w-14 h-14 rounded-lg border border-[#E3DCD2]/80 overflow-hidden cursor-pointer flex-shrink-0"
+                                        >
+                                            <img src={getImageUrl(request.photoPath)} alt="Attached" className="w-full h-full object-cover" />
+                                        </div>
+                                    )}
+                                    <div className="flex-1 min-w-0">
+                                        <div className="text-[13px] text-[#2C241E] font-semibold">
+                                            {request.serviceItem?.name || 'N/A'}
+                                            {request.quantity > 1 && <span className="text-[#8E735B] font-normal"> ×{request.quantity}</span>}
+                                        </div>
+                                        {(request.note || request.description) && (
+                                            <div className="text-[12px] text-[#5D534A] mt-1 break-words">{request.note || request.description}</div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-4 mt-3 pt-3 border-t border-[#E3DCD2]/40 text-[13px] font-semibold">
+                                    {request.status === 'Pending' && (
+                                        <>
+                                            <button onClick={() => handleStatusUpdate(request.id, 'InProcess')} className="text-[#D35400]">Start</button>
+                                            <button onClick={() => handleStatusUpdate(request.id, 'Completed')} className="text-[#1B7F4B]">Complete</button>
+                                        </>
+                                    )}
+                                    {request.status === 'InProcess' && (
+                                        <button onClick={() => handleStatusUpdate(request.id, 'Completed')} className="text-[#1B7F4B]">Complete</button>
+                                    )}
+                                    <button onClick={() => handleDelete(request.id)} className="text-[#B22222] ml-auto">Delete</button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Desktop: full table */}
+                    <div className="hidden md:block max-w-[1400px] mx-auto bg-[#FDFBF7] rounded-[22px] sm:rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] overflow-hidden">
                         <div className="overflow-x-auto">
                             <table className="min-w-full divide-y divide-[#E3DCD2]/50">
                                 <thead className="bg-[#F2EBE1]/55">
@@ -379,6 +450,7 @@ const RequestsPage = () => {
                             </table>
                         </div>
                     </div>
+                    </>
                 )}
                 {previewImage && (
                     <div

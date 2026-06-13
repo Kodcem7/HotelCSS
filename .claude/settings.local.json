@@ -23,7 +23,11 @@
       "Bash(ls -1 docker-compose*.yml docker-compose*.yaml compose*.yml)",
       "Bash(find . -iname \"Dockerfile*\" -not -path \"*/node_modules/*\")",
       "PowerShell(docker compose -f \"C:\\\\Users\\\\Cem\\\\source\\\\repos\\\\HotelCSS\\\\docker-compose.yml\" ps --format \"table {{.Name}}\\\\t{{.Status}}\\\\t{{.Ports}}\")",
-      "PowerShell($html = \\(Invoke-WebRequest -Uri \"http://localhost:5173\" -UseBasicParsing\\).Content; \\([regex]::Matches\\($html, 'index-[A-Za-z0-9_-]+\\\\.js'\\) | ForEach-Object { $_.Value } | Select-Object -Unique\\))"
+      "PowerShell($html = \\(Invoke-WebRequest -Uri \"http://localhost:5173\" -UseBasicParsing\\).Content; \\([regex]::Matches\\($html, 'index-[A-Za-z0-9_-]+\\\\.js'\\) | ForEach-Object { $_.Value } | Select-Object -Unique\\))",
+      "mcp__visualize__read_me",
+      "mcp__visualize__show_widget",
+      "Bash(cd \"C:/Users/Cem/source/repos/HotelCSS/hotelcss-frontend/src/pages\" && sed -i 's/clamp\\(30px,6vw,52px\\)/clamp\\(22px,6vw,52px\\)/g' *.jsx && echo \"Done. Remaining count:\" && grep -rl \"clamp\\(30px,6vw,52px\\)\" . | wc -l)",
+      "PowerShell($p = \"C:\\\\Program Files\\\\Docker\\\\Docker\\\\Docker Desktop.exe\"; if \\(Test-Path $p\\) { Start-Process $p; \"Docker Desktop baslatiliyor...\" } else { \"Docker Desktop exe bulunamadi: $p\" })"
     ]
   }
 }
