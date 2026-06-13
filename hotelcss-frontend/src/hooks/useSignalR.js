@@ -11,16 +11,19 @@ const HUB_URL = (import.meta.env.VITE_API_BASE_URL || 'http://192.168.1.105:5237
  * @param {function} onOrderCompleted   - ({ itemName, quantity, roomNumber }) => void  (Room users)
  * @param {function} onNewRequest       - (message: string) => void  (Staff/Admin users)
  * @param {function} onRequestsUpdated  - () => void  (Staff/Admin dashboards — refresh live stats)
+ * @param {function} onRequestStatusChanged - ({ requestId, status }) => void  (Room users — live request tracking)
  */
-const useSignalR = (enabled, onOrderCompleted, onNewRequest, onRequestsUpdated) => {
+const useSignalR = (enabled, onOrderCompleted, onNewRequest, onRequestsUpdated, onRequestStatusChanged) => {
     const connectionRef = useRef(null);
     const onOrderCompletedRef = useRef(onOrderCompleted);
     const onNewRequestRef = useRef(onNewRequest);
     const onRequestsUpdatedRef = useRef(onRequestsUpdated);
+    const onRequestStatusChangedRef = useRef(onRequestStatusChanged);
 
     useEffect(() => { onOrderCompletedRef.current = onOrderCompleted; }, [onOrderCompleted]);
     useEffect(() => { onNewRequestRef.current = onNewRequest; }, [onNewRequest]);
     useEffect(() => { onRequestsUpdatedRef.current = onRequestsUpdated; }, [onRequestsUpdated]);
+    useEffect(() => { onRequestStatusChangedRef.current = onRequestStatusChanged; }, [onRequestStatusChanged]);
 
     useEffect(() => {
         if (!enabled) return;
@@ -48,6 +51,10 @@ const useSignalR = (enabled, onOrderCompleted, onNewRequest, onRequestsUpdated) 
 
         connection.on('RequestsUpdated', () => {
             onRequestsUpdatedRef.current?.();
+        });
+
+        connection.on('RequestStatusChanged', (payload) => {
+            onRequestStatusChangedRef.current?.(payload);
         });
 
         let isMounted = true;

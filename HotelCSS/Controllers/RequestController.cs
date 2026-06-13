@@ -436,6 +436,14 @@ namespace HotelCSS.Controllers
             // Notify staff dashboards so live stat cards refresh in real time
             await _hubContext.Clients.Group("StaffGroup").SendAsync("RequestsUpdated");
 
+            // Notify the guest's room so their request list updates live on ANY status change
+            // (Pending -> InProcess -> Completed/Cancelled), not just on completion.
+            await _hubContext.Clients.Group($"Room{order.RoomNumber}").SendAsync("RequestStatusChanged", new
+            {
+                requestId = order.Id,
+                status = order.Status
+            });
+
             return Ok(new
             {
                 success = true,

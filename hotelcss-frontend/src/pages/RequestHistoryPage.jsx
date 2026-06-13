@@ -5,6 +5,7 @@ import ErrorMessage from '../components/ErrorMessage';
 import { getRequests } from '../api/requests';
 import { getReceptionServices, getPickUpTime } from '../api/receptionService';
 import { getBackendOrigin } from '../api/axios';
+import useSignalR from '../hooks/useSignalR';
 
 const RequestHistoryPage = () => {
     const [requests, setRequests] = useState([]);
@@ -19,15 +20,19 @@ const RequestHistoryPage = () => {
         fetchRequests();
     }, []);
 
+    // Live tracking: backend pushes "RequestStatusChanged" to this room whenever a
+    // request moves Pending -> InProcess -> Completed/Cancelled. Refresh silently.
+    useSignalR(true, null, null, null, () => fetchRequests(false));
+
     const getImageUrl = (path) => {
         if (!path) return null;
         const normalized = path.replace(/\\/g, '/');
         return `${getBackendOrigin()}${normalized}`;
     };
 
-    const fetchRequests = async () => {
+    const fetchRequests = async (showSpinner = true) => {
         try {
-            setLoading(true);
+            if (showSpinner) setLoading(true);
             setError('');
 
             const [requestsRes, receptionRes, pickupRes] = await Promise.all([
