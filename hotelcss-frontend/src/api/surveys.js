@@ -56,3 +56,9 @@ export const averageStars = async (surveyId) => {
     const response = await api.get(`/Survey/AverageStars/${surveyId}`);
     return response.data;
 };
+
+// Per-question average star rating for each weekly cycle (trend chart data).
+export const getQuestionTrends = async (surveyId) => {
+    const response = await api.get(`/Survey/GetQuestionTrends/${surveyId}`);
+    return response.data;
+};

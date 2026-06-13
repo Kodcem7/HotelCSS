@@ -31,6 +31,7 @@ namespace CSSHotel.DataAccess.Data
         public DbSet<SurveyQuestion> SurveyQuestions { get; set; }
         public DbSet<SurveyAnswer> SurveyAnswers { get; set; }
         public DbSet<SurveyResponse> SurveyResponses { get; set; }
+        public DbSet<SurveyCycle> SurveyCycles { get; set; }
         public DbSet<GuestReview> GuestReviews { get; set; }
 
 
@@ -46,6 +47,14 @@ namespace CSSHotel.DataAccess.Data
         .WithMany()
         .HasForeignKey(a => a.SurveyQuestionId)
         .OnDelete(DeleteBehavior.NoAction); // <--- This is the magic fix!
+
+            // A response optionally belongs to a cycle. NoAction avoids multiple
+            // cascade paths (Survey -> SurveyResponse and Survey -> SurveyCycle).
+            modelBuilder.Entity<SurveyResponse>()
+        .HasOne(r => r.SurveyCycle)
+        .WithMany(c => c.Responses)
+        .HasForeignKey(r => r.SurveyCycleId)
+        .OnDelete(DeleteBehavior.NoAction);
 
             // A. Seed Departments
             modelBuilder.Entity<Department>().HasData(

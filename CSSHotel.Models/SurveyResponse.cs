@@ -16,6 +16,11 @@ namespace CSSHotel.Models
         public int SurveyId { get; set; }
         public Survey Survey { get; set; }
 
+        // Which activation round (week) this response belongs to. Nullable so
+        // responses created before this feature existed stay valid.
+        public int? SurveyCycleId { get; set; }
+        public SurveyCycle SurveyCycle { get; set; }
+
         // Who took it? (Essential for hiding the popup later)
         public int RoomNumber { get; set; }
 
