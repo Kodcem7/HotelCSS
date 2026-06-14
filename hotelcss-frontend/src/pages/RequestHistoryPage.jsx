@@ -232,6 +232,14 @@ const RequestHistoryPage = () => {
                                                 </p>
                                             </div>
                                         )}
+                                        {request.status === 'Cancelled' && request.cancellationReason && (
+                                            <div className="mt-4 p-4 bg-red-50 rounded-[22px] border border-red-200/70 flex items-start gap-2">
+                                                <span className="material-symbols-outlined text-[#B22222] text-[18px] mt-0.5">info</span>
+                                                <p className="text-[13px] text-[#7f1d1d]">
+                                                    <span className="font-semibold">Cancellation reason:</span> {request.cancellationReason}
+                                                </p>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>

@@ -39,6 +39,8 @@ namespace CSSHotel.Models
         public string Type { get; set; }
         // Status: "Pending", "Completed", "Cancelled"
         public string Status { get; set; }
+        // Reason staff entered when cancelling the request; shown to the guest.
+        public string? CancellationReason { get; set; }
     }
 
 }

@@ -305,7 +305,7 @@ namespace HotelCSS.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception)]
-        public async Task<IActionResult> Update(int id, string newStatus)
+        public async Task<IActionResult> Update(int id, string newStatus, string? reason = null)
         {
             if (id <= 0)
             {
@@ -367,8 +367,14 @@ namespace HotelCSS.Controllers
 
             //Prevent double points
             bool justCompleted = (newStatus == SD.StatusCompleted && order.Status != SD.StatusCompleted);
+            bool justCancelled = (newStatus == SD.StatusCancelled && order.Status != SD.StatusCancelled);
 
             order.Status = newStatus;
+            // Persist the staff-entered cancellation reason so the guest can see why.
+            if (newStatus == SD.StatusCancelled)
+            {
+                order.CancellationReason = string.IsNullOrWhiteSpace(reason) ? null : reason.Trim();
+            }
             _unitOfWork.Request.Update(order);
             string responseMessage = "Order status updated successfully!";
             if (justCompleted)
@@ -430,6 +436,18 @@ namespace HotelCSS.Controllers
                     itemName = order.ServiceItem.Name,
                     quantity = order.Quantity,
                     roomNumber = order.RoomNumber
+                });
+            }
+
+            // Notify the guest when their request is cancelled, with the reason.
+            if (justCancelled)
+            {
+                await _hubContext.Clients.Group($"Room{order.RoomNumber}").SendAsync("OrderCancelled", new
+                {
+                    itemName = order.ServiceItem?.Name ?? "Your request",
+                    quantity = order.Quantity,
+                    roomNumber = order.RoomNumber,
+                    reason = order.CancellationReason
                 });
             }
 
