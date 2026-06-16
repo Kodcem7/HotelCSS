@@ -5,8 +5,12 @@ import SuccessMessage from '../components/SuccessMessage';
 import SearchBar from '../components/SearchBar';
 import { getRequests, updateRequestStatus, deleteRequest } from '../api/requests';
 import { getBackendOrigin } from '../api/axios';
+import { useAuth } from '../context/AuthContext';
 
 const RequestsPage = () => {
+    const { user } = useAuth();
+    // Only Admin/Manager/Reception may permanently delete a request (matches backend).
+    const canDelete = ['Admin', 'Manager', 'Reception'].includes(user?.role);
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -295,7 +299,9 @@ const RequestsPage = () => {
                                     {(request.status === 'Pending' || request.status === 'InProcess') && (
                                         <button onClick={() => { setCancelReason(''); setCancelTarget(request); }} className="text-[#C2410C]">Cancel</button>
                                     )}
-                                    <button onClick={() => handleDelete(request.id)} className="text-[#B22222] ml-auto">Delete</button>
+                                    {canDelete && (
+                                        <button onClick={() => handleDelete(request.id)} className="text-[#B22222] ml-auto">Delete</button>
+                                    )}
                                 </div>
                             </div>
                         ))}
@@ -469,12 +475,14 @@ const RequestsPage = () => {
                                                         Cancel
                                                     </button>
                                                 )}
-                                                <button
-                                                    onClick={() => handleDelete(request.id)}
-                                                    className="text-[#B22222] hover:text-[#4A3728] transition-colors"
-                                                >
-                                                    Delete
-                                                </button>
+                                                {canDelete && (
+                                                    <button
+                                                        onClick={() => handleDelete(request.id)}
+                                                        className="text-[#B22222] hover:text-[#4A3728] transition-colors"
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}
@@ -522,7 +530,7 @@ const RequestsPage = () => {
                                     disabled={cancelSubmitting}
                                     className="flex-1 px-4 py-3 text-xs font-bold uppercase tracking-widest rounded-2xl bg-[#F2EBE1] text-[#4A3728] hover:bg-[#E8DFD1] transition disabled:opacity-50"
                                 >
-                                    Back
+                                    Keep Request
                                 </button>
                                 <button
                                     type="button"

@@ -304,7 +304,8 @@ namespace HotelCSS.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception)]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception + "," +
+                           SD.Role_HouseKeeping + "," + SD.Role_Restaurant + "," + SD.Role_Kitchen + "," + SD.Role_Technic)]
         public async Task<IActionResult> Update(int id, string newStatus, string? reason = null)
         {
             if (id <= 0)
@@ -334,14 +335,31 @@ namespace HotelCSS.Controllers
                 return NotFound(new { success = false, message = "Order not found!" });
             }
 
+            // Admin/Manager/Reception manage every request. Department staff may only
+            // act on requests belonging to their own department.
+            bool isManagerial = User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Manager) || User.IsInRole(SD.Role_Reception);
+            if (!isManagerial)
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var staffUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == userId);
+                if (staffUser == null || order.ServiceItem == null || order.ServiceItem.DepartmentId != staffUser.DepartmentId)
+                {
+                    return StatusCode(StatusCodes.Status403Forbidden, new
+                    {
+                        success = false,
+                        message = "You can only update requests for your own department."
+                    });
+                }
+            }
+
             if (order.Status == SD.StatusPending)
             {
-                if (newStatus != SD.StatusInProgress && newStatus != SD.StatusCancelled)
+                if (newStatus != SD.StatusInProgress && newStatus != SD.StatusCompleted && newStatus != SD.StatusCancelled)
                 {
                     return BadRequest(new
                     {
                         success = false,
-                        message = "Pending requests can only be moved to InProcess or Cancelled."
+                        message = "Pending requests can only be moved to InProcess, Completed or Cancelled."
                     });
                 }
             }
@@ -471,6 +489,7 @@ namespace HotelCSS.Controllers
 
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception)]
         public IActionResult Delete(int id)
         {
             if (id == 0)

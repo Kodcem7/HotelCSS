@@ -280,7 +280,7 @@ const ServiceItemsPage = () => {
                                     <div className="flex flex-wrap gap-2 justify-center mb-5 mt-auto">
                                         {item.price > 0 && (
                                             <span className="px-3 py-1 bg-[#F2EBE1] text-[#4A3728] font-bold rounded-xl border border-[#E3DCD2]">
-                                                ${parseFloat(item.price).toFixed(2)}
+                                                €{parseFloat(item.price).toFixed(2)}
                                             </span>
                                         )}
                                         {item.pointsEarned > 0 && (
@@ -377,7 +377,7 @@ const ServiceItemsPage = () => {
 
                                 <div className="flex gap-4">
                                     <div className="flex-1">
-                                        <label className="block text-sm font-semibold text-[#4A3728] mb-1">Price ($)</label>
+                                        <label className="block text-sm font-semibold text-[#4A3728] mb-1">Price (€)</label>
                                         <input
                                             type="number"
                                             step="0.01"

@@ -123,8 +123,8 @@ const RoomsPage = () => {
     const handleDeleteRoom = async (roomNumber, status) => {
         const message =
             status === 'Occupied'
-                ? `Room ${roomNumber} is currently OCCUPIED. Deleting it will permanently remove the room and its guest assignment.\nAre you absolutely sure?`
-                : `Are you sure you want to permanently delete Room ${roomNumber}?\nThis action cannot be undone.`;
+                ? `Room ${roomNumber} is currently OCCUPIED. Deleting it will permanently remove the room, its guest assignment, and all related requests/vouchers.\nAre you absolutely sure?`
+                : `Are you sure you want to permanently delete Room ${roomNumber}?\nThis also removes its related requests and vouchers. This action cannot be undone.`;
         if (!window.confirm(message)) return;
 
         try {

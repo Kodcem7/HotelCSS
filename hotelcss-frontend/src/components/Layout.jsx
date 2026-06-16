@@ -57,8 +57,25 @@ const Layout = ({ children }) => {
         playChime();
     }, [playChime]);
 
-    const handleNewRequest = useCallback(() => {
+    const handleNewRequest = useCallback((message) => {
         playChime();
+        // Desktop notification so staff are alerted even when the tab is in the
+        // background / on another monitor. Only fires when the tab isn't focused
+        // (when it is focused, the chime + live list update are enough).
+        try {
+            if ('Notification' in window &&
+                Notification.permission === 'granted' &&
+                document.visibilityState !== 'visible') {
+                const n = new Notification('New guest request', {
+                    body: typeof message === 'string' && message ? message : 'A new request has arrived.',
+                    icon: '/logo1.png',
+                    tag: 'hotelcss-new-request',
+                });
+                setTimeout(() => { try { n.close(); } catch { /* noop */ } }, 8000);
+            }
+        } catch {
+            // Notifications unavailable / blocked
+        }
     }, [playChime]);
 
     const dismissToast = useCallback((id) => {
@@ -77,6 +94,14 @@ const Layout = ({ children }) => {
     const playsNewOrderSound = isStaffLike || role === 'Admin' || role === 'Manager' || role === 'Reception';
     useSignalR(role === 'Room', handleOrderCompleted, null, null, null, handleOrderCancelled);
     useSignalR(playsNewOrderSound, null, handleNewRequest);
+
+    // Ask staff for desktop-notification permission once, so background alerts work.
+    useEffect(() => {
+        if (!playsNewOrderSound) return;
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission().catch(() => { });
+        }
+    }, [playsNewOrderSound]);
 
     const suiteKey = role === 'Admin' ? 'admin' : role === 'Manager' ? 'manager' : role === 'Reception' ? 'reception' : isStaffLike ? 'staff' : role === 'Room' ? 'room' : 'none';
 

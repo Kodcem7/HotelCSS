@@ -25,7 +25,6 @@ namespace HotelCSS.Controllers
             _hubContext = hubContext;
         }
 
-        [AllowAnonymous]
         [HttpGet("GetReceptionServices")]
         public IActionResult GetReceptionServices()
         {
@@ -149,6 +148,7 @@ namespace HotelCSS.Controllers
         }
 
         [HttpPut("wakeup/{id}")]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception)]
         public IActionResult UpdateWakeUpService(int id, DateTime obj, string status)
         {
             if (obj == null)
