@@ -16,17 +16,72 @@ const Layout = ({ children }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [toasts, setToasts] = useState([]);
 
+    const role = user?.role;
+
+    // Shared notification chime. Reuses a single AudioContext (creating one per
+    // event eventually throws). Browsers may keep it suspended until the user
+    // has interacted with the page once — resume() recovers it after that.
+    const audioCtxRef = useRef(null);
+    const playChime = useCallback(() => {
+        try {
+            const Ctor = window.AudioContext || window.webkitAudioContext;
+            if (!Ctor) return;
+            if (!audioCtxRef.current) audioCtxRef.current = new Ctor();
+            const ctx = audioCtxRef.current;
+            if (ctx.state === 'suspended') ctx.resume();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, ctx.currentTime);
+            osc.frequency.setValueAtTime(660, ctx.currentTime + 0.15);
+            gain.gain.setValueAtTime(0.25, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.45);
+        } catch {
+            // AudioContext unavailable / blocked
+        }
+    }, []);
+
     const handleOrderCompleted = useCallback((payload) => {
         const id = `toast-${Date.now()}-${Math.random()}`;
-        setToasts((prev) => [...prev, { id, itemName: payload.itemName ?? 'Item', quantity: payload.quantity ?? 1 }]);
-    }, []);
+        setToasts((prev) => [...prev, { id, type: 'completed', itemName: payload?.itemName ?? 'Item', quantity: payload?.quantity ?? 1 }]);
+        playChime();
+    }, [playChime]);
+
+    const handleOrderCancelled = useCallback((payload) => {
+        const id = `toast-${Date.now()}-${Math.random()}`;
+        setToasts((prev) => [...prev, { id, type: 'cancelled', itemName: payload?.itemName ?? 'Your request', quantity: payload?.quantity ?? 1, reason: payload?.reason || '' }]);
+        playChime();
+    }, [playChime]);
+
+    const handleNewRequest = useCallback((message) => {
+        playChime();
+        // Desktop notification so staff are alerted even when the tab is in the
+        // background / on another monitor. Only fires when the tab isn't focused
+        // (when it is focused, the chime + live list update are enough).
+        try {
+            if ('Notification' in window &&
+                Notification.permission === 'granted' &&
+                document.visibilityState !== 'visible') {
+                const n = new Notification('New guest request', {
+                    body: typeof message === 'string' && message ? message : 'A new request has arrived.',
+                    icon: '/logo1.png',
+                    tag: 'hotelcss-new-request',
+                });
+                setTimeout(() => { try { n.close(); } catch { /* noop */ } }, 8000);
+            }
+        } catch {
+            // Notifications unavailable / blocked
+        }
+    }, [playChime]);
 
     const dismissToast = useCallback((id) => {
         setToasts((prev) => prev.filter((t) => t.id !== id));
     }, []);
 
-    const role = user?.role;
-    useSignalR(role === 'Room', handleOrderCompleted);
     const isStaffLike =
         role === 'Staff' ||
         role === 'Housekeeping' ||
@@ -34,6 +89,19 @@ const Layout = ({ children }) => {
         role === 'Restaurant' ||
         role === 'Kitchen' ||
         role === 'Technic';
+
+    // Guests get completion/cancellation toasts (+chime); staff hear a chime on new orders.
+    const playsNewOrderSound = isStaffLike || role === 'Admin' || role === 'Manager' || role === 'Reception';
+    useSignalR(role === 'Room', handleOrderCompleted, null, null, null, handleOrderCancelled);
+    useSignalR(playsNewOrderSound, null, handleNewRequest);
+
+    // Ask staff for desktop-notification permission once, so background alerts work.
+    useEffect(() => {
+        if (!playsNewOrderSound) return;
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission().catch(() => { });
+        }
+    }, [playsNewOrderSound]);
 
     const suiteKey = role === 'Admin' ? 'admin' : role === 'Manager' ? 'manager' : role === 'Reception' ? 'reception' : isStaffLike ? 'staff' : role === 'Room' ? 'room' : 'none';
 

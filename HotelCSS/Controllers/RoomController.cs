@@ -5,6 +5,8 @@ using CSSHotel.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Linq;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 
@@ -157,17 +159,42 @@ namespace HotelCSS.Controllers
         {
             if (id <= 0)
             {
-                return BadRequest(new { success = false, message = "Invalid Department ID" });
+                return BadRequest(new { success = false, message = "Invalid Room Number" });
             }
 
             var objFromDb = _unitOfWork.Room.GetFirstOrDefault(u => u.RoomNumber == id);
             if (objFromDb == null)
             {
-                return NotFound(new { success = false, message = "Object not found" });
+                return NotFound(new { success = false, message = "Room not found" });
             }
-            _unitOfWork.Room.Remove(objFromDb);
-            _unitOfWork.Save();
-            return Ok(new { success = true, message = "Room deleted successfully!" });
+
+            try
+            {
+                // A room is referenced by several tables (requests, vouchers, reception
+                // services). Remove those dependent records first, otherwise the foreign
+                // key constraints block the delete and the UI just sees a 500 error.
+                var requests = _unitOfWork.Request.GetAll(u => u.RoomNumber == id).ToList();
+                if (requests.Any()) _unitOfWork.Request.RemoveRange(requests);
+
+                var vouchers = _unitOfWork.RewardVoucher.GetAll(u => u.RoomNumber == id).ToList();
+                if (vouchers.Any()) _unitOfWork.RewardVoucher.RemoveRange(vouchers);
+
+                var receptionServices = _unitOfWork.ReceptionService.GetAll(u => u.RoomNumber == id).ToList();
+                if (receptionServices.Any()) _unitOfWork.ReceptionService.RemoveRange(receptionServices);
+
+                _unitOfWork.Room.Remove(objFromDb);
+                _unitOfWork.Save();
+                return Ok(new { success = true, message = "Room and its related records were deleted successfully!" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Could not delete this room because it still has linked records. " +
+                              (ex.InnerException?.Message ?? ex.Message)
+                });
+            }
         }
 
         [HttpDelete("DeleteAll")]

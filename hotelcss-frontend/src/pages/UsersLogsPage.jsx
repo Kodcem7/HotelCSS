@@ -95,6 +95,42 @@ const UsersLogsPage = () => {
         }
     };
 
+    const handleExportCsv = () => {
+        if (logs.length === 0) {
+            setError('There is nothing to export yet.');
+            return;
+        }
+        const esc = (v) => {
+            const s = (v ?? '').toString();
+            return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+        };
+        const headers = ['ID', 'Log Date', 'Room', 'Guest Email', 'Check-In', 'Check-Out', 'Money Spent (EUR)', 'Points Earned', 'Points Spent', 'Orders'];
+        const rows = logs.map((log) => [
+            get(log, 'id', 'Id'),
+            formatDate(get(log, 'timestamp', 'Timestamp')),
+            get(log, 'roomNumber', 'RoomNumber') ?? '',
+            get(log, 'guestMail', 'GuestMail') ?? '',
+            formatDate(get(log, 'checkInDate', 'CheckInDate')),
+            formatDate(get(log, 'checkOutDate', 'CheckOutDate')),
+            parseFloat(get(log, 'moneySpent', 'MoneySpent') ?? 0).toFixed(2),
+            get(log, 'pointsEarned', 'PointsEarned') ?? 0,
+            get(log, 'pointsSpent', 'PointsSpent') ?? 0,
+            get(log, 'ordersSummary', 'OrdersSummary') ?? '',
+        ].map(esc).join(','));
+        // Leading BOM so Excel opens UTF-8 correctly.
+        const csv = '﻿' + [headers.join(','), ...rows].join('\r\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `guest-logs-${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setSuccess(`Exported ${logs.length} log${logs.length === 1 ? '' : 's'} to CSV.`);
+    };
+
     if (loading && logs.length === 0) {
         return <LoadingSpinner text="Loading user logs..." />;
     }
@@ -115,13 +151,22 @@ const UsersLogsPage = () => {
                         Post check-out history of guest activity.
                     </p>
                 </div>
-                <button
-                    onClick={handleDeleteOldLogs}
-                    className="flex items-center justify-center gap-2 px-5 py-3 bg-[#B22222]/10 text-[#B22222] hover:bg-[#B22222] hover:text-white border border-[#B22222]/20 font-bold text-[12px] uppercase tracking-widest rounded-xl transition-all shadow-sm whitespace-nowrap"
-                >
-                    <span className="material-symbols-outlined text-sm">delete_sweep</span>
-                    Clear &gt; 6 Months
-                </button>
+                <div className="flex flex-wrap items-center gap-3">
+                    <button
+                        onClick={handleExportCsv}
+                        className="flex items-center justify-center gap-2 px-5 py-3 bg-[#1B7F4B]/10 text-[#1B7F4B] hover:bg-[#1B7F4B] hover:text-white border border-[#1B7F4B]/20 font-bold text-[12px] uppercase tracking-widest rounded-xl transition-all shadow-sm whitespace-nowrap"
+                    >
+                        <span className="material-symbols-outlined text-sm">download</span>
+                        Export CSV
+                    </button>
+                    <button
+                        onClick={handleDeleteOldLogs}
+                        className="flex items-center justify-center gap-2 px-5 py-3 bg-[#B22222]/10 text-[#B22222] hover:bg-[#B22222] hover:text-white border border-[#B22222]/20 font-bold text-[12px] uppercase tracking-widest rounded-xl transition-all shadow-sm whitespace-nowrap"
+                    >
+                        <span className="material-symbols-outlined text-sm">delete_sweep</span>
+                        Clear &gt; 6 Months
+                    </button>
+                </div>
             </section>
 
             {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}

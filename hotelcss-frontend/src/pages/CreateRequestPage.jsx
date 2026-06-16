@@ -334,7 +334,7 @@ const CreateRequestPage = () => {
                                     .filter((item) => item.isAvailable)
                                     .map((item) => (
                                         <option key={item.id} value={item.id}>
-                                            {item.name} {item.price ? `- $${parseFloat(item.price).toFixed(2)}` : ''}
+                                            {item.name} {item.price ? `- €${parseFloat(item.price).toFixed(2)}` : ''}
                                         </option>
                                     ))}
                             </select>
@@ -365,7 +365,7 @@ const CreateRequestPage = () => {
                                         )}
                                         {selectedServiceItem.price && parseFloat(selectedServiceItem.price) > 0 && (
                                             <p className="text-lg font-bold text-[#D35400] mt-3">
-                                                ${parseFloat(selectedServiceItem.price).toFixed(2)}
+                                                €{parseFloat(selectedServiceItem.price).toFixed(2)}
                                             </p>
                                         )}
                                     </div>
@@ -453,7 +453,7 @@ const CreateRequestPage = () => {
                         </h3>
 
                         <p className="text-center text-[#5D534A] leading-relaxed mb-8">
-                            This item has a price of <span className="font-bold text-[#D35400]">${parseFloat(selectedServiceItem?.price).toFixed(2)}</span>.
+                            This item has a price of <span className="font-bold text-[#D35400]">€{parseFloat(selectedServiceItem?.price).toFixed(2)}</span>.
                             <br /><br />
                             Do you accept to pay this charge when the item is delivered to your room?
                         </p>

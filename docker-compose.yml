@@ -65,14 +65,12 @@ services:
         VITE_API_BASE_URL: "/api"
         # Address guests' phones use to reach the app over the LAN. Room QR codes
         # encode this, so they work even when staff open the panel at localhost.
-        # ⚠️ Update this (and rebuild web) whenever the host's LAN IP changes —
-        # a static IP / DHCP reservation avoids that. Leave empty to instead use
-        # whatever address the panel was opened from.
-        VITE_QR_BASE_URL: "http://172.20.10.12:5173"
-        # IP değiştiğinde docker compose up --build -d web
-        #Frontend (React, hotelcss-frontend/)	docker compose up --build -d web → sonra tarayıcıda Ctrl+Shift+R
-        #Backend (.NET, controller/model vb.)	docker compose up --build -d api
-        #İkisini de / emin değilsen	docker compose up --build -d
+        # Read from a local, git-ignored .env file (QR_BASE_URL) so each machine
+        # keeps its OWN LAN IP — pulling a teammate's changes no longer overwrites
+        # it. If unset, the frontend falls back to whatever address the panel was
+        # opened from (window.location.origin).
+        # Set it in .env next to this file, e.g.:  QR_BASE_URL=http://192.168.1.23:5173
+        VITE_QR_BASE_URL: "${QR_BASE_URL:-}"
     container_name: hotelcss-web
     depends_on:
       - api

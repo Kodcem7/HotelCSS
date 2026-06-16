@@ -71,8 +71,12 @@ export const reportIssue = async (issueData) => {
  * @param {string} newStatus - New status (Pending, InProcess, Completed, Cancelled)
  * @returns {Promise} Updated request
  */
-export const updateRequestStatus = async (id, newStatus) => {
-    const response = await api.put(`/Request/${id}?newStatus=${newStatus}`);
+export const updateRequestStatus = async (id, newStatus, reason) => {
+    let url = `/Request/${id}?newStatus=${newStatus}`;
+    if (reason) {
+        url += `&reason=${encodeURIComponent(reason)}`;
+    }
+    const response = await api.put(url);
     return response.data;
 };
 

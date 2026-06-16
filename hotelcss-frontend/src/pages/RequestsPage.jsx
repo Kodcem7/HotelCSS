@@ -5,8 +5,12 @@ import SuccessMessage from '../components/SuccessMessage';
 import SearchBar from '../components/SearchBar';
 import { getRequests, updateRequestStatus, deleteRequest } from '../api/requests';
 import { getBackendOrigin } from '../api/axios';
+import { useAuth } from '../context/AuthContext';
 
 const RequestsPage = () => {
+    const { user } = useAuth();
+    // Only Admin/Manager/Reception may permanently delete a request (matches backend).
+    const canDelete = ['Admin', 'Manager', 'Reception'].includes(user?.role);
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -17,6 +21,9 @@ const RequestsPage = () => {
     const [previewImage, setPreviewImage] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: 'requestDate', direction: 'desc' });
     const [, setTick] = useState(0);
+    const [cancelTarget, setCancelTarget] = useState(null);
+    const [cancelReason, setCancelReason] = useState('');
+    const [cancelSubmitting, setCancelSubmitting] = useState(false);
 
     useEffect(() => {
         fetchRequests();
@@ -67,6 +74,24 @@ const RequestsPage = () => {
             await fetchRequests();
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to delete request');
+        }
+    };
+
+    const submitCancel = async () => {
+        if (!cancelTarget) return;
+        try {
+            setCancelSubmitting(true);
+            setError('');
+            setSuccess('');
+            await updateRequestStatus(cancelTarget.id, 'Cancelled', cancelReason.trim());
+            setSuccess(`Request #${cancelTarget.id} cancelled`);
+            setCancelTarget(null);
+            setCancelReason('');
+            await fetchRequests();
+        } catch (err) {
+            setError(err.response?.data?.message || 'Failed to cancel request');
+        } finally {
+            setCancelSubmitting(false);
         }
     };
 
@@ -271,7 +296,12 @@ const RequestsPage = () => {
                                     {request.status === 'InProcess' && (
                                         <button onClick={() => handleStatusUpdate(request.id, 'Completed')} className="text-[#1B7F4B]">Complete</button>
                                     )}
-                                    <button onClick={() => handleDelete(request.id)} className="text-[#B22222] ml-auto">Delete</button>
+                                    {(request.status === 'Pending' || request.status === 'InProcess') && (
+                                        <button onClick={() => { setCancelReason(''); setCancelTarget(request); }} className="text-[#C2410C]">Cancel</button>
+                                    )}
+                                    {canDelete && (
+                                        <button onClick={() => handleDelete(request.id)} className="text-[#B22222] ml-auto">Delete</button>
+                                    )}
                                 </div>
                             </div>
                         ))}
@@ -437,12 +467,22 @@ const RequestsPage = () => {
                                                         Complete
                                                     </button>
                                                 )}
-                                                <button
-                                                    onClick={() => handleDelete(request.id)}
-                                                    className="text-[#B22222] hover:text-[#4A3728] transition-colors"
-                                                >
-                                                    Delete
-                                                </button>
+                                                {(request.status === 'Pending' || request.status === 'InProcess') && (
+                                                    <button
+                                                        onClick={() => { setCancelReason(''); setCancelTarget(request); }}
+                                                        className="text-[#C2410C] hover:text-[#4A3728] transition-colors"
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                )}
+                                                {canDelete && (
+                                                    <button
+                                                        onClick={() => handleDelete(request.id)}
+                                                        className="text-[#B22222] hover:text-[#4A3728] transition-colors"
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                )}
                                             </td>
                                         </tr>
                                     ))}
@@ -451,6 +491,58 @@ const RequestsPage = () => {
                         </div>
                     </div>
                     </>
+                )}
+                {cancelTarget && (
+                    <div
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                        onClick={() => !cancelSubmitting && setCancelTarget(null)}
+                    >
+                        <div
+                            className="w-full max-w-md bg-[#FDFBF7] rounded-[24px] border border-[#E3DCD2]/40 shadow-2xl p-6"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="flex items-center gap-3 mb-2">
+                                <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                                    <span className="material-symbols-outlined text-[#B22222] text-[22px]">cancel</span>
+                                </div>
+                                <h3 className="font-headline text-xl text-[#4A3728] font-bold">Cancel Request</h3>
+                            </div>
+                            <p className="text-[13px] text-[#5D534A] mb-4">
+                                Cancelling <span className="font-semibold text-[#4A3728]">#{cancelTarget.id}</span>
+                                {cancelTarget.serviceItem?.name ? ` — ${cancelTarget.serviceItem.name}` : ''} for Room {cancelTarget.roomNumber}.
+                                The reason below will be shown to the guest.
+                            </p>
+                            <label className="block text-[11px] font-bold uppercase tracking-widest text-[#8E735B] mb-1.5">
+                                Cancellation reason
+                            </label>
+                            <textarea
+                                value={cancelReason}
+                                onChange={(e) => setCancelReason(e.target.value)}
+                                rows={3}
+                                autoFocus
+                                placeholder="e.g. Item out of stock, kitchen closed…"
+                                className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E] text-sm resize-none"
+                            />
+                            <div className="flex gap-3 mt-5">
+                                <button
+                                    type="button"
+                                    onClick={() => setCancelTarget(null)}
+                                    disabled={cancelSubmitting}
+                                    className="flex-1 px-4 py-3 text-xs font-bold uppercase tracking-widest rounded-2xl bg-[#F2EBE1] text-[#4A3728] hover:bg-[#E8DFD1] transition disabled:opacity-50"
+                                >
+                                    Keep Request
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={submitCancel}
+                                    disabled={cancelSubmitting}
+                                    className="flex-1 px-4 py-3 text-xs font-bold uppercase tracking-widest rounded-2xl bg-[#B22222] text-white hover:bg-[#8f1b1b] transition disabled:opacity-50"
+                                >
+                                    {cancelSubmitting ? 'Cancelling…' : 'Confirm Cancel'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 )}
                 {previewImage && (
                     <div

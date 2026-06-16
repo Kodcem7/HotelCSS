@@ -24,11 +24,11 @@ const Toast = ({ toast, onDismiss }) => {
         // Trigger enter animation
         const show = requestAnimationFrame(() => setVisible(true));
 
-        // Auto-dismiss after 5 s
+        // Auto-dismiss (longer for cancellations so the reason can be read)
         const timer = setTimeout(() => {
             setVisible(false);
             setTimeout(() => onDismiss(toast.id), 300);
-        }, 5000);
+        }, toast.type === 'cancelled' ? 8000 : 5000);
 
         return () => {
             cancelAnimationFrame(show);
@@ -36,25 +36,35 @@ const Toast = ({ toast, onDismiss }) => {
         };
     }, [toast.id, onDismiss]);
 
+    const isCancelled = toast.type === 'cancelled';
+    const itemLabel = `${toast.quantity > 1 ? `${toast.quantity}× ` : ''}${toast.itemName}`;
+
     return (
         <div
             className={`pointer-events-auto bg-[#FDFBF7] border border-[#E3DCD2]/60 rounded-2xl shadow-[0_20px_40px_rgba(15,28,44,0.15)] p-4 flex items-start gap-3 transition-all duration-300 ${
                 visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}
         >
-            <div className="flex-shrink-0 w-9 h-9 rounded-full bg-green-100 flex items-center justify-center">
-                <span className="material-symbols-outlined text-green-600 text-[20px]">check_circle</span>
+            <div className={`flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center ${isCancelled ? 'bg-red-100' : 'bg-green-100'}`}>
+                <span className={`material-symbols-outlined text-[20px] ${isCancelled ? 'text-red-600' : 'text-green-600'}`}>
+                    {isCancelled ? 'cancel' : 'check_circle'}
+                </span>
             </div>
             <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-[#4A3728] leading-snug">
-                    Order Delivered!
+                    {isCancelled ? 'Request Cancelled' : 'Order Delivered!'}
                 </p>
                 <p className="text-xs text-[#5D534A] mt-0.5 leading-snug">
-                    <span className="font-semibold text-[#D35400]">
-                        {toast.quantity > 1 ? `${toast.quantity}× ` : ''}{toast.itemName}
+                    <span className={`font-semibold ${isCancelled ? 'text-[#B22222]' : 'text-[#D35400]'}`}>
+                        {itemLabel}
                     </span>{' '}
-                    has been completed.
+                    {isCancelled ? 'has been cancelled.' : 'has been completed.'}
                 </p>
+                {isCancelled && toast.reason && (
+                    <p className="text-xs text-[#7f1d1d] mt-1 leading-snug bg-red-50 border border-red-200/70 rounded-lg px-2 py-1">
+                        <span className="font-semibold">Reason:</span> {toast.reason}
+                    </p>
+                )}
             </div>
             <button
                 onClick={() => {
