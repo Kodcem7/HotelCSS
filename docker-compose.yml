@@ -7,8 +7,10 @@ services:
       ACCEPT_EULA: "Y"
       MSSQL_SA_PASSWORD: "HotelCss!2024Strong"
       MSSQL_PID: "Express"
-    ports:
-      - "1433:1433"
+    # No host port mapping: the API reaches the DB internally over the Docker
+    # network (db:1433). Publishing 1433 to the host clashes with a local
+    # SQL Server / Windows port reservation and needlessly exposes SQL.
+    # To connect from the host (e.g. SSMS), add a non-conflicting port: "14333:1433".
     volumes:
       - mssql-data:/var/opt/mssql
 
