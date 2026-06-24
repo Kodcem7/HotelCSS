@@ -23,6 +23,7 @@ const ReceptionServicesPage = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [editValues, setEditValues] = useState({});
+    const [filterType, setFilterType] = useState('All');
     const [pickupForm, setPickupForm] = useState({
         roomNumber: '',
         ScheduledTime: '',
@@ -201,9 +202,19 @@ const ReceptionServicesPage = () => {
     const textareaClass =
         'w-full px-4 py-3 bg-concierge-surface-container-low border-none rounded-2xl text-concierge-on-surface text-sm focus:ring-2 focus:ring-concierge-primary/25 focus:bg-concierge-surface-container-lowest transition-all placeholder:text-concierge-outline/45';
 
+    const displayedServices = services
+        .filter((s) => filterType === 'All' || s.requestType === filterType)
+        .slice()
+        .sort((a, b) => {
+            const tb = new Date(b.createdAt || 0).getTime();
+            const ta = new Date(a.createdAt || 0).getTime();
+            if (tb !== ta) return tb - ta;
+            return (b.id || 0) - (a.id || 0);
+        });
+
     return (
         <>
-            <div className="-mx-4 sm:-mx-6 px-4 sm:px-6 py-2 min-h-[calc(100vh-6rem)] bg-concierge-background rounded-[2rem] sm:rounded-[3rem] border border-concierge-outline-variant/20 concierge-editorial-shadow">
+            <div className="max-w-6xl mx-auto p-6">
                 <div className="max-w-6xl mx-auto">
                     <div className="mb-8 pt-2">
                         <span className="inline-block py-1.5 px-4 rounded-full bg-concierge-secondary-container text-concierge-on-secondary-container text-[10px] font-bold tracking-widest uppercase mb-3">
@@ -284,7 +295,22 @@ const ReceptionServicesPage = () => {
                         </form>
                     </div>
 
-                    {services.length === 0 ? (
+                    <div className="mb-4 flex items-center gap-3">
+                        <label className="text-[10px] font-bold tracking-widest uppercase text-concierge-outline">
+                            {translateUiText('Type')}
+                        </label>
+                        <select
+                            value={filterType}
+                            onChange={(e) => setFilterType(e.target.value)}
+                            className="px-4 py-2.5 bg-concierge-surface-container-low border-none rounded-full text-concierge-on-surface text-sm focus:ring-2 focus:ring-concierge-primary/25"
+                        >
+                            <option value="All">{translateUiText('All')}</option>
+                            <option value="Wake-Up Service">{translateUiText('Wake-Up Service')}</option>
+                            <option value="Pick-Up">{translateUiText('Pick-Up')}</option>
+                        </select>
+                    </div>
+
+                    {displayedServices.length === 0 ? (
                         <div className="bg-concierge-surface-container-lowest/80 rounded-[2rem] p-6 sm:p-10 text-center text-concierge-on-surface-variant border border-concierge-outline-variant/10">
                             {translateUiText('No reception services found.')}
                         </div>
@@ -315,7 +341,7 @@ const ReceptionServicesPage = () => {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-concierge-outline-variant/15">
-                                        {services.map((service) => {
+                                        {displayedServices.map((service) => {
                                             const isWakeUp = service.requestType === 'Wake-Up Service';
                                             const time = isWakeUp ? service.scheduledTime : service.pickUpTime;
                                             return (

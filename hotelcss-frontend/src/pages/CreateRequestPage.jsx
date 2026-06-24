@@ -375,12 +375,12 @@ const CreateRequestPage = () => {
 
                         <div>
                             <label className="block text-sm font-semibold text-[#4A3728] mb-2">
-                                Quantity * (1-5)
+                                Quantity / Days *
                             </label>
                             <input
                                 type="number"
                                 min="1"
-                                max="5"
+                                max="30"
                                 value={formData.Quantity}
                                 onChange={(e) => {
                                     const val = e.target.value;
@@ -397,14 +397,14 @@ const CreateRequestPage = () => {
                                     if (formData.Quantity === '' || formData.Quantity < 1) {
                                         setFormData({ ...formData, Quantity: 1 });
                                     }
-                                    else if (formData.Quantity > 5) {
-                                        setFormData({ ...formData, Quantity: 5 });
+                                    else if (formData.Quantity > 30) {
+                                        setFormData({ ...formData, Quantity: 30 });
                                     }
                                 }}
                                 className="w-full px-4 py-3 border-2 border-[#E3DCD2]/70 rounded-2xl bg-[#F2EBE1]/55 focus:border-[#D35400]/40 focus:outline-none text-[#2C241E]"
                                 required
                             />
-                            <p className="text-xs text-[#8E735B] mt-1">You can order between 1 and 5 items</p>
+                            <p className="text-xs text-[#8E735B] mt-1">Number of units — or days (e.g. 7 for a 7-day safe box). Max 30.</p>
                         </div>
 
                         <div>
@@ -453,7 +453,16 @@ const CreateRequestPage = () => {
                         </h3>
 
                         <p className="text-center text-[#5D534A] leading-relaxed mb-8">
-                            This item has a price of <span className="font-bold text-[#D35400]">€{parseFloat(selectedServiceItem?.price).toFixed(2)}</span>.
+                            {(() => {
+                                const unit = parseFloat(selectedServiceItem?.price) || 0;
+                                const qty = parseInt(formData.Quantity, 10) || 1;
+                                const total = (unit * qty).toFixed(2);
+                                return qty > 1 ? (
+                                    <>This item is <span className="font-bold text-[#D35400]">€{unit.toFixed(2)}</span> × {qty} = <span className="font-bold text-[#D35400]">€{total}</span>.</>
+                                ) : (
+                                    <>This item has a price of <span className="font-bold text-[#D35400]">€{total}</span>.</>
+                                );
+                            })()}
                             <br /><br />
                             Do you accept to pay this charge when the item is delivered to your room?
                         </p>
