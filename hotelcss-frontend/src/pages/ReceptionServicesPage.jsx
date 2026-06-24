@@ -22,8 +22,7 @@ const ReceptionServicesPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
-    const [editingId, setEditingId] = useState(null);
-    const [editingTime, setEditingTime] = useState('');
+    const [editValues, setEditValues] = useState({});
     const [pickupForm, setPickupForm] = useState({
         roomNumber: '',
         ScheduledTime: '',
@@ -44,12 +43,23 @@ const ReceptionServicesPage = () => {
         }
     };
 
+    const toLocalInput = (dateStr) => {
+        if (!dateStr) return '';
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return '';
+        return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    };
+
     const loadServices = async () => {
         try {
             setLoading(true);
             setError('');
             const data = await getReceptionServices();
-            setServices(Array.isArray(data) ? data : data?.data ?? []);
+            const list = Array.isArray(data) ? data : data?.data ?? [];
+            setServices(list);
+            const ev = {};
+            list.forEach((s) => { ev[s.id] = toLocalInput(s.scheduledTime || s.pickUpTime); });
+            setEditValues(ev);
         } catch (err) {
             setError(translateUiText('Failed to load reception services'));
             console.error(err);
@@ -103,49 +113,40 @@ const ReceptionServicesPage = () => {
         }
     };
 
-    const startEdit = (service) => {
-        setEditingId(service.id);
-        const baseDate = service.scheduledTime || service.pickUpTime;
-        if (baseDate) {
-            const d = new Date(baseDate);
-            const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000)
-                .toISOString()
-                .slice(0, 16);
-            setEditingTime(local);
+    const saveTime = async (service, val) => {
+        if (service.requestType === 'Pick-Up') {
+            await updatePickUpTime(service.id, val);
         } else {
-            setEditingTime('');
+            await updateWakeUpTime(service.id, val);
         }
-        setSuccess('');
-        setError('');
     };
 
-    const cancelEdit = () => {
-        setEditingId(null);
-        setEditingTime('');
-    };
-
-    const saveEdit = async (service) => {
-        if (!editingTime) {
-            setError(translateUiText('Please choose a time'));
-            return;
-        }
+    // Time is always editable and auto-saves on change (no Edit/Save buttons).
+    const handleTimeChange = async (service, val) => {
+        setEditValues((prev) => ({ ...prev, [service.id]: val }));
+        if (!val) return;
         try {
             setError('');
             setSuccess('');
-
-            if (service.requestType === 'Wake-Up Service') {
-                await updateWakeUpTime(service.id, editingTime);
-            } else if (service.requestType === 'Pick-Up') {
-                await updatePickUpTime(service.id, editingTime);
-            }
-
+            await saveTime(service, val);
             setSuccess(translateUiText('Time updated successfully'));
-            setEditingId(null);
-            setEditingTime('');
-            await loadServices();
         } catch (err) {
-            const msg = err.response?.data?.message || translateUiText('Failed to update time');
-            setError(msg);
+            setError(err.response?.data?.message || translateUiText('Failed to update time'));
+        }
+    };
+
+    // Cancel = revert the row's time back to the value it had on page load.
+    const handleCancel = async (service) => {
+        const orig = toLocalInput(service.scheduledTime || service.pickUpTime);
+        setEditValues((prev) => ({ ...prev, [service.id]: orig }));
+        if (!orig) return;
+        try {
+            setError('');
+            setSuccess('');
+            await saveTime(service, orig);
+            setSuccess(translateUiText('Changes reverted'));
+        } catch (err) {
+            setError(err.response?.data?.message || translateUiText('Failed to revert'));
         }
     };
 
@@ -154,10 +155,10 @@ const ReceptionServicesPage = () => {
             setError('');
             setSuccess('');
 
-            if (service.requestType === 'Wake-Up Service') {
-                await updateWakeUpStatus(service.id, nextStatus);
-            } else if (service.requestType === 'Pick-Up') {
+            if (service.requestType === 'Pick-Up') {
                 await updatePickUpStatus(service.id, nextStatus);
+            } else {
+                await updateWakeUpStatus(service.id, nextStatus);
             }
 
             setSuccess(translateUiText('Status updated successfully'));
@@ -177,10 +178,10 @@ const ReceptionServicesPage = () => {
             setError('');
             setSuccess('');
 
-            if (service.requestType === 'Wake-Up Service') {
-                await deleteWakeUpService(service.id);
-            } else if (service.requestType === 'Pick-Up') {
+            if (service.requestType === 'Pick-Up') {
                 await deletePickUpService(service.id);
+            } else {
+                await deleteWakeUpService(service.id);
             }
 
             setSuccess(translateUiText('Record deleted successfully'));
@@ -326,18 +327,12 @@ const ReceptionServicesPage = () => {
                                                         {translateUiText(service.requestType)}
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-concierge-on-surface">
-                                                        {editingId === service.id ? (
-                                                            <input
-                                                                type="datetime-local"
-                                                                value={editingTime}
-                                                                onChange={(e) => setEditingTime(e.target.value)}
-                                                                className={`${inputClass} rounded-xl py-2 text-xs max-w-[200px]`}
-                                                            />
-                                                        ) : time ? (
-                                                            new Date(time).toLocaleString()
-                                                        ) : (
-                                                            '-'
-                                                        )}
+                                                        <input
+                                                            type="datetime-local"
+                                                            value={editValues[service.id] ?? ''}
+                                                            onChange={(e) => handleTimeChange(service, e.target.value)}
+                                                            className={`${inputClass} rounded-xl py-2 text-xs max-w-[200px]`}
+                                                        />
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                                                         <span
@@ -352,30 +347,13 @@ const ReceptionServicesPage = () => {
                                                         {service.notes || '-'}
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                                        {editingId === service.id ? (
-                                                            <>
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => saveEdit(service)}
-                                                                    className="text-emerald-700 hover:text-emerald-900 text-xs font-semibold"
-                                                                >
-                                                                    {translateUiText('Save')}
-                                                                </button>
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={cancelEdit}
-                                                                    className="text-concierge-on-surface-variant hover:text-concierge-on-surface text-xs"
-                                                                >
-                                                                    {translateUiText('Cancel')}
-                                                                </button>
-                                                            </>
-                                                        ) : (
+                                                        {service.status !== 'Completed' && (
                                                             <button
                                                                 type="button"
-                                                                onClick={() => startEdit(service)}
-                                                                className="text-concierge-primary hover:text-concierge-primary-container text-xs font-semibold"
+                                                                onClick={() => handleCancel(service)}
+                                                                className="text-concierge-on-surface-variant hover:text-concierge-on-surface text-xs font-semibold"
                                                             >
-                                                                {translateUiText('Edit')}
+                                                                {translateUiText('Cancel')}
                                                             </button>
                                                         )}
                                                         {service.status === 'Pending' && (
@@ -396,15 +374,13 @@ const ReceptionServicesPage = () => {
                                                                 {translateUiText('Complete')}
                                                             </button>
                                                         )}
-                                                        {service.status === 'Completed' && (
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => handleDelete(service)}
-                                                                className="text-concierge-error hover:text-red-800 text-xs font-semibold"
-                                                            >
-                                                                {translateUiText('Delete')}
-                                                            </button>
-                                                        )}
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleDelete(service)}
+                                                            className="text-concierge-error hover:text-red-800 text-xs font-semibold"
+                                                        >
+                                                            {translateUiText('Delete')}
+                                                        </button>
                                                     </td>
                                                 </tr>
                                             );

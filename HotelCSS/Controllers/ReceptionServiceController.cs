@@ -275,7 +275,7 @@ namespace HotelCSS.Controllers
                 });
             }
 
-            var objFromDb = _unitOfWork.ReceptionService.GetFirstOrDefault(u => u.Id == id && u.RequestType == "Wake-Up Service");
+            var objFromDb = _unitOfWork.ReceptionService.GetFirstOrDefault(u => u.Id == id);
             if (objFromDb == null)
             {
                 return NotFound(new { success = false, message = "Wake-up service request not found" });
@@ -357,7 +357,7 @@ namespace HotelCSS.Controllers
                 });
             }
 
-            var objFromDb = _unitOfWork.ReceptionService.GetFirstOrDefault(u => u.Id == id && u.RequestType == "Pick-Up");
+            var objFromDb = _unitOfWork.ReceptionService.GetFirstOrDefault(u => u.Id == id);
             if (objFromDb == null)
             {
                 return NotFound(new { success = false, message = "Pick-up information not found" });
