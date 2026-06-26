@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 // 👇 1. Added deleteRewardVoucher to the imports
-import { getVouchersForReception, updateRewardVoucherStatus, deleteRewardVoucher } from '../api/rewards';
+import { getVouchersForReception, updateRewardVoucherStatus, deleteRewardVoucher, bulkDeleteVouchers } from '../api/rewards';
 
 const RewardVouchersPage = () => {
     const [vouchers, setVouchers] = useState([]);
@@ -10,6 +10,8 @@ const RewardVouchersPage = () => {
     const [error, setError] = useState('');
 
     const [filterStatus, setFilterStatus] = useState('All');
+    const [selectedIds, setSelectedIds] = useState([]);
+    const [bulkDeleting, setBulkDeleting] = useState(false);
 
     useEffect(() => {
         const fetchVouchers = async () => {
@@ -59,6 +61,35 @@ const RewardVouchersPage = () => {
         }
     };
 
+    const toggleSelect = (id) => {
+        setSelectedIds((prev) =>
+            prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+        );
+    };
+
+    const toggleSelectAll = (ids) => {
+        const allSelected = ids.length > 0 && ids.every((id) => selectedIds.includes(id));
+        setSelectedIds(allSelected ? [] : ids);
+    };
+
+    const handleBulkDelete = async () => {
+        if (selectedIds.length === 0) return;
+        if (!window.confirm(`Are you sure you want to delete the selected ${selectedIds.length} voucher(s)? This cannot be undone.`)) return;
+        try {
+            setError('');
+            setBulkDeleting(true);
+            await bulkDeleteVouchers(selectedIds);
+            // Drop the deleted vouchers from the UI without a full reload.
+            setVouchers(prev => prev.filter(v => !selectedIds.includes(v.id)));
+            setSelectedIds([]);
+        } catch (err) {
+            setError(err.response?.data?.message || 'Failed to delete selected vouchers.');
+            console.error(err);
+        } finally {
+            setBulkDeleting(false);
+        }
+    };
+
     const filteredVouchers = vouchers.filter(v => {
         if (filterStatus === 'All') return true;
         return v.status === filterStatus;
@@ -98,6 +129,16 @@ const RewardVouchersPage = () => {
                                 <option value="Cancelled">Cancelled</option>
                             </select>
                         </div>
+                        {selectedIds.length > 0 && (
+                            <button
+                                onClick={handleBulkDelete}
+                                disabled={bulkDeleting}
+                                className="flex items-center justify-center gap-2 px-5 py-3 bg-[#B22222] text-white hover:bg-[#8f1b1b] font-bold text-[12px] uppercase tracking-widest rounded-2xl transition-all shadow-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <span className="material-symbols-outlined text-sm">delete</span>
+                                {bulkDeleting ? 'Deleting...' : `Delete Selected (${selectedIds.length})`}
+                            </button>
+                        )}
                     </div>
 
                     {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
@@ -115,6 +156,15 @@ const RewardVouchersPage = () => {
                             <table className="min-w-full divide-y divide-[#E3DCD2]/50">
                                 <thead className="bg-[#F2EBE1]/55">
                                     <tr>
+                                        <th className="px-6 py-3 text-left w-10">
+                                            <input
+                                                type="checkbox"
+                                                aria-label="Select all vouchers"
+                                                className="w-4 h-4 rounded border-[#E3DCD2] text-[#B22222] cursor-pointer"
+                                                checked={filteredVouchers.length > 0 && filteredVouchers.every((v) => selectedIds.includes(v.id))}
+                                                onChange={() => toggleSelectAll(filteredVouchers.map((v) => v.id))}
+                                            />
+                                        </th>
                                         <th className="px-6 py-3 text-left text-[11px] font-bold text-[#8E735B] uppercase tracking-widest">Room</th>
                                         <th className="px-6 py-3 text-left text-[11px] font-bold text-[#8E735B] uppercase tracking-widest">Item / Reward</th>
                                         <th className="px-6 py-3 text-left text-[11px] font-bold text-[#8E735B] uppercase tracking-widest">Code</th>
@@ -125,6 +175,15 @@ const RewardVouchersPage = () => {
                                 <tbody className="divide-y divide-[#E3DCD2]/40">
                                     {filteredVouchers.map((v) => (
                                         <tr key={v.id} className="hover:bg-[#F2EBE1]/35 transition-colors">
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <input
+                                                    type="checkbox"
+                                                    aria-label={`Select voucher ${v.voucherCode}`}
+                                                    className="w-4 h-4 rounded border-[#E3DCD2] text-[#B22222] cursor-pointer"
+                                                    checked={selectedIds.includes(v.id)}
+                                                    onChange={() => toggleSelect(v.id)}
+                                                />
+                                            </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="text-[13px] font-semibold text-[#4A3728]">Room {v.roomNumber}</div>
                                                 <div className="text-xs text-[#8E735B]">{new Date(v.createdAt).toLocaleDateString()}</div>

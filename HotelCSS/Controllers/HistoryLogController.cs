@@ -57,5 +57,23 @@ namespace HotelCSS.Controllers
             _unitOfWork.Save();
             return Ok(new { success = true, message = $"{logsToDelete.Count} logs older than 6 months have been deleted." });
         }
+        [HttpDelete("LogsBulkDelete")]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
+        public async Task<IActionResult> LogsBulkDelete([FromBody] List<int> logdIds)
+        {
+            if (logdIds == null || !logdIds.Any())
+            {
+                return BadRequest(new { success = false, message = "No log IDs provided for deletion." });
+            }
+            var logsToDelete = _unitOfWork.HistoryLog.GetAll().Where(u => logdIds.Contains(u.Id)).ToList();
+            if (!logsToDelete.Any())
+            {
+                return NotFound(new { success = false, message = "No matching logs found for the provided IDs." });
+            }
+
+            _unitOfWork.HistoryLog.RemoveRange(logsToDelete);
+            _unitOfWork.Save();
+            return Ok(new { success = true, message = $"{logsToDelete.Count} logs have been deleted successfully." });
+        }
     }
 }

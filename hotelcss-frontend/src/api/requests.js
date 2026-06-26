@@ -91,6 +91,20 @@ export const deleteRequest = async (id) => {
 };
 
 /**
+ * Delete multiple requests in one call.
+ * Backend: [FromBody] List<int> requestIds.
+ * @param {number[]} ids - Request IDs to delete
+ * @returns {Promise} Deletion result
+ */
+export const bulkDeleteRequests = async (ids) => {
+    const response = await api.delete('/Request/DeleteBulkRequests', {
+        data: ids,
+        headers: { 'Content-Type': 'application/json' },
+    });
+    return response.data;
+};
+
+/**
  * Get departments available for creating requests (excludes Administration, Room, Manager)
  * Used by room users to pick a department before selecting a service item.
  * @returns {Promise} List of departments with imageUrl

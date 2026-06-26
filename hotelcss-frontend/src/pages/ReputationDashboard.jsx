@@ -121,10 +121,15 @@ const ReputationDashboard = () => {
                         const title = review.title;
                         const text = review.text;
                         const rating = parseInt(review.rating, 10);
-                        const author = review.user?.username || 'Verified Guest';
-                        const date = new Date(review.published_date).toLocaleDateString(undefined, {
-                            month: 'short', day: 'numeric', year: 'numeric'
-                        });
+                        // Backend returns saved GuestReview rows (camelCase), not raw
+                        // TripAdvisor JSON — so read `author` / `publishedDate`.
+                        const author = review.author || 'Verified Guest';
+                        const publishedDate = review.publishedDate || review.published_date;
+                        const date = publishedDate
+                            ? new Date(publishedDate).toLocaleDateString(undefined, {
+                                month: 'short', day: 'numeric', year: 'numeric'
+                            })
+                            : '';
 
                         return (
                             <div

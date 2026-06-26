@@ -31,3 +31,12 @@ export const deleteRewardVoucher = async (id) => {
     const response = await api.delete(`/Reward/DeleteRewardVoucher/${id}`);
     return response.data;
 };
+
+// Delete multiple vouchers in one call. Backend: [FromBody] List<int> voucherIds.
+export const bulkDeleteVouchers = async (ids) => {
+    const response = await api.delete('/Reward/BulkVoucherDelete', {
+        data: ids,
+        headers: { 'Content-Type': 'application/json' },
+    });
+    return response.data;
+};

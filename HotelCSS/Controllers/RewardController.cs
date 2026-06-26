@@ -156,5 +156,24 @@ namespace HotelCSS.Controllers
             _unitOfWork.Save();
             return Ok(new { success = true, message = "Reward voucher deleted successfully." });
         }
+        [HttpDelete("BulkVoucherDelete")]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
+        public IActionResult BulkVoucherDelete([FromBody] List<int> voucherIds)
+        {
+            if (voucherIds == null || !voucherIds.Any())
+            {
+                return BadRequest(new { success = false, message = "No voucher IDs provided for deletion." });
+            }
+
+            var vouchersToDelete = _unitOfWork.RewardVoucher.GetAll().Where(u => voucherIds.Contains(u.Id)).ToList();
+            if (!vouchersToDelete.Any())
+            {
+                return NotFound(new { success = false, message = "No matching vouchers found for the provided IDs." });
+            }
+
+            _unitOfWork.RewardVoucher.RemoveRange(vouchersToDelete);
+            _unitOfWork.Save();
+            return Ok(new { success = true, message = $"{vouchersToDelete.Count} vouchers have been deleted successfully." });
+        }
     }
 }

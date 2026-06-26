@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getHistoryLogs, deleteLog, deleteLast6Months } from '../api/historylogs';
+import { getHistoryLogs, deleteLog, deleteLast6Months, bulkDeleteLogs } from '../api/historylogs';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 
@@ -30,6 +30,8 @@ const UsersLogsPage = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [expandedRow, setExpandedRow] = useState(null);
+    const [selectedIds, setSelectedIds] = useState([]);
+    const [bulkDeleting, setBulkDeleting] = useState(false);
 
     useEffect(() => {
         fetchLogs();
@@ -59,6 +61,7 @@ const UsersLogsPage = () => {
             });
 
             setLogs(sortedLogs);
+            setSelectedIds([]); // drop stale selection after a reload
         } catch (err) {
             setError('Failed to load user logs.');
             console.error('API ERROR:', err);
@@ -131,6 +134,35 @@ const UsersLogsPage = () => {
         setSuccess(`Exported ${logs.length} log${logs.length === 1 ? '' : 's'} to CSV.`);
     };
 
+    const toggleSelect = (id) => {
+        setSelectedIds((prev) =>
+            prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+        );
+    };
+
+    const toggleSelectAll = () => {
+        const ids = logs.map((log) => get(log, 'id', 'Id'));
+        const allSelected = ids.length > 0 && ids.every((id) => selectedIds.includes(id));
+        setSelectedIds(allSelected ? [] : ids);
+    };
+
+    const handleBulkDelete = async () => {
+        if (selectedIds.length === 0) return;
+        if (!window.confirm(`Are you sure you want to delete the selected ${selectedIds.length} log(s)?`)) return;
+        try {
+            setError('');
+            setSuccess('');
+            setBulkDeleting(true);
+            const res = await bulkDeleteLogs(selectedIds);
+            setSuccess(res?.message || 'Selected logs deleted successfully.');
+            await fetchLogs();
+        } catch (err) {
+            setError(err.response?.data?.message || 'Failed to delete selected logs.');
+        } finally {
+            setBulkDeleting(false);
+        }
+    };
+
     if (loading && logs.length === 0) {
         return <LoadingSpinner text="Loading user logs..." />;
     }
@@ -152,6 +184,16 @@ const UsersLogsPage = () => {
                     </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
+                    {selectedIds.length > 0 && (
+                        <button
+                            onClick={handleBulkDelete}
+                            disabled={bulkDeleting}
+                            className="flex items-center justify-center gap-2 px-5 py-3 bg-[#B22222] text-white hover:bg-[#8B1A1A] font-bold text-[12px] uppercase tracking-widest rounded-xl transition-all shadow-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <span className="material-symbols-outlined text-sm">delete</span>
+                            {bulkDeleting ? 'Deleting...' : `Delete Selected (${selectedIds.length})`}
+                        </button>
+                    )}
                     <button
                         onClick={handleExportCsv}
                         className="flex items-center justify-center gap-2 px-5 py-3 bg-[#1B7F4B]/10 text-[#1B7F4B] hover:bg-[#1B7F4B] hover:text-white border border-[#1B7F4B]/20 font-bold text-[12px] uppercase tracking-widest rounded-xl transition-all shadow-sm whitespace-nowrap"
@@ -208,6 +250,15 @@ const UsersLogsPage = () => {
                     <table className="w-full text-left border-collapse min-w-[1100px]">
                         <thead>
                             <tr className="bg-[#F2EBE1]/50 border-b border-[#E3DCD2]/50 text-[#8E735B] text-[10px] uppercase tracking-widest font-bold">
+                                <th className="p-5 w-10">
+                                    <input
+                                        type="checkbox"
+                                        aria-label="Select all logs"
+                                        className="w-4 h-4 rounded border-[#E3DCD2] text-[#B22222] cursor-pointer"
+                                        checked={logs.length > 0 && logs.every((log) => selectedIds.includes(get(log, 'id', 'Id')))}
+                                        onChange={toggleSelectAll}
+                                    />
+                                </th>
                                 <th className="p-5 w-12">ID</th>
                                 <th className="p-5">Log Date</th>
                                 <th className="p-5">Room</th>
@@ -224,7 +275,7 @@ const UsersLogsPage = () => {
                         <tbody className="text-sm text-[#4A3728]">
                             {logs.length === 0 ? (
                                 <tr>
-                                    <td colSpan="11" className="p-10 text-center text-[#8E735B] italic">
+                                    <td colSpan="12" className="p-10 text-center text-[#8E735B] italic">
                                         No user logs found.
                                     </td>
                                 </tr>
@@ -248,6 +299,15 @@ const UsersLogsPage = () => {
                                                 key={id}
                                                 className="border-b border-[#E3DCD2]/30 hover:bg-[#F2EBE1]/30 transition-colors"
                                             >
+                                                <td className="p-5">
+                                                    <input
+                                                        type="checkbox"
+                                                        aria-label={`Select log ${id}`}
+                                                        className="w-4 h-4 rounded border-[#E3DCD2] text-[#B22222] cursor-pointer"
+                                                        checked={selectedIds.includes(id)}
+                                                        onChange={() => toggleSelect(id)}
+                                                    />
+                                                </td>
                                                 <td className="p-5 font-mono text-xs text-[#8E735B]">#{id}</td>
 
                                                 <td className="p-5 whitespace-nowrap">
@@ -333,7 +393,7 @@ const UsersLogsPage = () => {
 
                                             {isExpanded && ordersSummary && (
                                                 <tr key={`${id}-orders`} className="bg-[#FDF8F3] border-b border-[#E3DCD2]/30">
-                                                    <td colSpan="11" className="px-8 py-4">
+                                                    <td colSpan="12" className="px-8 py-4">
                                                         <div className="flex items-start gap-3">
                                                             <span className="material-symbols-outlined text-[20px] text-[#D35400] mt-0.5">shopping_bag</span>
                                                             <div>

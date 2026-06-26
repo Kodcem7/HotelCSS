@@ -70,7 +70,7 @@ namespace HotelCSS.Controllers
             }
             string userId = claim.Value;
             IEnumerable<ReceptionService> pickUpTime;
-            
+
 
             if (User.IsInRole(SD.Role_Room))
             {
@@ -163,7 +163,7 @@ namespace HotelCSS.Controllers
                     return BadRequest(new { success = false, message = "Wake-up service request not found" });
                 }
                 objFromDb.ScheduledTime = obj;
-                objFromDb.Status = status; 
+                objFromDb.Status = status;
                 _unitOfWork.ReceptionService.Update(objFromDb);
                 _unitOfWork.Save();
                 return Ok(new { success = true, message = "Wake-up service time updated successfully" });
@@ -221,7 +221,7 @@ namespace HotelCSS.Controllers
         }
         [HttpPut("pickup/{id}")]
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception)]
-        public IActionResult UpdatePickUpTime(int id, DateTime obj,string status)
+        public IActionResult UpdatePickUpTime(int id, DateTime obj, string status)
         {
             if (obj == null)
             {
@@ -420,6 +420,25 @@ namespace HotelCSS.Controllers
             _unitOfWork.Save();
             return Ok(new { success = true, message = "Pick-up information deleted successfully" });
         }
+        [HttpDelete("BulkDelete")]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception)]
+        public IActionResult BulkDelete([FromBody] List<int> receptionServicesIds)
+        {
+            if (receptionServicesIds == null || !receptionServicesIds.Any())
+            {
+                return BadRequest(new { success = false, message = "No items selected for delete" });
+            }
 
+            var receptionServicesToDelete = _unitOfWork.ReceptionService.GetAll(u => receptionServicesIds.Contains(u.Id)).ToList();
+
+            if (!receptionServicesToDelete.Any())
+            {
+                return NotFound(new { success = false, message = "No matching requests found!" });
+            }
+
+            _unitOfWork.ReceptionService.RemoveRange(receptionServicesToDelete);
+            _unitOfWork.Save();
+            return Ok(new { success = true, message = $"{receptionServicesToDelete.Count} requests have been deleted successfully" });
+        }
     }
 }

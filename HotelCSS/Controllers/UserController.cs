@@ -268,18 +268,10 @@ namespace HotelCSS.Controllers
                 return Unauthorized(new { success = false, message = "Invalid Security Token!" });
             }
 
-            if (room.Status == "Available")
-            {
-                room.Status = "Occupied";
-                room.CurrentCheckInDate = DateTime.Now;
-                room.CurrentPoints = 0;
-                room.MoneySpent = 0;
-                room.PointsEarned = 0;
-
-                _unitOfWork.Room.Update(room);
-                _unitOfWork.Save();
-            }
-            else if (room.Status == "Occupied")
+            // The QR scan only authenticates the room user; it must NOT check the
+            // room in. The real check-in (status -> Occupied) happens in
+            // UpdateGuestEmail, after the guest submits their email and accepts KVKK.
+            if (room.Status == "Occupied")
             {
                 if (!string.IsNullOrEmpty(room.CurrentGuestMail) &&
                     !string.IsNullOrEmpty(obj.Email) &&
@@ -344,7 +336,19 @@ namespace HotelCSS.Controllers
             }
 
             room.CurrentGuestMail = obj.Email;
-            room.mailSent = true; 
+            room.mailSent = true;
+
+            // Real check-in happens only after the guest submits their email and
+            // accepts KVKK. Guard on Available so re-submitting the email on an
+            // already-occupied room doesn't wipe the current points/spend.
+            if (room.Status == "Available")
+            {
+                room.Status = "Occupied";
+                room.CurrentCheckInDate = DateTime.Now;
+                room.CurrentPoints = 0;
+                room.MoneySpent = 0;
+                room.PointsEarned = 0;
+            }
 
             _unitOfWork.Room.Update(room);
             _unitOfWork.Save();

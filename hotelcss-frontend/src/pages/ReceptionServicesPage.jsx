@@ -13,6 +13,7 @@ import {
     updatePickUpStatus,
     deleteWakeUpService,
     deletePickUpService,
+    bulkDeleteReceptionServices,
 } from '../api/receptionService';
 
 const ReceptionServicesPage = () => {
@@ -30,6 +31,8 @@ const ReceptionServicesPage = () => {
         Notes: '',
     });
     const [pickupSubmitting, setPickupSubmitting] = useState(false);
+    const [selectedIds, setSelectedIds] = useState([]);
+    const [bulkDeleting, setBulkDeleting] = useState(false);
 
     const getStatusBadgeClass = (status) => {
         switch (status) {
@@ -58,6 +61,7 @@ const ReceptionServicesPage = () => {
             const data = await getReceptionServices();
             const list = Array.isArray(data) ? data : data?.data ?? [];
             setServices(list);
+            setSelectedIds([]); // drop stale selection; ids may no longer exist
             const ev = {};
             list.forEach((s) => { ev[s.id] = toLocalInput(s.scheduledTime || s.pickUpTime); });
             setEditValues(ev);
@@ -193,6 +197,42 @@ const ReceptionServicesPage = () => {
         }
     };
 
+    const toggleSelect = (id) => {
+        setSelectedIds((prev) =>
+            prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+        );
+    };
+
+    const toggleSelectAll = (ids) => {
+        // If every visible row is already selected, clear; otherwise select all visible.
+        const allSelected = ids.length > 0 && ids.every((id) => selectedIds.includes(id));
+        setSelectedIds(allSelected ? [] : ids);
+    };
+
+    const handleBulkDelete = async () => {
+        if (selectedIds.length === 0) return;
+        if (!window.confirm(
+            translateUiText('Are you sure you want to delete the selected records?')
+        )) {
+            return;
+        }
+
+        try {
+            setError('');
+            setSuccess('');
+            setBulkDeleting(true);
+
+            const res = await bulkDeleteReceptionServices(selectedIds);
+            setSuccess(res?.message || translateUiText('Selected records deleted successfully'));
+            await loadServices();
+        } catch (err) {
+            const msg = err.response?.data?.message || translateUiText('Failed to delete selected records');
+            setError(msg);
+        } finally {
+            setBulkDeleting(false);
+        }
+    };
+
     if (loading) {
         return <LoadingSpinner text={translateUiText('Loading reception services...')} />;
     }
@@ -308,6 +348,20 @@ const ReceptionServicesPage = () => {
                             <option value="Wake-Up Service">{translateUiText('Wake-Up Service')}</option>
                             <option value="Pick-Up">{translateUiText('Pick-Up')}</option>
                         </select>
+
+                        {selectedIds.length > 0 && (
+                            <button
+                                type="button"
+                                onClick={handleBulkDelete}
+                                disabled={bulkDeleting}
+                                className="ml-auto inline-flex items-center gap-2 bg-concierge-error text-white py-2.5 px-5 rounded-full text-xs font-semibold uppercase tracking-widest shadow-lg shadow-concierge-error/20 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                            >
+                                <span className="material-symbols-outlined text-base">delete</span>
+                                {bulkDeleting
+                                    ? translateUiText('Deleting...')
+                                    : `${translateUiText('Delete selected')} (${selectedIds.length})`}
+                            </button>
+                        )}
                     </div>
 
                     {displayedServices.length === 0 ? (
@@ -320,6 +374,20 @@ const ReceptionServicesPage = () => {
                                 <table className="min-w-full divide-y divide-concierge-outline-variant/20">
                                     <thead className="bg-concierge-surface-container-high/80">
                                         <tr>
+                                            <th className="px-6 py-4 text-left">
+                                                <input
+                                                    type="checkbox"
+                                                    aria-label={translateUiText('Select all')}
+                                                    className="w-4 h-4 rounded border-concierge-outline-variant text-concierge-error focus:ring-concierge-error/40 cursor-pointer"
+                                                    checked={
+                                                        displayedServices.length > 0 &&
+                                                        displayedServices.every((s) => selectedIds.includes(s.id))
+                                                    }
+                                                    onChange={() =>
+                                                        toggleSelectAll(displayedServices.map((s) => s.id))
+                                                    }
+                                                />
+                                            </th>
                                             <th className="px-6 py-4 text-left text-[10px] font-bold text-concierge-outline uppercase tracking-widest">
                                                 {translateUiText('Room')}
                                             </th>
@@ -346,6 +414,15 @@ const ReceptionServicesPage = () => {
                                             const time = isWakeUp ? service.scheduledTime : service.pickUpTime;
                                             return (
                                                 <tr key={service.id} className="hover:bg-concierge-surface-container-low/50 transition-colors">
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <input
+                                                            type="checkbox"
+                                                            aria-label={`${translateUiText('Select')} ${service.roomNumber}`}
+                                                            className="w-4 h-4 rounded border-concierge-outline-variant text-concierge-error focus:ring-concierge-error/40 cursor-pointer"
+                                                            checked={selectedIds.includes(service.id)}
+                                                            onChange={() => toggleSelect(service.id)}
+                                                        />
+                                                    </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-concierge-on-surface">
                                                         {translateUiText('Room')} {service.roomNumber}
                                                     </td>

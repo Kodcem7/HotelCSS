@@ -4,7 +4,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import SuccessMessage from '../components/SuccessMessage';
 import SurveyAnalyticsChart from '../components/SurveyAnalyticsChart';
-import { getAllSurveys, getSurveyResponses, getResponseDetails, toggleSurveyStatus, getSurveyAiAnalysis, deleteSurvey, averageStars, getQuestionTrends } from '../api/surveys';
+import { getAllSurveys, getSurveyResponses, getResponseDetails, toggleSurveyStatus, getSurveyAiAnalysis, deleteSurvey, bulkDeleteSurveys, averageStars, getQuestionTrends } from '../api/surveys';
 
 const AdminSurveyResultsPage = () => {
     // view state can be: 'surveys', 'responses', 'answers', 'analysis'
@@ -29,6 +29,9 @@ const AdminSurveyResultsPage = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
+    const [selectedIds, setSelectedIds] = useState([]);
+    const [bulkDeleting, setBulkDeleting] = useState(false);
+
     useEffect(() => {
         fetchSurveys();
     }, []);
@@ -39,6 +42,7 @@ const AdminSurveyResultsPage = () => {
             const res = await getAllSurveys();
             const surveyArray = res.surveys || res.data || res.value || res || [];
             setSurveys(Array.isArray(surveyArray) ? surveyArray : []);
+            setSelectedIds([]); // drop stale selection after a reload
         } catch (err) {
             setError('Failed to load surveys.');
             console.error("Fetch Surveys Error:", err);
@@ -77,6 +81,36 @@ const AdminSurveyResultsPage = () => {
             setError(err.response?.data?.message || 'Failed to delete survey.');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const toggleSelect = (id) => {
+        setSelectedIds((prev) =>
+            prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+        );
+    };
+
+    const toggleSelectAll = (ids) => {
+        const allSelected = ids.length > 0 && ids.every((id) => selectedIds.includes(id));
+        setSelectedIds(allSelected ? [] : ids);
+    };
+
+    const handleBulkDeleteSurveys = async () => {
+        if (selectedIds.length === 0) return;
+        if (!window.confirm(`Are you sure you want to delete the selected ${selectedIds.length} survey(s)? This will permanently delete all guest responses attached to them.`)) {
+            return;
+        }
+        try {
+            setBulkDeleting(true);
+            setError('');
+            setSuccess('');
+            const res = await bulkDeleteSurveys(selectedIds);
+            await fetchSurveys();
+            setSuccess(res?.message || 'Selected surveys deleted successfully!');
+        } catch (err) {
+            setError(err.response?.data?.message || 'Failed to delete selected surveys.');
+        } finally {
+            setBulkDeleting(false);
         }
     };
 
@@ -175,12 +209,31 @@ const AdminSurveyResultsPage = () => {
                                 <h2 className="font-headline text-4xl text-[#4A3728] font-bold leading-tight">Survey Results</h2>
                                 <p className="text-[#5D534A] mt-2 text-[14px] leading-relaxed">Select a survey to view guest feedback or manage its status.</p>
                             </div>
+                            {selectedIds.length > 0 && (
+                                <button
+                                    onClick={handleBulkDeleteSurveys}
+                                    disabled={bulkDeleting}
+                                    className="flex items-center justify-center gap-2 px-5 py-3 bg-[#B22222] text-white hover:bg-[#8f1b1b] font-bold text-[12px] uppercase tracking-widest rounded-xl transition-all shadow-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    <span className="material-symbols-outlined text-sm">delete</span>
+                                    {bulkDeleting ? 'Deleting...' : `Delete Selected (${selectedIds.length})`}
+                                </button>
+                            )}
                         </div>
 
                         <div className="bg-[#FDFBF7] rounded-[24px] shadow-[0_20px_40px_rgba(15,28,44,0.04)] border border-[#E3DCD2]/40 overflow-hidden mb-8">
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="bg-[#F2EBE1] border-b border-[#E3DCD2]/50 text-[#8E735B] text-sm uppercase tracking-wider">
+                                        <th className="p-4 w-10">
+                                            <input
+                                                type="checkbox"
+                                                aria-label="Select all surveys"
+                                                className="w-4 h-4 rounded border-[#E3DCD2] text-[#B22222] cursor-pointer"
+                                                checked={surveys.length > 0 && surveys.every((s) => selectedIds.includes(s.id))}
+                                                onChange={() => toggleSelectAll(surveys.map((s) => s.id))}
+                                            />
+                                        </th>
                                         <th className="p-4 font-semibold">Survey Title</th>
                                         <th className="p-4 font-semibold">Status</th>
                                         <th className="p-4 font-semibold">Created</th>
@@ -190,6 +243,15 @@ const AdminSurveyResultsPage = () => {
                                 <tbody className="divide-y divide-[#E3DCD2]/40">
                                     {surveys.map((s) => (
                                         <tr key={s.id} className="hover:bg-[#F8F2EA] transition-colors">
+                                            <td className="p-4">
+                                                <input
+                                                    type="checkbox"
+                                                    aria-label={`Select survey ${s.title}`}
+                                                    className="w-4 h-4 rounded border-[#E3DCD2] text-[#B22222] cursor-pointer"
+                                                    checked={selectedIds.includes(s.id)}
+                                                    onChange={() => toggleSelect(s.id)}
+                                                />
+                                            </td>
                                             <td className="p-4 font-medium text-[#4A3728]">{s.title}</td>
                                             <td className="p-4">
                                                 <span className={`px-3 py-1 rounded-full text-xs font-bold ${s.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-[#EFE7DD] text-[#8E735B]'}`}>
@@ -199,7 +261,8 @@ const AdminSurveyResultsPage = () => {
                                             <td className="p-4 text-[#5D534A]">
                                                 {new Date(s.createdAt).toLocaleDateString()}
                                             </td>
-                                            <td className="p-4 text-right space-x-2">
+                                            <td className="p-4">
+                                                <div className="flex flex-wrap justify-end items-center gap-2">
                                                 <button
                                                     onClick={() => handleToggleStatus(s.id)}
                                                     className={`font-semibold text-sm px-4 py-2 rounded-xl transition-colors ${s.isActive
@@ -239,11 +302,12 @@ const AdminSurveyResultsPage = () => {
                                                 >
                                                     Delete
                                                 </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
                                     {surveys.length === 0 && (
-                                        <tr><td colSpan="4" className="p-8 text-center text-[#8E735B]">No surveys created yet.</td></tr>
+                                        <tr><td colSpan="5" className="p-8 text-center text-[#8E735B]">No surveys created yet.</td></tr>
                                     )}
                                 </tbody>
                             </table>

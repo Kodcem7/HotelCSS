@@ -3,7 +3,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import SuccessMessage from '../components/SuccessMessage';
 import SearchBar from '../components/SearchBar';
-import { getRequests, updateRequestStatus, deleteRequest } from '../api/requests';
+import { getRequests, updateRequestStatus, deleteRequest, bulkDeleteRequests } from '../api/requests';
 import { getBackendOrigin } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 
@@ -24,6 +24,8 @@ const RequestsPage = () => {
     const [cancelTarget, setCancelTarget] = useState(null);
     const [cancelReason, setCancelReason] = useState('');
     const [cancelSubmitting, setCancelSubmitting] = useState(false);
+    const [selectedIds, setSelectedIds] = useState([]);
+    const [bulkDeleting, setBulkDeleting] = useState(false);
 
     useEffect(() => {
         fetchRequests();
@@ -41,6 +43,7 @@ const RequestsPage = () => {
             setError('');
             const data = await getRequests();
             setRequests(Array.isArray(data) ? data : []);
+            setSelectedIds([]); // drop stale selection after a reload
         } catch (err) {
             setError('Failed to load requests');
             console.error(err);
@@ -74,6 +77,34 @@ const RequestsPage = () => {
             await fetchRequests();
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to delete request');
+        }
+    };
+
+    const toggleSelect = (id) => {
+        setSelectedIds((prev) =>
+            prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+        );
+    };
+
+    const toggleSelectAll = (ids) => {
+        const allSelected = ids.length > 0 && ids.every((id) => selectedIds.includes(id));
+        setSelectedIds(allSelected ? [] : ids);
+    };
+
+    const handleBulkDelete = async () => {
+        if (selectedIds.length === 0) return;
+        if (!window.confirm(`Are you sure you want to delete the selected ${selectedIds.length} request(s)?`)) return;
+        try {
+            setError('');
+            setSuccess('');
+            setBulkDeleting(true);
+            const res = await bulkDeleteRequests(selectedIds);
+            setSuccess(res?.message || 'Selected requests deleted successfully');
+            await fetchRequests();
+        } catch (err) {
+            setError(err.response?.data?.message || 'Failed to delete selected requests');
+        } finally {
+            setBulkDeleting(false);
         }
     };
 
@@ -214,6 +245,16 @@ const RequestsPage = () => {
                                 <option value="Room">Room</option>
                             </select>
                         </div>
+                        {canDelete && selectedIds.length > 0 && (
+                            <button
+                                onClick={handleBulkDelete}
+                                disabled={bulkDeleting}
+                                className="flex items-center justify-center gap-2 px-5 py-3 bg-[#B22222] text-white hover:bg-[#8f1b1b] font-bold text-[12px] uppercase tracking-widest rounded-2xl transition-all shadow-sm whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <span className="material-symbols-outlined text-sm">delete</span>
+                                {bulkDeleting ? 'Deleting...' : `Delete Selected (${selectedIds.length})`}
+                            </button>
+                        )}
                     </div>
                     <SearchBar
                         value={searchTerm}
@@ -240,6 +281,15 @@ const RequestsPage = () => {
                                 <div className="flex items-start justify-between gap-3 mb-2">
                                     <div className="min-w-0">
                                         <div className="flex items-center gap-2 flex-wrap">
+                                            {canDelete && (
+                                                <input
+                                                    type="checkbox"
+                                                    aria-label={`Select request ${request.id}`}
+                                                    className="w-4 h-4 rounded border-[#E3DCD2] text-[#B22222] cursor-pointer"
+                                                    checked={selectedIds.includes(request.id)}
+                                                    onChange={() => toggleSelect(request.id)}
+                                                />
+                                            )}
                                             <span className="font-headline text-[#4A3728] font-bold text-base">Room {request.roomNumber}</span>
                                             <span className="text-[11px] text-[#8E735B] font-semibold">#{request.id}</span>
                                         </div>
@@ -313,6 +363,17 @@ const RequestsPage = () => {
                             <table className="min-w-full divide-y divide-[#E3DCD2]/50">
                                 <thead className="bg-[#F2EBE1]/55">
                                     <tr>
+                                        {canDelete && (
+                                            <th className="px-6 py-3 text-left w-10">
+                                                <input
+                                                    type="checkbox"
+                                                    aria-label="Select all requests"
+                                                    className="w-4 h-4 rounded border-[#E3DCD2] text-[#B22222] cursor-pointer"
+                                                    checked={sortedRequests.length > 0 && sortedRequests.every((r) => selectedIds.includes(r.id))}
+                                                    onChange={() => toggleSelectAll(sortedRequests.map((r) => r.id))}
+                                                />
+                                            </th>
+                                        )}
                                         <th
                                             className="px-6 py-3 text-left text-[11px] font-bold text-[#8E735B] uppercase tracking-widest cursor-pointer select-none"
                                             onClick={() => handleSort('id')}
@@ -373,6 +434,17 @@ const RequestsPage = () => {
                                 <tbody className="divide-y divide-[#E3DCD2]/40">
                                     {sortedRequests.map((request) => (
                                         <tr key={request.id} className="hover:bg-[#F2EBE1]/35">
+                                            {canDelete && (
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <input
+                                                        type="checkbox"
+                                                        aria-label={`Select request ${request.id}`}
+                                                        className="w-4 h-4 rounded border-[#E3DCD2] text-[#B22222] cursor-pointer"
+                                                        checked={selectedIds.includes(request.id)}
+                                                        onChange={() => toggleSelect(request.id)}
+                                                    />
+                                                </td>
+                                            )}
                                             <td className="px-6 py-4 whitespace-nowrap text-[13px] font-semibold text-[#4A3728]">
                                                 #{request.id}
                                             </td>

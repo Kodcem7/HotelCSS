@@ -123,3 +123,17 @@ export const deletePickUpService = async (id) => {
     const response = await api.delete(`/ReceptionService/Delete_PickUp/${id}`);
     return response.data;
 };
+
+/**
+ * Delete multiple reception services (wake-up + pick-up) in one call.
+ * Backend binds [FromBody] List<int> receptionServicesIds, so we send the ids
+ * as a JSON array in the request body.
+ * @param {number[]} ids
+ */
+export const bulkDeleteReceptionServices = async (ids) => {
+    const response = await api.delete('/ReceptionService/BulkDelete', {
+        data: ids,
+        headers: { 'Content-Type': 'application/json' },
+    });
+    return response.data;
+};

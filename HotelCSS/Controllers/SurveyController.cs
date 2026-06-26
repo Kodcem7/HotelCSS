@@ -419,6 +419,35 @@ namespace HotelCSS.Controllers
             return Ok(new { success = true, message = "Survey deleted successfully." });
         }
 
+        [HttpDelete("BulkDeleteSurveys")]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
+        public async Task<IActionResult> BulkDeleteSurveys([FromBody] List<int> surveyIds)
+        {
+            if (surveyIds == null || !surveyIds.Any())
+            {
+                return BadRequest(new { success = false, message = "No survey IDs provided for deletion." });
+            }
+            foreach (var id in surveyIds)
+            {
+                var survey = _unitOfWork.Survey.GetFirstOrDefault(u => u.Id == id);
+                if (survey != null)
+                {
+                    var surveyResponses = _unitOfWork.SurveyResponse.GetAll(u => u.SurveyId == id).ToList();
+                    var surveyQuestions = _unitOfWork.SurveyQuestion.GetAll(u => u.SurveyId == id).ToList();
+                    var questionIds = surveyQuestions.Select(q => q.Id).ToList();
+                    var surveyAnswers = _unitOfWork.SurveyAnswer.GetAll(a => questionIds.Contains(a.SurveyQuestionId)).ToList();
+                    if (surveyAnswers.Any())
+                        _unitOfWork.SurveyAnswer.RemoveRange(surveyAnswers);
+                    if (surveyQuestions.Any())
+                        _unitOfWork.SurveyQuestion.RemoveRange(surveyQuestions);
+                    if (surveyResponses.Any())
+                        _unitOfWork.SurveyResponse.RemoveRange(surveyResponses);
+                    _unitOfWork.Survey.Remove(survey);
+                }
+            }
+            _unitOfWork.Save();
+            return Ok(new { success = true, message = "Selected surveys deleted successfully." });
+        }
         [HttpGet("AverageStars/{surveyId}")]
         public IActionResult AverageStars(int surveyId)
         {

@@ -142,7 +142,10 @@ const RoomDashboard = () => {
 
     const handleEmailSaved = () => {
         if (room) {
-            setRoom({ ...room, mailSent: true });
+            // Submitting the email + KVKK is what actually checks the room in,
+            // so flip the local status too — otherwise the action cards stay
+            // disabled (isRoomAvailable) until a manual refresh.
+            setRoom({ ...room, mailSent: true, status: 'Occupied' });
         }
     };
 

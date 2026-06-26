@@ -52,6 +52,16 @@ export const deleteSurvey = async (id) => {
     return response.data;
 };
 
+// Delete multiple surveys (and their questions/answers/responses) in one call.
+// Backend: [FromBody] List<int> surveyIds.
+export const bulkDeleteSurveys = async (ids) => {
+    const response = await api.delete('/Survey/BulkDeleteSurveys', {
+        data: ids,
+        headers: { 'Content-Type': 'application/json' },
+    });
+    return response.data;
+};
+
 export const averageStars = async (surveyId) => {
     const response = await api.get(`/Survey/AverageStars/${surveyId}`);
     return response.data;

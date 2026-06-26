@@ -506,5 +506,26 @@ namespace HotelCSS.Controllers
             _unitOfWork.Save();
             return Ok(new { success = true, message = "Request deleted successfully!" });
         }
+
+        [HttpDelete("DeleteBulkRequests")]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception)]
+        public async Task<IActionResult> DeleteBulkRequests([FromBody] List<int> requestIds)
+        {
+            if (requestIds == null || !requestIds.Any())
+            {
+                return BadRequest(new { success = false, message = "No request IDs provided for deletion." });
+            }
+            var requestsToDelete = _unitOfWork.Request.GetAll(u => requestIds.Contains(u.Id)).ToList();
+            if (!requestsToDelete.Any())
+            {
+                return NotFound(new { success = false, message = "No matching requests found for the provided IDs." });
+            }
+            
+            _unitOfWork.Request.RemoveRange(requestsToDelete);
+            _unitOfWork.Save();
+            await _hubContext.Clients.Group("StaffGroup").SendAsync("RequestsUpdated");
+            return Ok(new { success = true, message = $"{requestsToDelete.Count} requests deleted successfully!" });
+        }
+
     }
 }
