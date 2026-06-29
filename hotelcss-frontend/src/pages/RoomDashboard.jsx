@@ -217,13 +217,21 @@ const RoomDashboard = () => {
                                 const startDate = event.startDate || event.StartDate;
                                 const endDate = event.endDate || event.EndDate;
 
-                                const description = event.description ||
+                                // Meal events store their menu in MealInfo (not Description),
+                                // so surface that for meals; otherwise use the usual fields.
+                                const mealInfo = event.mealInfo || event.MealInfo;
+
+                                const description = (eventType === 'Meal' && mealInfo)
+                                    ? mealInfo
+                                    : event.description ||
                                     event.Description ||
                                     event.details ||
                                     event.Details ||
                                     (eventType === 'BonusPoint'
                                         ? translateUiText('Participate in this exclusive offer to earn extra reward points during your stay.')
-                                        : translateUiText('Join us for this special hotel event.'));
+                                        : eventType === 'Meal'
+                                            ? translateUiText("Today's menu will be shared shortly.")
+                                            : translateUiText('Join us for this special hotel event.'));
 
                                 let iconName = 'celebration';
                                 if (eventType === 'Meal') iconName = 'restaurant';
@@ -250,7 +258,7 @@ const RoomDashboard = () => {
                                                         {translateUiText(eventType)}
                                                     </span>
                                                 </div>
-                                                <p className="text-sm text-[#5D534A] leading-relaxed line-clamp-2">
+                                                <p className={`text-sm text-[#5D534A] leading-relaxed whitespace-pre-line ${eventType === 'Meal' ? 'line-clamp-6' : 'line-clamp-2'}`}>
                                                     {translateUiText(description)}
                                                 </p>
                                             </div>

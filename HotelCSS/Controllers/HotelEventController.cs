@@ -91,6 +91,9 @@ namespace HotelCSS.Controllers
                 var bonusDTO = new BonusCampaignDTO
                 {
                     Title = dto.Title,
+                    // The dashboard reads bonus offers from BonusCampaign, not HotelEvent,
+                    // so the description must be copied here or it never reaches the guest.
+                    Description = dto.Description,
                     ServiceItemId = dto.CampaignType == "AllItems" ? null : dto.ServiceItemId,
                     ExtraPoints = dto.BonusPoints.Value,
                     CampaignType = dto.CampaignType,
@@ -162,6 +165,29 @@ namespace HotelCSS.Controllers
             existing.IsActive = dto.IsActive;
 
             _unitOfWork.HotelEvent.Update(existing);
+
+            // Guests see bonus offers via the linked BonusCampaign, not the HotelEvent,
+            // so an edit must be mirrored onto the campaign or it won't reach them.
+            // (IsActive is intentionally left to the separate toggle-status flow.)
+            if (existing.EventType == "BonusPoint")
+            {
+                var campaign = _unitOfWork.BonusCampaign.GetFirstOrDefault(c => c.HotelEventId == id);
+                if (campaign != null)
+                {
+                    campaign.Title = dto.Title;
+                    campaign.Description = dto.Description;
+                    if (dto.StartDate.HasValue) campaign.StartDate = dto.StartDate.Value;
+                    if (dto.EndDate.HasValue) campaign.EndDate = dto.EndDate.Value;
+                    if (dto.BonusPoints.HasValue) campaign.ExtraPoints = dto.BonusPoints.Value;
+                    if (!string.IsNullOrEmpty(dto.CampaignType))
+                    {
+                        campaign.CampaignType = dto.CampaignType;
+                        campaign.ServiceItemId = dto.CampaignType == "AllItems" ? null : dto.ServiceItemId;
+                    }
+                    _unitOfWork.BonusCampaign.Update(campaign);
+                }
+            }
+
             _unitOfWork.Save();
 
             return Ok(new { success = true, message = "Hotel event updated successfully", data = existing });
