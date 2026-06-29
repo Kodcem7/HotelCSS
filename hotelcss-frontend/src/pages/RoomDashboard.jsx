@@ -194,7 +194,11 @@ const RoomDashboard = () => {
                             <span className="font-semibold text-[#4A3728]">{translateUiText('Room')}</span>
                             <span className="font-semibold text-[#4A3728]">#{room.roomNumber}</span>
                             <span
-                                className={`ml-2 inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold ${room.status === 'Occupied' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                                className={`ml-2 inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold ${room.status === 'Occupied'
+                                    ? 'bg-red-100 text-red-700'
+                                    : room.status === 'Available'
+                                        ? 'bg-green-100 text-green-700'
+                                        : 'bg-gray-100 text-gray-700'
                                     }`}
                             >
                                 {translateUiText(room.status)}
@@ -340,7 +344,7 @@ const RoomDashboard = () => {
                         to="/room/reception-request"
                         icon="concierge"
                         title="Reception Request"
-                        desc="Wake-up calls or other services."
+                        desc="Learn your hotel pick-up time and set a Wake-Up call."
                         disabled={isRoomAvailable}
                         onClick={(e) => isRoomAvailable && e.preventDefault()}
                     />
@@ -370,12 +374,6 @@ const RoomDashboard = () => {
                     />
                 </section>
 
-                <section className="bg-[#FDFBF7] p-5 sm:p-8 rounded-[22px] sm:rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)]">
-                    <h3 className="font-headline text-xl sm:text-2xl text-[#4A3728] font-bold mb-2">{translateUiText('Room Information')}</h3>
-                    <p className="text-[13px] sm:text-[14px] text-[#5D534A] leading-relaxed">
-                        {translateUiText('This dashboard is for room-based access. Guests can scan QR codes to access room-specific features.')}
-                    </p>
-                </section>
             </div>
 
             {pendingSurvey && !checkingSurvey && (

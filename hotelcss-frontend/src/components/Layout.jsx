@@ -4,6 +4,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import ChatWidget from './ChatWidget';
 import NotificationToast from './NotificationToast';
+import LanguageSwitcher from './LanguageSwitcher';
 import useSignalR from '../hooks/useSignalR';
 import { getMyPoints, getRoom } from '../api/rooms';
 
@@ -122,6 +123,7 @@ const Layout = ({ children }) => {
 
     const navItemsBySuite = {
         admin: [
+            { to: '/admin', label: 'DASHBOARD', icon: 'dashboard' },
             { to: '/admin/staff', label: 'STAFF', icon: 'badge' },
             { to: '/admin/departments', label: 'DEPARTMENTS', icon: 'corporate_fare' },
             { to: '/admin/requests', label: 'REQUESTS', icon: 'notification_important' },
@@ -159,7 +161,6 @@ const Layout = ({ children }) => {
             { to: '/room', label: 'DASHBOARD', icon: 'dashboard' },
             { to: '/room/point-shop', label: 'POINT SHOP', icon: 'stars' },
             { to: '/room/history', label: 'MY REQUESTS', icon: 'history' },
-            { to: '/room/campaigns', label: 'CAMPAIGNS', icon: 'campaign' },
             { to: '/room/vouchers', label: 'VOUCHERS', icon: 'confirmation_number' },
             { to: '/room/events', label: 'EVENTS', icon: 'event' },
         ],
@@ -510,6 +511,8 @@ const Layout = ({ children }) => {
                                 <span className="material-symbols-outlined text-[#4A3728] text-[20px]">home</span>
                             </button>
 
+                            <LanguageSwitcher />
+
                             {user?.role === 'Room' && (
                                 <div className="flex items-center gap-1 sm:gap-1.5 bg-[#F2EBE1] border border-[#E3DCD2]/30 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full shadow-sm">
                                     <span className="material-symbols-outlined text-[#D35400] text-[14px] sm:text-[16px]">stars</span>
@@ -585,6 +588,8 @@ const Layout = ({ children }) => {
                             >
                                 <span className="material-symbols-outlined text-slate-600 dark:text-slate-300">home</span>
                             </button>
+
+                            <LanguageSwitcher />
 
                             {user?.role === 'Room' && (
                                 <div className="flex items-center gap-1.5 bg-gradient-to-r from-amber-100 to-yellow-100 border border-amber-200 px-2 sm:px-3 py-1.5 rounded-full shadow-sm">

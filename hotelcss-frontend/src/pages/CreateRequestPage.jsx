@@ -334,7 +334,7 @@ const CreateRequestPage = () => {
                                     .filter((item) => item.isAvailable)
                                     .map((item) => (
                                         <option key={item.id} value={item.id}>
-                                            {item.name} {item.price ? `- €${parseFloat(item.price).toFixed(2)}` : ''}
+                                            {item.name}{item.price ? ` - €${parseFloat(item.price).toFixed(2)}` : ''}{item.pointsEarned > 0 ? ` · +${item.pointsEarned} pts` : ''}
                                         </option>
                                     ))}
                             </select>
@@ -367,6 +367,18 @@ const CreateRequestPage = () => {
                                             <p className="text-lg font-bold text-[#D35400] mt-3">
                                                 €{parseFloat(selectedServiceItem.price).toFixed(2)}
                                             </p>
+                                        )}
+                                        {selectedServiceItem.pointsEarned > 0 && (
+                                            <div className="mt-3 inline-flex items-center gap-1.5 bg-[#1B7F4B]/10 text-[#1B7F4B] px-3 py-1.5 rounded-full text-sm font-bold">
+                                                <span className="material-symbols-outlined text-[18px]">stars</span>
+                                                {(() => {
+                                                    const qty = parseInt(formData.Quantity, 10) || 1;
+                                                    const per = selectedServiceItem.pointsEarned;
+                                                    return qty > 1
+                                                        ? `Earn ${per * qty} points (${per} × ${qty})`
+                                                        : `Earn ${per} points`;
+                                                })()}
+                                            </div>
                                         )}
                                     </div>
                                 </div>
