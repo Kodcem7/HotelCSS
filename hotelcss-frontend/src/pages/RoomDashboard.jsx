@@ -60,6 +60,14 @@ const RoomDashboard = () => {
     const [notifications, setNotifications] = useState([]);
     const [loadingEvents, setLoadingEvents] = useState(true);
 
+    // Ids of highlight cards whose full menu is expanded.
+    const [expandedHighlights, setExpandedHighlights] = useState([]);
+    const toggleHighlight = (id) => {
+        setExpandedHighlights((prev) =>
+            prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+        );
+    };
+
     // 👇 1. Extract room number synchronously for the greeting UI
     const displayRoomNumber = user?.username ? user.username.replace('Room', '') : '';
 
@@ -209,7 +217,7 @@ const RoomDashboard = () => {
                             {translateUiText("Today's Highlights")} {/* Ensure you add this to PHRASE_TRANSLATIONS if you haven't! */}
                         </h3>
 
-                        <div className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                        <div className="flex items-start overflow-x-auto gap-4 pb-4 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                             {notifications.map((event) => {
                                 const id = event.id || event.Id;
                                 const title = event.title || event.Title;
@@ -232,6 +240,12 @@ const RoomDashboard = () => {
                                         : eventType === 'Meal'
                                             ? translateUiText("Today's menu will be shared shortly.")
                                             : translateUiText('Join us for this special hotel event.'));
+
+                                const isMeal = eventType === 'Meal';
+                                const isExpanded = expandedHighlights.includes(id);
+                                // Only offer "Show full menu" when the text would actually be clipped.
+                                const isExpandable = isMeal && !!mealInfo &&
+                                    (mealInfo.split('\n').filter((l) => l.trim()).length > 6 || mealInfo.length > 220);
 
                                 let iconName = 'celebration';
                                 if (eventType === 'Meal') iconName = 'restaurant';
@@ -258,9 +272,21 @@ const RoomDashboard = () => {
                                                         {translateUiText(eventType)}
                                                     </span>
                                                 </div>
-                                                <p className={`text-sm text-[#5D534A] leading-relaxed whitespace-pre-line ${eventType === 'Meal' ? 'line-clamp-6' : 'line-clamp-2'}`}>
+                                                <p className={`text-sm text-[#5D534A] leading-relaxed whitespace-pre-line ${isMeal ? (isExpanded ? '' : 'line-clamp-6') : 'line-clamp-2'}`}>
                                                     {translateUiText(description)}
                                                 </p>
+                                                {isExpandable && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => toggleHighlight(id)}
+                                                        className="mt-1.5 inline-flex items-center gap-1 text-xs font-bold text-[#D35400] hover:text-[#b94702] transition-colors"
+                                                    >
+                                                        {isExpanded ? translateUiText('Show less') : translateUiText('Show full menu')}
+                                                        <span className="material-symbols-outlined text-[16px]">
+                                                            {isExpanded ? 'expand_less' : 'expand_more'}
+                                                        </span>
+                                                    </button>
+                                                )}
                                             </div>
                                         </div>
 
