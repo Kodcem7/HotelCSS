@@ -422,6 +422,23 @@ export const PHRASE_TRANSLATIONS = {
         'Bonus point campaign is active for eligible purchases.': 'Uygun satın alımlar için bonus puan kampanyası aktiftir.',
         'Create announcements, meal menus and bonus point campaigns for guests.': 'Misafirler için duyurular, yemek menüleri ve bonus puan kampanyaları oluşturun.',
         'Are you sure you want to delete the event "': 'Etkinliği silmek istediğinize emin misiniz "',
+
+        // Room (guest) dashboard
+        'Room': 'Oda',
+        'Occupied': 'Dolu',
+        'Good evening': 'İyi akşamlar',
+        'Today\'s Highlights': 'Bugünün Öne Çıkanları',
+        'This room is currently empty. Creating new requests is disabled.': 'Bu oda şu anda boş. Yeni talep oluşturma devre dışı.',
+        'Participate in this exclusive offer to earn extra reward points during your stay.': 'Konaklamanız boyunca ekstra ödül puanı kazanmak için bu özel fırsata katılın.',
+        'Today\'s menu will be shared shortly.': 'Bugünün menüsü yakında paylaşılacak.',
+        'Join us for this special hotel event.': 'Bu özel otel etkinliğine katılın.',
+        'Meal': 'Yemek',
+        'BonusPoint': 'Bonus Puan',
+        'Not available while the room status is Available.': 'Oda durumu "Müsait" iken kullanılamaz.',
+        'Learn your hotel pick-up time and set a Wake-Up call.': 'Otel transfer saatinizi öğrenin ve uyandırma araması ayarlayın.',
+        'My Vouchers': 'Kuponlarım',
+        'Show full menu': 'Menünün tamamını göster',
+        'Show less': 'Daha az göster',
     },
     de: {
         // Request statuses
@@ -728,6 +745,22 @@ export const PHRASE_TRANSLATIONS = {
         'Are you sure you want to delete this log entry?': 'Möchten Sie diesen Protokolleintrag wirklich löschen?',
         'WARNING: This will permanently delete all logs older than 6 months. Do you want to proceed?': 'WARNUNG: Alle Protokolle älter als 6 Monate werden dauerhaft gelöscht. Fortfahren?',
         'Loading user logs...': 'Protokoll wird geladen...',
+
+        // Room (guest) dashboard
+        'Occupied': 'Belegt',
+        'Good evening': 'Guten Abend',
+        'Today\'s Highlights': 'Highlights des Tages',
+        'This room is currently empty. Creating new requests is disabled.': 'Dieses Zimmer ist derzeit leer. Das Erstellen neuer Anfragen ist deaktiviert.',
+        'Participate in this exclusive offer to earn extra reward points during your stay.': 'Nehmen Sie an diesem exklusiven Angebot teil, um während Ihres Aufenthalts zusätzliche Bonuspunkte zu sammeln.',
+        'Today\'s menu will be shared shortly.': 'Das heutige Menü wird in Kürze bekannt gegeben.',
+        'Join us for this special hotel event.': 'Nehmen Sie an dieser besonderen Hotelveranstaltung teil.',
+        'Meal': 'Mahlzeit',
+        'BonusPoint': 'Bonuspunkte',
+        'Not available while the room status is Available.': 'Nicht verfügbar, solange der Zimmerstatus "Verfügbar" ist.',
+        'Learn your hotel pick-up time and set a Wake-Up call.': 'Erfahren Sie Ihre Abholzeit und richten Sie einen Weckruf ein.',
+        'My Vouchers': 'Meine Gutscheine',
+        'Show full menu': 'Vollständiges Menü anzeigen',
+        'Show less': 'Weniger anzeigen',
     },
     ru: {
         // Request statuses
@@ -1031,6 +1064,22 @@ export const PHRASE_TRANSLATIONS = {
         'Are you sure you want to delete this log entry?': 'Вы уверены, что хотите удалить эту запись журнала?',
         'WARNING: This will permanently delete all logs older than 6 months. Do you want to proceed?': 'ВНИМАНИЕ: Все записи старше 6 месяцев будут удалены навсегда. Продолжить?',
         'Loading user logs...': 'Загрузка журнала...',
+
+        // Room (guest) dashboard
+        'Occupied': 'Занято',
+        'Good evening': 'Добрый вечер',
+        'Today\'s Highlights': 'Сегодняшние события',
+        'This room is currently empty. Creating new requests is disabled.': 'Этот номер сейчас свободен. Создание новых запросов отключено.',
+        'Participate in this exclusive offer to earn extra reward points during your stay.': 'Участвуйте в этом эксклюзивном предложении, чтобы заработать дополнительные баллы во время проживания.',
+        'Today\'s menu will be shared shortly.': 'Сегодняшнее меню скоро будет опубликовано.',
+        'Join us for this special hotel event.': 'Присоединяйтесь к этому особому мероприятию отеля.',
+        'Meal': 'Питание',
+        'BonusPoint': 'Бонусные баллы',
+        'Not available while the room status is Available.': 'Недоступно, пока статус номера "Доступно".',
+        'Learn your hotel pick-up time and set a Wake-Up call.': 'Узнайте время трансфера и установите звонок-будильник.',
+        'My Vouchers': 'Мои купоны',
+        'Show full menu': 'Показать всё меню',
+        'Show less': 'Свернуть',
     },
 };
 
