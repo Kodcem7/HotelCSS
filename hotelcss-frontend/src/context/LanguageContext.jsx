@@ -450,6 +450,30 @@ export const PHRASE_TRANSLATIONS = {
         'Are you sure you want to cancel this wake-up call?': 'Bu uyandırma aramasını iptal etmek istediğinize emin misiniz?',
         'Wake-up call cancelled.': 'Uyandırma araması iptal edildi.',
         'Failed to cancel wake-up call.': 'Uyandırma araması iptal edilemedi.',
+
+        // Point shop / how points work
+        'How it works': 'Nasıl çalışır',
+        'Earn points': 'Puan kazan',
+        'Spend points': 'Puan harca',
+        'Get your reward': 'Ödülünü al',
+        'Order services to your room and collect points when each order is completed.': 'Odanıza hizmet siparişi verin; her sipariş tamamlandığında puan kazanırsınız.',
+        'Use your points here to claim a reward.': 'Bir ödül almak için puanlarınızı burada kullanın.',
+        'Open My Vouchers and show the code to reception to get your service.': '"Kuponlarım" sayfasını açın ve hizmeti almak için kodu resepsiyona gösterin.',
+
+        // Point shop reward items (names + descriptions)
+        'Fruit Basket': 'Meyve Sepeti',
+        'Enjoy the fresh fruit basket in your room!': 'Odanızdaki taze meyve sepetinin keyfini çıkarın!',
+        'Late Check-Out': 'Geç Çıkış',
+        'In case of availability have a Late Check-Out for each hour. Point you spend is for an hour.': 'Müsaitlik durumunda her saat için geç çıkış yapabilirsiniz. Harcadığınız puan bir saat içindir.',
+        'Parador Kit': 'Parador Seti',
+        'Have a Parador Kit for a warm memory. Inludes bag,lighter,colorful pens,coloring book with Parador Hotels logo.': 'Sıcak bir hatıra için bir Parador Seti edinin. Parador Hotels logolu çanta, çakmak, renkli kalemler ve boyama kitabı içerir.',
+        'Dinner Table Decoration': 'Akşam Yemeği Masası Süslemesi',
+        'Have a dinner on a decorated special rezerved table at the pool area.': 'Havuz bölgesinde süslenmiş, özel olarak ayrılmış bir masada akşam yemeği yiyin.',
+        'Safe chip for your safe box.': 'Kasanız için kasa çipi.',
+        'Extra Room Card': 'Ekstra Oda Kartı',
+        'An extra room card for your room.': 'Odanız için ekstra bir oda kartı.',
+        '1 Hour Billards': '1 Saat Bilardo',
+        '1 Hour Billards in the game room.': 'Oyun salonunda 1 saat bilardo.',
     },
     de: {
         // Request statuses
@@ -783,6 +807,30 @@ export const PHRASE_TRANSLATIONS = {
         'Are you sure you want to cancel this wake-up call?': 'Möchten Sie diesen Weckruf wirklich stornieren?',
         'Wake-up call cancelled.': 'Weckruf storniert.',
         'Failed to cancel wake-up call.': 'Weckruf konnte nicht storniert werden.',
+
+        // Point shop / how points work
+        'How it works': 'So funktioniert es',
+        'Earn points': 'Punkte sammeln',
+        'Spend points': 'Punkte ausgeben',
+        'Get your reward': 'Prämie erhalten',
+        'Order services to your room and collect points when each order is completed.': 'Bestellen Sie Services auf Ihr Zimmer und sammeln Sie Punkte, sobald jede Bestellung abgeschlossen ist.',
+        'Use your points here to claim a reward.': 'Lösen Sie hier Ihre Punkte für eine Prämie ein.',
+        'Open My Vouchers and show the code to reception to get your service.': 'Öffnen Sie „Meine Gutscheine" und zeigen Sie den Code an der Rezeption vor, um Ihren Service zu erhalten.',
+
+        // Point shop reward items (names + descriptions)
+        'Fruit Basket': 'Obstkorb',
+        'Enjoy the fresh fruit basket in your room!': 'Genießen Sie den frischen Obstkorb in Ihrem Zimmer!',
+        'Late Check-Out': 'Später Check-out',
+        'In case of availability have a Late Check-Out for each hour. Point you spend is for an hour.': 'Bei Verfügbarkeit erhalten Sie einen späten Check-out pro Stunde. Die eingesetzten Punkte gelten für eine Stunde.',
+        'Parador Kit': 'Parador-Set',
+        'Have a Parador Kit for a warm memory. Inludes bag,lighter,colorful pens,coloring book with Parador Hotels logo.': 'Sichern Sie sich ein Parador-Set als schöne Erinnerung. Enthält Tasche, Feuerzeug, bunte Stifte und Malbuch mit Parador-Hotels-Logo.',
+        'Dinner Table Decoration': 'Esstisch-Dekoration',
+        'Have a dinner on a decorated special rezerved table at the pool area.': 'Genießen Sie ein Abendessen an einem dekorierten, speziell reservierten Tisch am Pool.',
+        'Safe chip for your safe box.': 'Safe-Chip für Ihren Tresor.',
+        'Extra Room Card': 'Zusätzliche Zimmerkarte',
+        'An extra room card for your room.': 'Eine zusätzliche Zimmerkarte für Ihr Zimmer.',
+        '1 Hour Billards': '1 Stunde Billard',
+        '1 Hour Billards in the game room.': '1 Stunde Billard im Spielzimmer.',
     },
     ru: {
         // Request statuses
@@ -1113,6 +1161,30 @@ export const PHRASE_TRANSLATIONS = {
         'Are you sure you want to cancel this wake-up call?': 'Вы уверены, что хотите отменить этот звонок-будильник?',
         'Wake-up call cancelled.': 'Звонок-будильник отменён.',
         'Failed to cancel wake-up call.': 'Не удалось отменить звонок-будильник.',
+
+        // Point shop / how points work
+        'How it works': 'Как это работает',
+        'Earn points': 'Зарабатывайте баллы',
+        'Spend points': 'Тратьте баллы',
+        'Get your reward': 'Получите награду',
+        'Order services to your room and collect points when each order is completed.': 'Заказывайте услуги в номер и получайте баллы, когда каждый заказ выполнен.',
+        'Use your points here to claim a reward.': 'Используйте баллы здесь, чтобы получить награду.',
+        'Open My Vouchers and show the code to reception to get your service.': 'Откройте «Мои купоны» и покажите код на ресепшене, чтобы получить услугу.',
+
+        // Point shop reward items (names + descriptions)
+        'Fruit Basket': 'Корзина фруктов',
+        'Enjoy the fresh fruit basket in your room!': 'Наслаждайтесь свежей корзиной фруктов в вашем номере!',
+        'Late Check-Out': 'Поздний выезд',
+        'In case of availability have a Late Check-Out for each hour. Point you spend is for an hour.': 'При наличии возможности — поздний выезд за каждый час. Потраченные баллы рассчитаны на один час.',
+        'Parador Kit': 'Набор Parador',
+        'Have a Parador Kit for a warm memory. Inludes bag,lighter,colorful pens,coloring book with Parador Hotels logo.': 'Получите набор Parador на тёплую память. Включает сумку, зажигалку, цветные ручки и раскраску с логотипом Parador Hotels.',
+        'Dinner Table Decoration': 'Украшение обеденного стола',
+        'Have a dinner on a decorated special rezerved table at the pool area.': 'Поужинайте за украшенным, специально зарезервированным столом у бассейна.',
+        'Safe chip for your safe box.': 'Чип для вашего сейфа.',
+        'Extra Room Card': 'Дополнительная карта-ключ',
+        'An extra room card for your room.': 'Дополнительная карта-ключ для вашего номера.',
+        '1 Hour Billards': '1 час бильярда',
+        '1 Hour Billards in the game room.': '1 час бильярда в игровой комнате.',
     },
 };
 

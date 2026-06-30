@@ -8,6 +8,7 @@ import { getRoom } from '../api/rooms';
 import { getPendingSurvey } from '../api/surveys';
 import SurveyModal from '../components/SurveyModal';
 import GuestEmailBanner from '../components/GuestEmailBanner';
+import PointsHowItWorks from '../components/PointsHowItWorks';
 
 import { getActiveEvents, getMealList, getActiveBonusEvents } from '../api/events';
 
@@ -373,6 +374,8 @@ const RoomDashboard = () => {
                         desc="View earned reward codes."
                     />
                 </section>
+
+                <PointsHowItWorks />
 
             </div>
 

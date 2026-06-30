@@ -4,6 +4,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import SuccessMessage from '../components/SuccessMessage';
 import { getRewardsCatalog, claimReward } from '../api/rewards';
+import PointsHowItWorks from '../components/PointsHowItWorks';
 
 const PointShopPage = () => {
     const [rewards, setRewards] = useState([]);
@@ -67,6 +68,10 @@ const PointShopPage = () => {
                         Trade your earned points for exclusive hotel rewards and services.
                     </p>
                 </section>
+
+                <div className="max-w-5xl mx-auto w-full">
+                    <PointsHowItWorks />
+                </div>
 
                 {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
                 {success && <SuccessMessage message={success} onDismiss={() => setSuccess('')} />}
