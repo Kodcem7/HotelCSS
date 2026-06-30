@@ -439,6 +439,17 @@ export const PHRASE_TRANSLATIONS = {
         'My Vouchers': 'Kuponlarım',
         'Show full menu': 'Menünün tamamını göster',
         'Show less': 'Daha az göster',
+
+        // Reception services / pick-up
+        'Set pick-up time': 'Transfer saatini ayarla',
+        'Back to requests': 'Taleplere dön',
+        'Wake-up and pick-up requests from guests.': 'Misafirlerden gelen uyandırma ve transfer talepleri.',
+        'Please choose a future date and time.': 'Lütfen gelecekte bir tarih ve saat seçin.',
+        'Your wake-up calls': 'Uyandırma aramalarınız',
+        'No wake-up calls scheduled yet.': 'Henüz planlanmış uyandırma araması yok.',
+        'Are you sure you want to cancel this wake-up call?': 'Bu uyandırma aramasını iptal etmek istediğinize emin misiniz?',
+        'Wake-up call cancelled.': 'Uyandırma araması iptal edildi.',
+        'Failed to cancel wake-up call.': 'Uyandırma araması iptal edilemedi.',
     },
     de: {
         // Request statuses
@@ -761,6 +772,17 @@ export const PHRASE_TRANSLATIONS = {
         'My Vouchers': 'Meine Gutscheine',
         'Show full menu': 'Vollständiges Menü anzeigen',
         'Show less': 'Weniger anzeigen',
+
+        // Reception services / pick-up
+        'Set pick-up time': 'Abholzeit festlegen',
+        'Back to requests': 'Zurück zu den Anfragen',
+        'Wake-up and pick-up requests from guests.': 'Weck- und Abholanfragen von Gästen.',
+        'Please choose a future date and time.': 'Bitte wählen Sie ein Datum und eine Uhrzeit in der Zukunft.',
+        'Your wake-up calls': 'Ihre Weckrufe',
+        'No wake-up calls scheduled yet.': 'Noch keine Weckrufe geplant.',
+        'Are you sure you want to cancel this wake-up call?': 'Möchten Sie diesen Weckruf wirklich stornieren?',
+        'Wake-up call cancelled.': 'Weckruf storniert.',
+        'Failed to cancel wake-up call.': 'Weckruf konnte nicht storniert werden.',
     },
     ru: {
         // Request statuses
@@ -1080,6 +1102,17 @@ export const PHRASE_TRANSLATIONS = {
         'My Vouchers': 'Мои купоны',
         'Show full menu': 'Показать всё меню',
         'Show less': 'Свернуть',
+
+        // Reception services / pick-up
+        'Set pick-up time': 'Указать время трансфера',
+        'Back to requests': 'Назад к запросам',
+        'Wake-up and pick-up requests from guests.': 'Запросы будильника и трансфера от гостей.',
+        'Please choose a future date and time.': 'Пожалуйста, выберите дату и время в будущем.',
+        'Your wake-up calls': 'Ваши звонки-будильники',
+        'No wake-up calls scheduled yet.': 'Пока нет запланированных звонков-будильников.',
+        'Are you sure you want to cancel this wake-up call?': 'Вы уверены, что хотите отменить этот звонок-будильник?',
+        'Wake-up call cancelled.': 'Звонок-будильник отменён.',
+        'Failed to cancel wake-up call.': 'Не удалось отменить звонок-будильник.',
     },
 };
 

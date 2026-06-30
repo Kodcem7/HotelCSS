@@ -488,6 +488,57 @@ namespace HotelCSS.Controllers
         }
 
 
+        // Guest-facing: a room can cancel ITS OWN request, but only while it is still
+        // pending. Once staff start working on it, the guest can no longer cancel.
+        [HttpPut("CancelMyRequest/{id}")]
+        [Authorize(Roles = SD.Role_Room)]
+        public async Task<IActionResult> CancelMyRequest(int id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Unauthorized(new { success = false, message = "User identity not found." });
+            }
+
+            var roomUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == userId);
+            if (roomUser == null)
+            {
+                return BadRequest(new { success = false, message = "User not found" });
+            }
+
+            string roomNumString = (roomUser.UserName ?? string.Empty).Replace("Room", "");
+            if (!int.TryParse(roomNumString, out int roomNumber))
+            {
+                return BadRequest(new { success = false, message = "Invalid Room User Format" });
+            }
+
+            var order = _unitOfWork.Request.GetFirstOrDefault(u => u.Id == id);
+            // Don't reveal other rooms' requests: treat "not yours" the same as "not found".
+            if (order == null || order.RoomNumber != roomNumber)
+            {
+                return NotFound(new { success = false, message = "Request not found" });
+            }
+
+            if (order.Status != SD.StatusPending)
+            {
+                return BadRequest(new { success = false, message = "Only pending requests can be cancelled." });
+            }
+
+            order.Status = SD.StatusCancelled;
+            order.CancellationReason = "Cancelled by guest";
+            _unitOfWork.Request.Update(order);
+            _unitOfWork.Save();
+
+            // Keep any other open session for this room (and live trackers) in sync.
+            await _hubContext.Clients.Group($"Room{order.RoomNumber}").SendAsync("RequestStatusChanged", new
+            {
+                requestId = order.Id,
+                status = order.Status
+            });
+
+            return Ok(new { success = true, message = "Request cancelled." });
+        }
+
         [HttpDelete("{id}")]
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception)]
         public IActionResult Delete(int id)

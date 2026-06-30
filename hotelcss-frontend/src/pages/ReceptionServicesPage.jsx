@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
-// import Layout from '../components/Layout'; // ❌ REMOVED
+import { useNavigate, useLocation } from 'react-router-dom';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import SuccessMessage from '../components/SuccessMessage';
-import { useLanguage } from '../context/LanguageContext'; // ✅ Added Language Context
+import { useLanguage } from '../context/LanguageContext';
 import {
     getReceptionServices,
     updateWakeUpTime,
     updatePickUpTime,
-    setPickUpTime,
     updateWakeUpStatus,
     updatePickUpStatus,
     deleteWakeUpService,
@@ -17,7 +16,11 @@ import {
 } from '../api/receptionService';
 
 const ReceptionServicesPage = () => {
-    const { translateUiText } = useLanguage(); // ✅ Hook initialized
+    const { translateUiText } = useLanguage();
+    const navigate = useNavigate();
+    const location = useLocation();
+    // /reception/services -> /reception/pickup (works for admin & manager prefixes too)
+    const pickupPath = location.pathname.replace(/\/services$/, '/pickup');
 
     const [services, setServices] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -25,12 +28,6 @@ const ReceptionServicesPage = () => {
     const [success, setSuccess] = useState('');
     const [editValues, setEditValues] = useState({});
     const [filterType, setFilterType] = useState('All');
-    const [pickupForm, setPickupForm] = useState({
-        roomNumber: '',
-        ScheduledTime: '',
-        Notes: '',
-    });
-    const [pickupSubmitting, setPickupSubmitting] = useState(false);
     const [selectedIds, setSelectedIds] = useState([]);
     const [bulkDeleting, setBulkDeleting] = useState(false);
 
@@ -76,47 +73,6 @@ const ReceptionServicesPage = () => {
     useEffect(() => {
         loadServices();
     }, []);
-
-    const handlePickupSubmit = async (e) => {
-        e.preventDefault();
-
-        if (!pickupForm.roomNumber) {
-            setError(translateUiText('Please enter a room number.')); // ✅ English Base
-            return;
-        }
-
-        if (!pickupForm.ScheduledTime) {
-            setError(translateUiText('Please select a date and time for pick-up.')); // ✅ English Base
-            return;
-        }
-
-        try {
-            setError('');
-            setSuccess('');
-            setPickupSubmitting(true);
-
-            await setPickUpTime(Number(pickupForm.roomNumber), {
-                ScheduledTime: pickupForm.ScheduledTime,
-                Notes: pickupForm.Notes || undefined,
-            });
-
-            setSuccess(translateUiText('Pick-up time successfully saved or updated.')); // ✅ English Base
-            setPickupForm({
-                roomNumber: '',
-                ScheduledTime: '',
-                Notes: '',
-            });
-
-            await loadServices();
-        } catch (err) {
-            const msg =
-                err.response?.data?.message ||
-                translateUiText('An error occurred while saving the pick-up time.'); // ✅ English Base
-            setError(msg);
-        } finally {
-            setPickupSubmitting(false);
-        }
-    };
 
     const saveTime = async (service, val) => {
         if (service.requestType === 'Pick-Up') {
@@ -239,8 +195,6 @@ const ReceptionServicesPage = () => {
 
     const inputClass =
         'w-full px-4 py-3 bg-concierge-surface-container-low border-none rounded-full text-concierge-on-surface text-sm focus:ring-2 focus:ring-concierge-primary/25 focus:bg-concierge-surface-container-lowest transition-all placeholder:text-concierge-outline/45';
-    const textareaClass =
-        'w-full px-4 py-3 bg-concierge-surface-container-low border-none rounded-2xl text-concierge-on-surface text-sm focus:ring-2 focus:ring-concierge-primary/25 focus:bg-concierge-surface-container-lowest transition-all placeholder:text-concierge-outline/45';
 
     const displayedServices = services
         .filter((s) => filterType === 'All' || s.requestType === filterType)
@@ -256,84 +210,30 @@ const ReceptionServicesPage = () => {
         <>
             <div className="max-w-6xl mx-auto p-6">
                 <div className="max-w-6xl mx-auto">
-                    <div className="mb-8 pt-2">
-                        <span className="inline-block py-1.5 px-4 rounded-full bg-concierge-secondary-container text-concierge-on-secondary-container text-[10px] font-bold tracking-widest uppercase mb-3">
-                            {translateUiText('Concierge operations')}
-                        </span>
-                        <h2 className="font-headline text-3xl sm:text-4xl text-concierge-on-background tracking-tight">
-                            {translateUiText('Reception services')}
-                        </h2>
-                        <p className="text-concierge-on-surface-variant font-light text-lg mt-2 max-w-2xl">
-                            {translateUiText('Manage wake-up calls and pick-up times with the same editorial clarity as the guest-facing portal.')}
-                        </p>
+                    <div className="mb-8 pt-2 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+                        <div>
+                            <span className="inline-block py-1.5 px-4 rounded-full bg-concierge-secondary-container text-concierge-on-secondary-container text-[10px] font-bold tracking-widest uppercase mb-3">
+                                {translateUiText('Concierge operations')}
+                            </span>
+                            <h2 className="font-headline text-3xl sm:text-4xl text-concierge-on-background tracking-tight">
+                                {translateUiText('Reception services')}
+                            </h2>
+                            <p className="text-concierge-on-surface-variant font-light text-lg mt-2 max-w-2xl">
+                                {translateUiText('Wake-up and pick-up requests from guests.')}
+                            </p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => navigate(pickupPath)}
+                            className="inline-flex items-center gap-2 concierge-hero-gradient text-white py-3 px-6 rounded-full text-sm font-semibold uppercase tracking-widest shadow-lg shadow-concierge-primary/20 hover:shadow-concierge-primary/30 transition-all active:scale-[0.99] whitespace-nowrap self-start sm:self-auto"
+                        >
+                            <span className="material-symbols-outlined text-[20px]">directions_bus</span>
+                            {translateUiText('Set pick-up time')}
+                        </button>
                     </div>
 
                     {error && <ErrorMessage message={error} onDismiss={() => setError('')} />}
                     {success && <SuccessMessage message={success} onDismiss={() => setSuccess('')} />}
-
-                    <div className="mb-8 bg-concierge-surface-container-lowest/90 backdrop-blur-sm rounded-[2rem] p-6 sm:p-8 border border-concierge-outline-variant/15 concierge-editorial-shadow">
-                        <h3 className="font-headline text-xl text-concierge-on-background mb-1">
-                            {translateUiText('Enter / update pick-up time')} {/* ✅ English Base */}
-                        </h3>
-                        <p className="text-sm text-concierge-on-surface-variant mb-6">
-                            {translateUiText('By entering a room number, you can define a new pick-up (transfer) time for guests or update an existing one.')} {/* ✅ English Base */}
-                        </p>
-                        <form onSubmit={handlePickupSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-5 items-end">
-                            <div>
-                                <label className="block text-[10px] font-bold tracking-widest uppercase text-concierge-outline mb-2 ml-1">
-                                    {translateUiText('Room')} *
-                                </label>
-                                <input
-                                    type="number"
-                                    min="1"
-                                    value={pickupForm.roomNumber}
-                                    onChange={(e) =>
-                                        setPickupForm((prev) => ({ ...prev, roomNumber: e.target.value }))
-                                    }
-                                    className={inputClass}
-                                    placeholder={translateUiText('e.g. 101')} // ✅ English Base
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-[10px] font-bold tracking-widest uppercase text-concierge-outline mb-2 ml-1">
-                                    {translateUiText('Time')} *
-                                </label>
-                                <input
-                                    type="datetime-local"
-                                    value={pickupForm.ScheduledTime}
-                                    onChange={(e) =>
-                                        setPickupForm((prev) => ({ ...prev, ScheduledTime: e.target.value }))
-                                    }
-                                    className={`${inputClass} rounded-2xl`}
-                                    required
-                                />
-                            </div>
-                            <div className="md:col-span-3">
-                                <label className="block text-[10px] font-bold tracking-widest uppercase text-concierge-outline mb-2 ml-1">
-                                    {translateUiText('Notes')}
-                                </label>
-                                <textarea
-                                    rows={2}
-                                    value={pickupForm.Notes}
-                                    onChange={(e) =>
-                                        setPickupForm((prev) => ({ ...prev, Notes: e.target.value }))
-                                    }
-                                    className={textareaClass}
-                                    placeholder={translateUiText('e.g. Airport transfer, departure 2 hours before.')} // ✅ English Base
-                                />
-                            </div>
-                            <div className="md:col-span-3 flex justify-end pt-2">
-                                <button
-                                    type="submit"
-                                    disabled={pickupSubmitting}
-                                    className="concierge-hero-gradient text-white py-3.5 px-8 rounded-full text-sm font-semibold uppercase tracking-widest shadow-lg shadow-concierge-primary/20 hover:shadow-concierge-primary/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.99]"
-                                >
-                                    {pickupSubmitting ? translateUiText('Saving...') : translateUiText('Save pick-up time')} {/* ✅ English Base */}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
 
                     <div className="mb-4 flex items-center gap-3">
                         <label className="text-[10px] font-bold tracking-widest uppercase text-concierge-outline">
@@ -410,8 +310,6 @@ const ReceptionServicesPage = () => {
                                     </thead>
                                     <tbody className="divide-y divide-concierge-outline-variant/15">
                                         {displayedServices.map((service) => {
-                                            const isWakeUp = service.requestType === 'Wake-Up Service';
-                                            const time = isWakeUp ? service.scheduledTime : service.pickUpTime;
                                             return (
                                                 <tr key={service.id} className="hover:bg-concierge-surface-container-low/50 transition-colors">
                                                     <td className="px-6 py-4 whitespace-nowrap">

@@ -2,7 +2,7 @@
 // import Layout from '../components/Layout'; // ❌ REMOVED
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
-import { getRequests } from '../api/requests';
+import { getRequests, cancelMyRequest } from '../api/requests';
 import { getReceptionServices, getPickUpTime } from '../api/receptionService';
 import { getBackendOrigin } from '../api/axios';
 import useSignalR from '../hooks/useSignalR';
@@ -15,10 +15,27 @@ const RequestHistoryPage = () => {
     const [filterType, setFilterType] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
     const [previewImage, setPreviewImage] = useState('');
+    const [cancellingId, setCancellingId] = useState(null);
 
     useEffect(() => {
         fetchRequests();
     }, []);
+
+    // Guests may cancel their OWN normal requests while still pending (not reception
+    // services — those are the merged "reception-*" rows and have their own flow).
+    const handleCancelRequest = async (id) => {
+        if (!window.confirm('Are you sure you want to cancel this request?')) return;
+        try {
+            setError('');
+            setCancellingId(id);
+            await cancelMyRequest(id);
+            await fetchRequests(false);
+        } catch (err) {
+            setError(err.response?.data?.message || 'Failed to cancel request');
+        } finally {
+            setCancellingId(null);
+        }
+    };
 
     // Live tracking: backend pushes "RequestStatusChanged" to this room whenever a
     // request moves Pending -> InProcess -> Completed/Cancelled. Refresh silently.
@@ -241,6 +258,20 @@ const RequestHistoryPage = () => {
                                             </div>
                                         )}
                                     </div>
+
+                                    {request.status === 'Pending' && !String(request.id).startsWith('reception-') && (
+                                        <div className="mt-4 sm:mt-0 sm:ml-4 flex-shrink-0">
+                                            <button
+                                                type="button"
+                                                onClick={() => handleCancelRequest(request.id)}
+                                                disabled={cancellingId === request.id}
+                                                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold uppercase tracking-widest rounded-full bg-[#FBEAEA] text-[#B22222] border border-[#F7D9D9] hover:bg-[#F7D9D9] disabled:opacity-50 transition-colors"
+                                            >
+                                                <span className="material-symbols-outlined text-[16px]">cancel</span>
+                                                {cancellingId === request.id ? 'Cancelling…' : 'Cancel'}
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         ))}

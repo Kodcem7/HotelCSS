@@ -184,6 +184,47 @@ namespace HotelCSS.Controllers
             return Ok(new { success = true, message = "Wake-up service request deleted successfully" });
         }
 
+        // Guest-facing: a room can cancel ITS OWN wake-up call, but only while it is
+        // still pending. Once reception has started/completed it, cancelling is blocked.
+        [HttpDelete("CancelMyWakeUp/{id}")]
+        [Authorize(Roles = SD.Role_Room)]
+        public IActionResult CancelMyWakeUp(int id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Unauthorized(new { success = false, message = "User identity not found." });
+            }
+
+            var roomUser = _unitOfWork.ApplicationUser.GetFirstOrDefault(u => u.Id == userId);
+            if (roomUser == null)
+            {
+                return BadRequest(new { success = false, message = "User not found" });
+            }
+
+            string roomNumString = (roomUser.UserName ?? string.Empty).Replace("Room", "");
+            if (!int.TryParse(roomNumString, out int roomNumber))
+            {
+                return BadRequest(new { success = false, message = "Invalid Room User Format" });
+            }
+
+            var wakeUp = _unitOfWork.ReceptionService.GetFirstOrDefault(u => u.Id == id);
+            // Don't reveal other rooms' requests: treat "not yours" the same as "not found".
+            if (wakeUp == null || wakeUp.RoomNumber != roomNumber || wakeUp.RequestType != "Wake-Up Service")
+            {
+                return NotFound(new { success = false, message = "Wake-up service request not found" });
+            }
+
+            if (wakeUp.Status != SD.Status_Reception_Pending)
+            {
+                return BadRequest(new { success = false, message = "Only pending wake-up calls can be cancelled." });
+            }
+
+            _unitOfWork.ReceptionService.Remove(wakeUp);
+            _unitOfWork.Save();
+            return Ok(new { success = true, message = "Wake-up call cancelled." });
+        }
+
         [HttpPost("SetPickUpTime")]
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager + "," + SD.Role_Reception)]
         public async Task<IActionResult> SetPickUpTimeAsync(int roomNumber, [FromForm] ReceptionServiceDTO obj)

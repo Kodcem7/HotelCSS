@@ -22,6 +22,7 @@ import RequestHistoryPage from '../pages/RequestHistoryPage';
 import ReportIssuePage from '../pages/ReportIssuePage';
 import RoomReceptionRequestPage from '../pages/RoomReceptionRequestPage';
 import ReceptionServicesPage from '../pages/ReceptionServicesPage';
+import ReceptionPickupPage from '../pages/ReceptionPickupPage';
 import ForgotPassword from '../pages/ForgotPassword';
 import ResetPassword from '../pages/ResetPassword';
 import ChangePassword from '../pages/ChangePassword';
@@ -76,17 +77,20 @@ const AppRoutes = () => {
                     <Route path="/admin/surveys" element={<AdminSurveyPage />} />
                     <Route path="/admin/surveys/results" element={<AdminSurveyResultsPage />} />
                     <Route path="/admin/reception/services" element={<ReceptionServicesPage />} />
+                    <Route path="/admin/reception/pickup" element={<ReceptionPickupPage />} />
                     <Route path="/admin/users-logs" element={<UsersLogsPage />} />
                     <Route path="/admin/reputation" element={<ReputationDashboard />} />
 
                     {/* Manager Specific */}
                     <Route path="/manager" element={<ManagerDashboard />} />
                     <Route path="/manager/reception/services" element={<ReceptionServicesPage />} />
+                    <Route path="/manager/reception/pickup" element={<ReceptionPickupPage />} />
 
                     {/* Reception Routes */}
                     <Route path="/reception" element={<ReceptionDashboard />} />
                     <Route path="/reception/requests" element={<RequestsPage />} />
                     <Route path="/reception/services" element={<ReceptionServicesPage />} />
+                    <Route path="/reception/pickup" element={<ReceptionPickupPage />} />
                     <Route path="/reception/rooms" element={<RoomsPage />} />
                     <Route path="/reception/rewards" element={<ReceptionRewardVouchersPage />} />
 

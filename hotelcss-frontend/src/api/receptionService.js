@@ -116,6 +116,15 @@ export const deleteWakeUpService = async (id) => {
 };
 
 /**
+ * Guest-facing: cancel the current room's OWN pending wake-up call.
+ * @param {number} id
+ */
+export const cancelMyWakeUp = async (id) => {
+    const response = await api.delete(`/ReceptionService/CancelMyWakeUp/${id}`);
+    return response.data;
+};
+
+/**
  * Delete a completed pick-up info.
  * @param {number} id
  */

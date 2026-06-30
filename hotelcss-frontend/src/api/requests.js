@@ -91,6 +91,16 @@ export const deleteRequest = async (id) => {
 };
 
 /**
+ * Guest-facing: cancel the current room's OWN pending request.
+ * @param {number} id - Request ID
+ * @returns {Promise} Cancellation result
+ */
+export const cancelMyRequest = async (id) => {
+    const response = await api.put(`/Request/CancelMyRequest/${id}`);
+    return response.data;
+};
+
+/**
  * Delete multiple requests in one call.
  * Backend: [FromBody] List<int> requestIds.
  * @param {number[]} ids - Request IDs to delete
