@@ -23,7 +23,7 @@ const PointsHowItWorks = () => {
         <div className="bg-[#FDFBF7] rounded-[22px] sm:rounded-[28px] border border-[#E3DCD2]/30 shadow-[0_20px_40px_rgba(15,28,44,0.04)] p-5 sm:p-6">
             <div className="flex items-center gap-2 mb-4">
                 <span className="material-symbols-outlined text-[#D35400]">help</span>
-                <h3 className="font-headline text-lg text-[#4A3728] font-bold">How it works</h3>
+                <h3 className="font-headline text-lg text-[#4A3728] font-bold">How point system works?</h3>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
                 {STEPS.map((step, i) => (

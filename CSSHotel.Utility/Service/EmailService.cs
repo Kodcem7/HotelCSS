@@ -1,52 +1,46 @@
 ﻿using Microsoft.Extensions.Configuration;
 using MimeKit;
+using MailKit.Net.Smtp;
 using MailKit.Security;
-using SmtpClient = MailKit.Net.Smtp.SmtpClient;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
+using CSSHotel.Models;
+using Microsoft.Extensions.Options;
 
 namespace CSSHotel.Utility.Service
 {
     public class EmailService : IEmailService
     {
-        private readonly EmailConfiguration _emailConfig;
+        private readonly EmailSettings _settings;
 
-        public EmailService(IConfiguration configuration)
+        public EmailService(IOptions<EmailSettings> settings)
         {
-            // This reads the "EmailConfiguration" section from appsettings.json
-            _emailConfig = configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>();
+            _settings = settings.Value;
         }
 
         public async Task SendEmailAsync(string toEmail, string subject, string message)
         {
-            var emailMessage = new MimeMessage();
+            var email = new MimeMessage();
+            email.From.Add(new MailboxAddress(_settings.SenderName, _settings.SenderEmail));
+            email.To.Add(MailboxAddress.Parse(toEmail));
+            email.Subject = subject;
 
-            emailMessage.From.Add(new MailboxAddress("HotelCSS Admin", _emailConfig.From));
-            emailMessage.To.Add(new MailboxAddress("", toEmail));
-            emailMessage.Subject = subject;
+            var builder = new BodyBuilder { HtmlBody = message };
+            email.Body = builder.ToMessageBody();
 
-            // We use HTML so you can make the email look nice later
-            emailMessage.Body = new TextPart("html") { Text = message };
+            //Configuring SMTP client and send
+            using var client = new SmtpClient();
 
-            using (var client = new SmtpClient())
-            {
-                // Connect to Gmail
-                // If 465 doesn't work, try 587 with false
-                await client.ConnectAsync(_emailConfig.SmtpServer, _emailConfig.Port, true);
+            // StartTls is the standard secure option for port
+            await client.ConnectAsync(_settings.Host, _settings.Port, SecureSocketOptions.StartTls);
+            await client.AuthenticateAsync(_settings.Username, _settings.Password);
 
-                // Login
-                await client.AuthenticateAsync(_emailConfig.Username, _emailConfig.Password);
+            await client.SendAsync(email);
+            await client.DisconnectAsync(true);
 
-                // Send
-                await client.SendAsync(emailMessage);
-
-                // Disconnect
-                await client.DisconnectAsync(true);
-            }
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using CSSHotel.DataAccess.Repository.IRepository;
 using CSSHotel.Utility;
+using CSSHotel.Utility.Service;
 using GenerativeAI;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -12,10 +13,12 @@ namespace HotelCSS.Controllers
     public class HistoryLogController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IEmailService _emailService;
 
-        public HistoryLogController(IUnitOfWork unitOfWork)
+        public HistoryLogController(IUnitOfWork unitOfWork, IEmailService emailService)
         {
             _unitOfWork = unitOfWork;
+            _emailService = emailService;
         }
 
         [HttpGet("GetHistoryLogs")]
@@ -74,6 +77,40 @@ namespace HotelCSS.Controllers
             _unitOfWork.HistoryLog.RemoveRange(logsToDelete);
             _unitOfWork.Save();
             return Ok(new { success = true, message = $"{logsToDelete.Count} logs have been deleted successfully." });
+        }
+
+        [HttpPost("SendMail")]
+        [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
+        public async Task<IActionResult> SendMailToGuests(int id)
+        {
+            var log = _unitOfWork.HistoryLog.GetFirstOrDefault(u => u.Id == id);
+            if (log == null)
+            {
+                return NotFound(new { success = false, message = "History log not found." });
+            }
+
+            if (string.IsNullOrWhiteSpace(log.GuestMail))
+            {
+                return BadRequest(new { success = false, message = "This log has no guest email on file." });
+            }
+
+            try
+            {
+                string subject = "Parador Beach Guest Survey";
+                string body = "<h1>Thanks for choosing our hotel! It has been a pleasure to have you here.</h1><p>We would be happy if you could just submit the guests satisfaction survey for better service.Link has been sent in below.Thank you :)</p>";
+
+                await _emailService.SendEmailAsync(log.GuestMail, subject, body);
+
+                log.IsMailSent = true;
+                _unitOfWork.HistoryLog.Update(log);
+                _unitOfWork.Save();
+
+                return Ok(new { success = true, message = "Email sent successfully!" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = "Failed to send email: " + ex.Message });
+            }
         }
     }
 }

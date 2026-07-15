@@ -25,5 +25,6 @@ namespace CSSHotel.Models
         [Column(TypeName = "decimal(18, 2)")]
         public decimal? MoneySpent { get; set; }
         public string? OrdersSummary { get; set; }
+        public bool IsMailSent { get; set; } = false;
     }
 }

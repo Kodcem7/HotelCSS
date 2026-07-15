@@ -16,6 +16,11 @@ export const deleteLast6Months = async () => {
     return response.data;
 };
 
+export const sendEmail = async (id) => {
+    const response = await axios.post(`/HistoryLog/SendMail?id=${id}`);
+    return response.data;
+};
+
 // Delete multiple logs in one call. Backend: [FromBody] List<int> logdIds.
 export const bulkDeleteLogs = async (ids) => {
     const response = await axios.delete('/HistoryLog/LogsBulkDelete', {

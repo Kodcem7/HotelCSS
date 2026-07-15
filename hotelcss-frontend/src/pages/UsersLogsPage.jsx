@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getHistoryLogs, deleteLog, deleteLast6Months, bulkDeleteLogs } from '../api/historylogs';
+import { getHistoryLogs, deleteLog, deleteLast6Months, bulkDeleteLogs, sendEmail } from '../api/historylogs';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 
@@ -32,6 +32,7 @@ const UsersLogsPage = () => {
     const [expandedRow, setExpandedRow] = useState(null);
     const [selectedIds, setSelectedIds] = useState([]);
     const [bulkDeleting, setBulkDeleting] = useState(false);
+    const [sendingId, setSendingId] = useState(null);
 
     useEffect(() => {
         fetchLogs();
@@ -163,6 +164,24 @@ const UsersLogsPage = () => {
         }
     };
 
+    const handleSendMail = async (id) => {
+        try {
+            setError('');
+            setSuccess('');
+            setSendingId(id);
+            const res = await sendEmail(id);
+            setSuccess(res?.message || 'Survey email sent successfully.');
+            // Reflect the sent state without a full reload.
+            setLogs((prev) => prev.map((log) =>
+                (get(log, 'id', 'Id') === id) ? { ...log, isMailSent: true, IsMailSent: true } : log
+            ));
+        } catch (err) {
+            setError(err.response?.data?.message || 'Failed to send email.');
+        } finally {
+            setSendingId(null);
+        }
+    };
+
     if (loading && logs.length === 0) {
         return <LoadingSpinner text="Loading user logs..." />;
     }
@@ -269,7 +288,7 @@ const UsersLogsPage = () => {
                                 <th className="p-5">Points Earned</th>
                                 <th className="p-5">Points Spent</th>
                                 <th className="p-5">Orders</th>
-                                <th className="p-5 text-right w-16">Delete</th>
+                                <th className="p-5 text-right w-28">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="text-sm text-[#4A3728]">
@@ -284,6 +303,8 @@ const UsersLogsPage = () => {
                                     const id = get(log, 'id', 'Id');
                                     const ts = formatDateTime(get(log, 'timestamp', 'Timestamp'));
                                     const guestMail = get(log, 'guestMail', 'GuestMail') || '—';
+                                    const isMailSent = get(log, 'isMailSent', 'IsMailSent') === true;
+                                    const hasEmail = guestMail && guestMail !== '—';
                                     const roomNumber = get(log, 'roomNumber', 'RoomNumber') || '?';
                                     const checkIn = formatDate(get(log, 'checkInDate', 'CheckInDate'));
                                     const checkOut = formatDate(get(log, 'checkOutDate', 'CheckOutDate'));
@@ -381,13 +402,34 @@ const UsersLogsPage = () => {
                                                 </td>
 
                                                 <td className="p-5 text-right">
-                                                    <button
-                                                        onClick={() => handleDelete(id)}
-                                                        className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors inline-flex items-center justify-center"
-                                                        title="Delete Log"
-                                                    >
-                                                        <span className="material-symbols-outlined text-[20px]">delete</span>
-                                                    </button>
+                                                    <div className="inline-flex items-center justify-end gap-1">
+                                                        {isMailSent ? (
+                                                            <span
+                                                                className="p-2 text-[#1B7F4B] inline-flex items-center justify-center"
+                                                                title="Survey email already sent"
+                                                            >
+                                                                <span className="material-symbols-outlined text-[20px]">mark_email_read</span>
+                                                            </span>
+                                                        ) : (
+                                                            <button
+                                                                onClick={() => handleSendMail(id)}
+                                                                disabled={!hasEmail || sendingId === id}
+                                                                className="p-2 text-[#D35400] hover:text-[#b84800] hover:bg-[#F2EBE1] rounded-lg transition-colors inline-flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
+                                                                title={hasEmail ? 'Send survey email' : 'No guest email on file'}
+                                                            >
+                                                                <span className="material-symbols-outlined text-[20px]">
+                                                                    {sendingId === id ? 'hourglass_top' : 'mail'}
+                                                                </span>
+                                                            </button>
+                                                        )}
+                                                        <button
+                                                            onClick={() => handleDelete(id)}
+                                                            className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors inline-flex items-center justify-center"
+                                                            title="Delete Log"
+                                                        >
+                                                            <span className="material-symbols-outlined text-[20px]">delete</span>
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </tr>
 
