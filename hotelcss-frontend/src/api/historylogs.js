@@ -16,8 +16,9 @@ export const deleteLast6Months = async () => {
     return response.data;
 };
 
-export const sendEmail = async (id) => {
-    const response = await axios.post(`/HistoryLog/SendMail?id=${id}`);
+// Sends the survey email for a log in the chosen language (tr/en/ru/de/da/pl).
+export const sendEmail = async (id, lang = 'en') => {
+    const response = await axios.post(`/HistoryLog/SendMail?id=${id}&lang=${encodeURIComponent(lang)}`);
     return response.data;
 };
 

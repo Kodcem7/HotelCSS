@@ -81,7 +81,7 @@ namespace HotelCSS.Controllers
 
         [HttpPost("SendMail")]
         [Authorize(Roles = SD.Role_Admin + "," + SD.Role_Manager)]
-        public async Task<IActionResult> SendMailToGuests(int id)
+        public async Task<IActionResult> SendMailToGuests(int id, string lang = "en")
         {
             var log = _unitOfWork.HistoryLog.GetFirstOrDefault(u => u.Id == id);
             if (log == null)
@@ -96,8 +96,8 @@ namespace HotelCSS.Controllers
 
             try
             {
-                string subject = "Parador Beach Guest Survey";
-                string body = "<h1>Thanks for choosing our hotel! It has been a pleasure to have you here.</h1><p>We would be happy if you could just submit the guests satisfaction survey for better service.Link has been sent in below.Thank you :)</p>";
+                // Pick the survey text in the requested language (falls back to English).
+                var (subject, body) = SurveyEmailTemplates.Get(lang);
 
                 await _emailService.SendEmailAsync(log.GuestMail, subject, body);
 

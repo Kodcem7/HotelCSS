@@ -34,8 +34,9 @@ namespace CSSHotel.Utility.Service
             //Configuring SMTP client and send
             using var client = new SmtpClient();
 
-            // StartTls is the standard secure option for port
-            await client.ConnectAsync(_settings.Host, _settings.Port, SecureSocketOptions.StartTls);
+            // Auto lets MailKit choose the right TLS mode for the port:
+            // implicit SSL for 465, STARTTLS for 587. (Forcing StartTls breaks on 465.)
+            await client.ConnectAsync(_settings.Host, _settings.Port, SecureSocketOptions.Auto);
             await client.AuthenticateAsync(_settings.Username, _settings.Password);
 
             await client.SendAsync(email);

@@ -24,6 +24,16 @@ const get = (log, ...keys) => {
     return null;
 };
 
+// Languages offered when sending the survey email (codes match the backend templates).
+const MAIL_LANGUAGES = [
+    { code: 'tr', label: 'Türkçe' },
+    { code: 'en', label: 'English' },
+    { code: 'ru', label: 'Русский' },
+    { code: 'de', label: 'Deutsch' },
+    { code: 'da', label: 'Dansk' },
+    { code: 'pl', label: 'Polski' },
+];
+
 const UsersLogsPage = () => {
     const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -33,6 +43,7 @@ const UsersLogsPage = () => {
     const [selectedIds, setSelectedIds] = useState([]);
     const [bulkDeleting, setBulkDeleting] = useState(false);
     const [sendingId, setSendingId] = useState(null);
+    const [mailTargetId, setMailTargetId] = useState(null); // log id whose language picker is open
 
     useEffect(() => {
         fetchLogs();
@@ -164,12 +175,13 @@ const UsersLogsPage = () => {
         }
     };
 
-    const handleSendMail = async (id) => {
+    const handleSendMail = async (id, lang) => {
+        setMailTargetId(null); // close the language picker
         try {
             setError('');
             setSuccess('');
             setSendingId(id);
-            const res = await sendEmail(id);
+            const res = await sendEmail(id, lang);
             setSuccess(res?.message || 'Survey email sent successfully.');
             // Reflect the sent state without a full reload.
             setLogs((prev) => prev.map((log) =>
@@ -412,7 +424,7 @@ const UsersLogsPage = () => {
                                                             </span>
                                                         ) : (
                                                             <button
-                                                                onClick={() => handleSendMail(id)}
+                                                                onClick={() => setMailTargetId(id)}
                                                                 disabled={!hasEmail || sendingId === id}
                                                                 className="p-2 text-[#D35400] hover:text-[#b84800] hover:bg-[#F2EBE1] rounded-lg transition-colors inline-flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed"
                                                                 title={hasEmail ? 'Send survey email' : 'No guest email on file'}
@@ -465,6 +477,48 @@ const UsersLogsPage = () => {
                     </table>
                 </div>
             </section>
+
+            {/* Language picker for the survey email */}
+            {mailTargetId !== null && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                    onClick={() => setMailTargetId(null)}
+                >
+                    <div
+                        className="bg-[#FDFBF7] rounded-[24px] border border-[#E3DCD2]/40 shadow-2xl p-6 sm:p-8 w-full max-w-md"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="w-10 h-10 rounded-full bg-[#F2EBE1] flex items-center justify-center flex-shrink-0">
+                                <span className="material-symbols-outlined text-[#D35400]">mail</span>
+                            </div>
+                            <h3 className="font-headline text-xl text-[#4A3728] font-bold">Send survey email</h3>
+                        </div>
+                        <p className="text-[13px] text-[#5D534A] mb-5">
+                            In which language would you like to send the survey email?
+                        </p>
+                        <div className="grid grid-cols-2 gap-3">
+                            {MAIL_LANGUAGES.map((l) => (
+                                <button
+                                    key={l.code}
+                                    type="button"
+                                    onClick={() => handleSendMail(mailTargetId, l.code)}
+                                    className="px-4 py-3 rounded-2xl bg-[#F2EBE1] text-[#4A3728] font-semibold text-sm border border-[#E3DCD2]/50 hover:bg-[#D35400] hover:text-white hover:border-[#D35400] transition-colors"
+                                >
+                                    {l.label}
+                                </button>
+                            ))}
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setMailTargetId(null)}
+                            className="mt-5 w-full py-2.5 text-sm font-semibold text-[#8E735B] hover:text-[#4A3728] transition-colors"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

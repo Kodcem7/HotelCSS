@@ -133,7 +133,8 @@ builder.Services.AddAuthentication(x =>
 
 builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 //Adding Email Service
-builder.Services.Configure<EmailConfiguration>(builder.Configuration.GetSection("EmailConfiguration"));
+// EmailService reads IOptions<EmailSettings>, so bind the "EmailSettings" section here.
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddSignalR();
