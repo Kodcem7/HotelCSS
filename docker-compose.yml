@@ -50,6 +50,12 @@ services:
       ASPNETCORE_ENVIRONMENT: "Development"
       ASPNETCORE_URLS: "http://+:8080"
       ConnectionStrings__DefaultConnection: "Server=db,1433;Database=HotelCSSdb;User Id=sa;Password=HotelCss!2024Strong;TrustServerCertificate=True;Encrypt=False"
+      # Secrets injected from the git-ignored .env file (never committed).
+      # __ maps to a config ":" — e.g. EmailSettings__Password => EmailSettings:Password.
+      JwtSettings__SecretKey: "${JWT_KEY}"
+      EmailSettings__Password: "${EMAIL_PASSWORD}"
+      Gemini__ApiKey: "${GEMINI_API_KEY}"
+      TripAdvisor__ApiKey: "${TRIPADVISOR_API_KEY}"
     ports:
       - "5237:8080"
     # Uncomment to persist uploaded images across `docker compose down`:
