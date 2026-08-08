@@ -363,3 +363,6 @@ MigrationBackup/
 FodyWeavers.xsd
 
 /.env
+
+# Local backup of files rescued from a deleted branch (not part of the build)
+_yedek-branch-dosyalari/
